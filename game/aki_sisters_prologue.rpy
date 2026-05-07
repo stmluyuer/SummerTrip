@@ -21,13 +21,16 @@ label start:
     if player_name == "":
         $ player_name = "旅人"
 
+    window hide None
     jump prologue_tree
 
 label prologue_tree:
 
+    window hide None
     scene bg autumn_garden
     show autumn_glow at leaf_shiver
     with scene_blend
+    window auto
     # play music "audio/autumn_morning.ogg" fadein 1.0
 
     n "风里有泥土、草叶和一点烤番薯的甜味。"
@@ -59,9 +62,11 @@ label prologue_tree:
 
 label aki_house_wakeup:
 
+    window hide None
     scene black
     show autumn_glow at leaf_shiver
     with slow_dissolve
+    window auto
     # scene bg aki_house_day
     # show minoriko smile at left
     # show shizuha neutral at right
@@ -183,9 +188,11 @@ label ask_festival:
 
 label farm_basket:
 
+    window hide None
     scene black
     show autumn_glow at leaf_shiver
     with scene_blend
+    window auto
     # scene bg mountain_path_day
     # show minoriko worried
 
@@ -208,9 +215,11 @@ label farm_basket:
 
 label maple_tree_investigation:
 
+    window hide None
     scene black
     show mystery_glow at leaf_shiver
     with scene_blend
+    window auto
     # scene bg maple_tree_day
     # show minoriko neutral at left
     # show shizuha quiet at right
@@ -281,9 +290,11 @@ label shizuha_reads_leaves:
 
 label chapter_one_choice:
 
+    window hide None
     scene black
     show autumn_glow at leaf_shiver
     with scene_blend
+    window auto
     # scene bg aki_house_evening
 
     n "傍晚时，小屋的灯亮了。锅里煮着热汤，桌上放着那片倒色的叶子。"
