@@ -9,6 +9,7 @@ define s = Character("秋静叶", color="#b85a4a")
 define p = Character("[player_name]", color="#6f8fb8")
 
 image bg autumn_garden = Transform("images/bg_autumn_garden.png", xysize=(1920, 1080))
+image bg autumn_room = Transform("images/bg_autumn_room.png", xysize=(1920, 1080))
 
 default player_name = "旅人"
 default minoriko_affection = 0
@@ -63,7 +64,8 @@ label prologue_tree:
 label aki_house_wakeup:
 
     window hide None
-    scene black
+    scene bg autumn_room
+    # scene black
     show autumn_glow at leaf_shiver
     with slow_dissolve
     window auto
@@ -189,7 +191,7 @@ label ask_festival:
 label farm_basket:
 
     window hide None
-    scene black
+    scene bg autumn_room
     show autumn_glow at leaf_shiver
     with scene_blend
     window auto
@@ -216,7 +218,7 @@ label farm_basket:
 label maple_tree_investigation:
 
     window hide None
-    scene black
+    scene bg autumn_room
     show mystery_glow at leaf_shiver
     with scene_blend
     window auto
@@ -291,7 +293,7 @@ label shizuha_reads_leaves:
 label chapter_one_choice:
 
     window hide None
-    scene black
+    scene bg autumn_room
     show autumn_glow at leaf_shiver
     with scene_blend
     window auto
