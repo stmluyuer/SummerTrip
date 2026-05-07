@@ -10,6 +10,16 @@ define p = Character("[player_name]", color="#6f8fb8")
 
 image bg autumn_garden = Transform("images/bg_autumn_garden.png", xysize=(1920, 1080))
 image bg autumn_room = Transform("images/bg_autumn_room.png", xysize=(1920, 1080))
+image minoriko = "images/minoriko.png"
+
+transform minoriko_right:
+    xalign 0.8
+    yalign 1.0
+    zoom 0.72
+    on show:
+        alpha 0.0
+        xoffset 40
+        easeout 0.28 alpha 1.0 xoffset 0
 
 default player_name = "旅人"
 default minoriko_affection = 0
@@ -38,6 +48,7 @@ label prologue_tree:
     n "你睁开眼时，最先看见的是一片红得过分鲜明的叶子。"
     n "它挂在枝头，却像被谁从边缘擦掉了颜色，一半红，一半青。"
 
+    show minoriko at minoriko_right
     m "啊，你醒啦！"
     m "先别急着起来。你刚才倒在树下，脸色比霜打过的叶子还难看。"
 
@@ -75,6 +86,7 @@ label aki_house_wakeup:
 
     n "再次清醒时，你躺在一间暖色木屋的客房里。窗外有风吹过，红叶敲在窗棂上，声音很轻。"
 
+    show minoriko at minoriko_right
     m "醒得正好。我煮了热汤，里面放了新收的萝卜。"
 
     s "穰子，他刚醒，不要把碗直接塞到人家手里。"
@@ -198,6 +210,7 @@ label farm_basket:
     # scene bg mountain_path_day
     # show minoriko worried
 
+    show minoriko at minoriko_right
     n "你和穰子沿着山脚小路往回走。树影落在路上，像一层被风揉皱的红色薄毯。"
 
     m "希望篮子还在。里面有今天最好的番薯。"
@@ -226,6 +239,7 @@ label maple_tree_investigation:
     # show minoriko neutral at left
     # show shizuha quiet at right
 
+    show minoriko at minoriko_right
     n "你们回到那棵红叶树下。"
     n "树根旁的草叶呈现出奇怪的青色，像有一小块夏天被硬塞进了秋天。"
 
@@ -299,6 +313,7 @@ label chapter_one_choice:
     window auto
     # scene bg aki_house_evening
 
+    show minoriko at minoriko_right
     n "傍晚时，小屋的灯亮了。锅里煮着热汤，桌上放着那片倒色的叶子。"
     n "秋祭还有三天。若在那之前找不到原因，你也许会被困在这个错位的秋天里。"
 
