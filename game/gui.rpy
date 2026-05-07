@@ -95,8 +95,8 @@ define gui.game_menu_background = "gui/game_menu.png"
 ## 这些变量控制对话如何在屏幕上逐行显示。
 
 ## 包含对话的文本框的高度。
-define gui.textbox_width = 1160
-define gui.textbox_height = 508
+define gui.textbox_width = 1040
+define gui.textbox_height = 347
 
 ## 文本框在屏幕上的垂直位置。0.0 是顶部，0.5 是居中，1.0 是底部。
 define gui.textbox_yalign = 1.0
@@ -104,8 +104,8 @@ define gui.textbox_yalign = 1.0
 
 ## 叙述角色名字相对于文本框的位置。可以是从左侧或顶部起的整数像素，或设为 0.5 来
 ## 居中。
-define gui.name_xpos = 170
-define gui.name_ypos = 126
+define gui.name_xpos = 140
+define gui.name_ypos = 82
 
 ## 角色名字的水平对齐方式。0.0 为左侧对齐，0.5 为居中显示，而 1.0 为右侧对齐。
 define gui.name_xalign = 0.0
@@ -123,11 +123,11 @@ define gui.namebox_tile = False
 
 ## 对话相对于文本框的位置。可以是相对于文本框从左侧或顶部起的整数像素，或设为
 ## 0.5 来居中。
-define gui.dialogue_xpos = 170
-define gui.dialogue_ypos = 188
+define gui.dialogue_xpos = 140
+define gui.dialogue_ypos = 130
 
 ## 对话文本的最大宽度，以像素为单位。
-define gui.dialogue_width = 820
+define gui.dialogue_width = 760
 
 ## 对话文本的水平对齐方式。0.0 为左侧对齐，0.5 为居中显示，而 1.0 为右侧对齐。
 define gui.dialogue_text_xalign = 0.0
