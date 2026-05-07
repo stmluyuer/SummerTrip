@@ -11,6 +11,7 @@ define p = Character("[player_name]", color="#6f8fb8")
 image bg autumn_garden = Transform("images/bg_autumn_garden.png", xysize=(1920, 1080))
 image bg autumn_room = Transform("images/bg_autumn_room.png", xysize=(1920, 1080))
 image minoriko = "images/minoriko.png"
+image sizuha = "images/sizuha.png"
 
 transform minoriko_right:
     xalign 0.8
@@ -20,6 +21,17 @@ transform minoriko_right:
         alpha 0.0
         xoffset 40
         easeout 0.28 alpha 1.0 xoffset 0
+
+
+transform sizuha_left:
+    xalign 0.2
+    yalign 1.0
+    zoom 0.72
+    on show:
+        alpha 0.0
+        xoffset 40
+        easeout 0.28 alpha 1.0 xoffset 0
+
 
 default player_name = "旅人"
 default minoriko_affection = 0
@@ -45,7 +57,7 @@ label prologue_tree:
     # play music "audio/autumn_morning.ogg" fadein 1.0
 
     n "风里有泥土、草叶和一点烤番薯的甜味。"
-    n "你睁开眼时，最先看见的是一片红得过分鲜明的叶子。"
+    n "你睁开眼，最先看见的是一片红得过分鲜明的叶子。"          # ← 去"时"
     n "它挂在枝头，却像被谁从边缘擦掉了颜色，一半红，一半青。"
 
     show minoriko at minoriko_right
@@ -56,7 +68,7 @@ label prologue_tree:
 
     p "这里是……哪里？"
 
-    m "妖怪之山的山脚。嗯，至少不是会把人随便丢在树下的地方。"
+    m "妖怪之山的山脚。嗯——反正不是那种会把人丢树下不管的地方。"  # ← 原文语义略绕，改清晰
     m "我是秋穰子，掌管丰收的神明。你呢？外界人？迷路的人？还是被谁捉弄了？"
 
     n "你试着回想，却只记得一阵突如其来的雾，以及雾中像钟声一样的低响。"
@@ -84,22 +96,23 @@ label aki_house_wakeup:
     # show minoriko smile at left
     # show shizuha neutral at right
 
-    n "再次清醒时，你躺在一间暖色木屋的客房里。窗外有风吹过，红叶敲在窗棂上，声音很轻。"
+    n "再次清醒时，你躺在一间暖色木屋的客房里。窗外有风拂过，红叶轻叩窗棂。"  # ← "风吹过/敲在窗棂上"改为更轻的节奏
 
-    show minoriko at minoriko_right
-    m "醒得正好。我煮了热汤，里面放了新收的萝卜。"
-
+    
+    m "醒得正好。我煮了热汤，放的是新收的萝卜。"                      # ← "里面放了"→"放的是"，更口语
+    
+    show sizuha at sizuha_left
     s "穰子，他刚醒，不要把碗直接塞到人家手里。"
 
     n "说话的是另一位少女。她站在窗边，金色眼睛落在你袖口，又落在桌上的一片叶子上。"
 
-    s "我是秋静叶。她的姐姐。"
+    s "秋静叶。她的姐姐。"                                           # ← 删"我是"，更寡言
     s "你身上有外界的尘，也有不属于这个季节的气息。"
 
     m "姐姐，你说得太吓人了。"
 
     s "我只是说事实。"
-    s "这片叶子是在你旁边捡到的。红色正在倒着褪回绿色。正常的秋天不会这样。"
+    s "这片叶子是在你旁边捡到的。红色在往回褪——正常的秋天不会这样。"  # ← "倒着褪回绿色"微调，节奏更利落
 
     n "桌上的叶片一半红，一半青，像被看不见的手拨乱了时间。"
 
@@ -119,7 +132,7 @@ label aki_house_wakeup:
 
 label thank_minoriko:
 
-    p "谢谢你救了我。还有热汤。"
+    p "谢谢你救了我……还有热汤。"                                      # ← 加省略号，语气更自然
 
     m "嘿嘿，不用那么正式啦。"
     m "丰收之神看到有人饿着、冷着、倒在树下，总不能当作没看见吧。"
@@ -150,7 +163,7 @@ label ask_shizuha_leaf:
 
     n "静叶把叶子举到窗前。光穿过叶脉，你看见红与青交界处有细小的裂纹。"
 
-    s "有人，或者某种力量，把季节的顺序弄乱了。"
+    s "有人——或者某种力量——把季节的顺序弄乱了。"                    # ← 加破折号，静叶说话更有停顿感
     s "你倒下的地方，是第一处异常。"
 
     m "也就是说，只要回到那棵树下面，也许就能找到线索？"
@@ -314,7 +327,7 @@ label chapter_one_choice:
     # scene bg aki_house_evening
 
     show minoriko at minoriko_right
-    n "傍晚时，小屋的灯亮了。锅里煮着热汤，桌上放着那片倒色的叶子。"
+    n "傍晚，小屋的灯亮了。锅里煮着热汤，桌上放着那片倒色的叶子。"       # ← 去"时"
     n "秋祭还有三天。若在那之前找不到原因，你也许会被困在这个错位的秋天里。"
 
     m "明天我想去小农场看看。作物如果也受影响，大家的收成都会出问题。"
