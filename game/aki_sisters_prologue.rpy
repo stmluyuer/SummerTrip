@@ -8,6 +8,8 @@ define m = Character("秋穰子", color="#d98a2b")
 define s = Character("秋静叶", color="#b85a4a")
 define p = Character("[player_name]", color="#6f8fb8")
 
+image bg autumn_garden = Transform("images/bg_autumn_garden.png", xysize=(1920, 1080))
+
 default player_name = "旅人"
 default minoriko_affection = 0
 default shizuha_trust = 0
@@ -23,7 +25,7 @@ label start:
 
 label prologue_tree:
 
-    scene black
+    scene bg autumn_garden
     show autumn_glow at leaf_shiver
     with scene_blend
     # play music "audio/autumn_morning.ogg" fadein 1.0
