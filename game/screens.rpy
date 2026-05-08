@@ -242,7 +242,7 @@ style input:
     xmaximum gui.dialogue_width - 32
     yalign 0.5
     font "SubsetOTF/CN/SourceHanSansCN-Heavy.otf"
-    size 45
+    size 39
     color "#d88324"
     outlines [ (2, "#fffaf0e6", 0, 0), (1, "#7c3f1c55", 0, 2) ]
 
