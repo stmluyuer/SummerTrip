@@ -231,6 +231,7 @@ style input_prompt is default
 
 style input_prompt:
     xalign gui.dialogue_text_xalign
+    xmaximum gui.dialogue_width + 20
     properties gui.text_properties("input_prompt")
     font "SubsetOTF/CN/SourceHanSansCN-Bold.otf"
     size 39
