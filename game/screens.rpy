@@ -214,23 +214,37 @@ screen input(prompt):
             xpos gui.dialogue_xpos
             xsize gui.dialogue_width
             ypos gui.dialogue_ypos
+            spacing 10
 
             text prompt style "input_prompt"
-            input id "input"
+
+            hbox:
+                spacing 12
+                ysize 52
+
+                add Solid("#d8892b88") xsize 6 ysize 42 yalign 0.5
+                input id "input" style "input"
+
+            add Solid("#d8892b66") xsize 340 ysize 2 xoffset 18
 
 style input_prompt is default
 
 style input_prompt:
     xalign gui.dialogue_text_xalign
     properties gui.text_properties("input_prompt")
-    color "#8a5a28"
-    outlines [ (1, "#fff7e8cc", 0, 0) ]
+    font "SubsetOTF/CN/SourceHanSansCN-Bold.otf"
+    size 39
+    color "#8b5524"
+    outlines [ (2, "#fff8eccf", 0, 0), (1, "#d08a3448", 0, 2) ]
 
 style input:
     xalign gui.dialogue_text_xalign
-    xmaximum gui.dialogue_width
-    color "#0b8fb8"
-    outlines [ (1, "#fff7e8cc", 0, 0) ]
+    xmaximum gui.dialogue_width - 32
+    yalign 0.5
+    font "SubsetOTF/CN/SourceHanSansCN-Heavy.otf"
+    size 45
+    color "#d88324"
+    outlines [ (2, "#fffaf0e6", 0, 0), (1, "#7c3f1c55", 0, 2) ]
 
 
 ## 选择屏幕 ########################################################################
