@@ -213,19 +213,17 @@ screen input(prompt):
             xanchor gui.dialogue_text_xalign
             xpos gui.dialogue_xpos
             xsize gui.dialogue_width
-            ypos gui.dialogue_ypos
+            ypos gui.dialogue_ypos - 48
             spacing 10
 
             text prompt style "input_prompt"
 
             hbox:
-                spacing 12
                 ysize 52
 
-                add Solid("#d8892b88") xsize 6 ysize 42 yalign 0.5
                 input id "input" style "input"
 
-            add Solid("#d8892b66") xsize 340 ysize 2 xoffset 18
+            add Solid("#d8892b66") xsize 340 ysize 2
 
 style input_prompt is default
 
