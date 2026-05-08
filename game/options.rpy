@@ -112,12 +112,12 @@ define config.window_hide_transition = None
 
 ## 控制默认的文字显示速度。默认的 0 为瞬间，而其他数字则是每秒显示出的字符数。
 
-default preferences.text_cps = 0
+default preferences.text_cps = 1
 
 
 ## 默认的自动前进延迟。数字越大，等待时间越长，有效范围为 0 - 30。
 
-default preferences.afm_time = 15
+default preferences.afm_time = 30
 
 
 ## 存档目录 ########################################################################

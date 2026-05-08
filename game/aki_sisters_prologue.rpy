@@ -14,22 +14,26 @@ image minoriko = "images/minoriko.png"
 image sizuha = "images/sizuha.png"
 
 transform minoriko_right:
-    xalign 0.8
-    yalign 1.0
-    zoom 0.72
+    xpos 0.72
+    ypos 1.02
+    xanchor 0.5
+    yanchor 1.0
+    zoom 0.66
     on show:
         alpha 0.0
-        xoffset 40
+        xoffset 64
         easeout 0.28 alpha 1.0 xoffset 0
 
 
 transform sizuha_left:
-    xalign 0.2
-    yalign 1.0
-    zoom 0.72
+    xpos 0.28
+    ypos 1.02
+    xanchor 0.5
+    yanchor 1.0
+    zoom 0.66
     on show:
         alpha 0.0
-        xoffset 40
+        xoffset -64
         easeout 0.28 alpha 1.0 xoffset 0
 
 
@@ -40,6 +44,7 @@ default autumn_mystery = 0
 
 label start:
 
+    scene bg autumn_garden
     $ player_name = renpy.input("你的名字是？", default="旅人").strip()
     if player_name == "":
         $ player_name = "旅人"
@@ -54,7 +59,7 @@ label prologue_tree:
     show autumn_glow at leaf_shiver
     with scene_blend
     window auto
-    # play music "audio/autumn_morning.ogg" fadein 1.0
+    play music "audio/AutumnMinuet.mp3" fadein 1.0
 
     n "风里有泥土、草叶和一点烤番薯的甜味。"
     n "你睁开眼，最先看见的是一片红得过分鲜明的叶子。"          # ← 去"时"
@@ -95,6 +100,8 @@ label aki_house_wakeup:
     # scene bg aki_house_day
     # show minoriko smile at left
     # show shizuha neutral at right
+
+    show minoriko at minoriko_right
 
     n "再次清醒时，你躺在一间暖色木屋的客房里。窗外有风拂过，红叶轻叩窗棂。"  # ← "风吹过/敲在窗棂上"改为更轻的节奏
 
@@ -253,6 +260,7 @@ label maple_tree_investigation:
     # show shizuha quiet at right
 
     show minoriko at minoriko_right
+    show sizuha at sizuha_left
     n "你们回到那棵红叶树下。"
     n "树根旁的草叶呈现出奇怪的青色，像有一小块夏天被硬塞进了秋天。"
 
@@ -327,6 +335,7 @@ label chapter_one_choice:
     # scene bg aki_house_evening
 
     show minoriko at minoriko_right
+    show sizuha at sizuha_left
     n "傍晚，小屋的灯亮了。锅里煮着热汤，桌上放着那片倒色的叶子。"       # ← 去"时"
     n "秋祭还有三天。若在那之前找不到原因，你也许会被困在这个错位的秋天里。"
 

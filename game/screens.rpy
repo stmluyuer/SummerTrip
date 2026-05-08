@@ -94,12 +94,12 @@ style frame:
 
 screen say(who, what):
 
-    window at say_window_in:
+    window:
         id "window"
 
         if who is not None:
 
-            window at namebox_in:
+            window:
                 id "namebox"
                 style "namebox"
                 vbox:
@@ -108,6 +108,29 @@ screen say(who, what):
                     add Solid("#b9b1a780") xsize 280 ysize 2
 
         text what id "what"
+
+        hbox:
+            xpos 810
+            ypos 52
+            spacing 6
+
+            imagebutton:
+                idle Transform("gui/dialogue_button_a.png", xysize=(44, 44), alpha=0.86)
+                hover Transform("gui/dialogue_button_a.png", xysize=(44, 44), alpha=1.0)
+                action Skip()
+                focus_mask True
+
+            imagebutton:
+                idle Transform("gui/dialogue_button_k.png", xysize=(44, 44), alpha=0.86)
+                hover Transform("gui/dialogue_button_k.png", xysize=(44, 44), alpha=1.0)
+                action Preference("auto-forward", "toggle")
+                focus_mask True
+
+            imagebutton:
+                idle Transform("gui/dialogue_button_l.png", xysize=(44, 44), alpha=0.86)
+                hover Transform("gui/dialogue_button_l.png", xysize=(44, 44), alpha=1.0)
+                action ShowMenu("history")
+                focus_mask True
 
 
     ## 如果有对话框头像，会将其显示在文本之上。请不要在手机界面下显示这个，因为
@@ -169,6 +192,9 @@ style say_dialogue:
     ypos gui.dialogue_ypos
 
     adjust_spacing False
+    slow_cps 24
+    slow_abortable True
+    textshader "dissolve:6"
 
 ## 输入屏幕 ########################################################################
 ##
@@ -197,10 +223,14 @@ style input_prompt is default
 style input_prompt:
     xalign gui.dialogue_text_xalign
     properties gui.text_properties("input_prompt")
+    color "#8a5a28"
+    outlines [ (1, "#fff7e8cc", 0, 0) ]
 
 style input:
     xalign gui.dialogue_text_xalign
     xmaximum gui.dialogue_width
+    color "#0b8fb8"
+    outlines [ (1, "#fff7e8cc", 0, 0) ]
 
 
 ## 选择屏幕 ########################################################################
@@ -231,9 +261,11 @@ style choice_vbox:
 
 style choice_button is default:
     properties gui.button_properties("choice_button")
+    hover_background Frame(Solid("#f2a23a33"), gui.choice_button_borders, tile=gui.choice_button_tile)
 
 style choice_button_text is default:
     properties gui.text_properties("choice_button")
+    hover_outlines [ (1, "#fff4dfcc", 0, 0) ]
 
 
 ## 快捷菜单屏幕 ######################################################################
