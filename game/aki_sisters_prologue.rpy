@@ -8,10 +8,10 @@ define m = Character("秋穰子", color="#d98a2b")
 define s = Character("秋静叶", color="#b85a4a")
 define p = Character("[player_name]", color="#6f8fb8")
 
-image bg autumn_garden = Transform("images/bg_autumn_garden.png", xysize=(1920, 1080))
-image bg autumn_room = Transform("images/bg_autumn_room.png", xysize=(1920, 1080))
-image minoriko = "images/minoriko.png"
-image sizuha = "images/sizuha.png"
+image bg autumn_garden = Transform("images/backgrounds/autumn_garden.png", xysize=(1920, 1080))
+image bg autumn_room = Transform("images/backgrounds/autumn_room.png", xysize=(1920, 1080))
+image minoriko = "images/characters/minoriko.png"
+image sizuha = "images/characters/sizuha.png"
 
 transform minoriko_right:
     xpos 0.72

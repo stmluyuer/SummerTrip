@@ -56,13 +56,13 @@ define gui.interface_text_color = '#ffffff'
 ## 字体和字体大小 #####################################################################
 
 ## 游戏内文本使用的字体。
-define gui.text_font = "SubsetOTF/CN/SourceHanSansCN-Regular.otf"
+define gui.text_font = "fonts/SourceHanSansCN/SourceHanSansCN-Regular.otf"
 
 ## 角色名称使用的字体。
-define gui.name_text_font = "SubsetOTF/CN/SourceHanSansCN-Medium.otf"
+define gui.name_text_font = "fonts/SourceHanSansCN/SourceHanSansCN-Medium.otf"
 
 ## 游戏外文本使用的字体。
-define gui.interface_text_font = "SubsetOTF/CN/SourceHanSansCN-Medium.otf"
+define gui.interface_text_font = "fonts/SourceHanSansCN/SourceHanSansCN-Medium.otf"
 
 ## 普通对话文本的大小。
 define gui.text_size = 33
@@ -86,7 +86,7 @@ define gui.title_text_size = 75
 ## 标题和游戏菜单 #####################################################################
 
 ## 标题菜单和游戏菜单使用的图像。
-define gui.main_menu_background = Transform("gui/Titlebackground.png", xysize=(1920, 1080))
+define gui.main_menu_background = Transform("gui/menu/title_background.png", xysize=(1920, 1080))
 define gui.game_menu_background = "gui/game_menu.png"
 
 

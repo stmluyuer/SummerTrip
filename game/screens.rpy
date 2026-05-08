@@ -115,20 +115,20 @@ screen say(who, what):
             spacing 6
 
             imagebutton:
-                idle Transform("gui/dialogue_button_a.png", xysize=(44, 44), alpha=0.86)
-                hover Transform("gui/dialogue_button_a.png", xysize=(44, 44), alpha=1.0)
+                idle Transform("gui/dialogue/button_skip.png", xysize=(44, 44), alpha=0.86)
+                hover Transform("gui/dialogue/button_skip.png", xysize=(44, 44), alpha=1.0)
                 action Skip()
                 focus_mask True
 
             imagebutton:
-                idle Transform("gui/dialogue_button_k.png", xysize=(44, 44), alpha=0.86)
-                hover Transform("gui/dialogue_button_k.png", xysize=(44, 44), alpha=1.0)
+                idle Transform("gui/dialogue/button_auto.png", xysize=(44, 44), alpha=0.86)
+                hover Transform("gui/dialogue/button_auto.png", xysize=(44, 44), alpha=1.0)
                 action Preference("auto-forward", "toggle")
                 focus_mask True
 
             imagebutton:
-                idle Transform("gui/dialogue_button_l.png", xysize=(44, 44), alpha=0.86)
-                hover Transform("gui/dialogue_button_l.png", xysize=(44, 44), alpha=1.0)
+                idle Transform("gui/dialogue/button_history.png", xysize=(44, 44), alpha=0.86)
+                hover Transform("gui/dialogue/button_history.png", xysize=(44, 44), alpha=1.0)
                 action ShowMenu("history")
                 focus_mask True
 
@@ -158,7 +158,7 @@ style window:
     yalign gui.textbox_yalign
     ysize gui.textbox_height
 
-    background Transform("gui/dialogue_box_compact.png", xysize=(gui.textbox_width, gui.textbox_height))
+    background Transform("gui/dialogue/box_compact.png", xysize=(gui.textbox_width, gui.textbox_height))
 
 style namebox:
     xpos gui.name_xpos
@@ -172,7 +172,7 @@ style namebox:
 
 style say_label:
     properties gui.text_properties("name", accent=True)
-    font "SubsetOTF/CN/SourceHanSansCN-Bold.otf"
+    font "fonts/SourceHanSansCN/SourceHanSansCN-Bold.otf"
     size 28
     color "#a9a098"
     outlines [ (1, "#fffaf0aa", 0, 0) ]
@@ -181,7 +181,7 @@ style say_label:
 
 style say_dialogue:
     properties gui.text_properties("dialogue")
-    font "SubsetOTF/CN/SourceHanSansCN-Bold.otf"
+    font "fonts/SourceHanSansCN/SourceHanSansCN-Bold.otf"
     size 31
     color "#5a554e"
     outlines [ (1, "#fffaf0aa", 0, 0) ]
@@ -231,7 +231,7 @@ style input_prompt:
     xalign gui.dialogue_text_xalign
     xmaximum gui.dialogue_width + 20
     properties gui.text_properties("input_prompt")
-    font "SubsetOTF/CN/SourceHanSansCN-Bold.otf"
+    font "fonts/SourceHanSansCN/SourceHanSansCN-Bold.otf"
     size 39
     color "#8b5524"
     outlines [ (2, "#fff8eccf", 0, 0), (1, "#d08a3448", 0, 2) ]
@@ -240,7 +240,7 @@ style input:
     xalign gui.dialogue_text_xalign
     xmaximum gui.dialogue_width - 32
     yalign 0.5
-    font "SubsetOTF/CN/SourceHanSansCN-Heavy.otf"
+    font "fonts/SourceHanSansCN/SourceHanSansCN-Heavy.otf"
     size 39
     color "#d88324"
     outlines [ (2, "#fffaf0e6", 0, 0), (1, "#7c3f1c55", 0, 2) ]
