@@ -1,0 +1,20 @@
+path	type	usage	status
+audio/AutumnMinuet.mp3	music	prologue and main menu	active
+images/backgrounds/autumn_garden.png	background	prologue opening	active
+images/backgrounds/autumn_room.png	background	house and investigation scenes	active
+images/characters/minoriko.png	character	Minoriko standing sprite	active
+images/characters/sizuha.png	character	Shizuha standing sprite	active
+images/ui/text_icon.png	ui	available UI accent/source	active
+gui/menu/title_background.png	ui	main menu background	active
+gui/dialogue/box_compact.png	ui	dialogue window	active
+gui/dialogue/button_skip.png	ui	dialogue quick action	active
+gui/dialogue/button_auto.png	ui	dialogue quick action	active
+gui/dialogue/button_history.png	ui	dialogue quick action	active
+gui/source/title_background_draft_01.png	source	source art excluded from release	source
+gui/source/title_background_draft_02.png	source	source art excluded from release	source
+gui/source/dialogue_box_source.png	source	source art excluded from release	source
+gui/source/dialogue_box_previous_cn.png	source	source art excluded from release	source
+gui/source/button_source.png	source	source art excluded from release	source
+images/characters/unused/minoriko_old.png	character	unused archived sprite	unused
+images/characters/unused/minoriko_cn.png	character	unused archived sprite	unused
+images/characters/unused/sizuha_cn_duplicate.png	character	unused archived sprite	unused

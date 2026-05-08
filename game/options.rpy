@@ -21,13 +21,18 @@ define gui.show_name = True
 
 ## 游戏版本号。
 
-define config.version = "1.0"
+define config.version = "0.1.0-prologue"
 
 
 ## 放置在游戏内“关于”屏幕上的文本。将文本放在三个引号之间，并在段落之间留出空
 ## 行。
 
 define gui.about = _p("""
+《SummerTrip》序章体验版。
+
+这是一段以秋穰子与秋静叶为主角的短篇视觉小说序章。玩家将作为误入妖怪之山山脚的旅人，在被打乱的季节里寻找归途，并通过选择进入穰子、静叶或姐妹共同行动三条序章结尾。
+
+当前版本优先支持 PC 端 1920x1080 游玩。
 """)
 
 
@@ -57,7 +62,7 @@ define config.has_voice = True
 ## 将以下语句取消注释就可以设置标题界面播放的背景音乐文件。此文件将在整个游戏中
 ## 持续播放，直至音乐停止或其他文件开始播放。
 
-# define config.main_menu_music = "main-menu-theme.ogg"
+define config.main_menu_music = "audio/AutumnMinuet.mp3"
 
 
 ## 转场 ##########################################################################
@@ -169,6 +174,18 @@ init python:
     build.classify('**/.**', None)
     build.classify('**/#**', None)
     build.classify('**/thumbs.db', None)
+    build.classify('AGENTS.md', None)
+    build.classify('project.json', None)
+    build.classify('errors.txt', None)
+    build.classify('log.txt', None)
+    build.classify('**-pc.zip', None)
+    build.classify('**-pc/**', None)
+    build.classify('**-dists/**', None)
+    build.classify('docs/**', None)
+    build.classify('tools/**', None)
+    build.classify('game/gui/source/**', None)
+    build.classify('game/images/**/unused/**', None)
+    build.classify('game/**.psd', None)
 
     ## 若要封装文件，需将其列为“archive”。
 
