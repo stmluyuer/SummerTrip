@@ -6,18 +6,24 @@
 # be preserved by developer and build systems after the game has been released.
 /game/**/*.rpyc
 /game/**/*.rpymc
+/game/*.rpa
+/game/bytecode.rpyb
 
 # Files Ren'Py can generate.
 /game/**/*.bak
 /game/**/*.new
 /game/**/*.old
+/screenshot*.png
 
 # Error, log, and output files.
 /errors.txt
 /files.txt
 /image_cache.txt
 /log.txt
+/memory.txt
+/profile_screen.txt
 /save_dump.txt
+/text_overflow.txt
 /traceback.txt
 
 # Launcher-generated files.
@@ -29,3 +35,24 @@
 /*-dists/
 /*-pc.zip
 /*-pc/
+
+# Python caches.
+__pycache__/
+*.py[cod]
+
+# Local environment and signing credentials.
+/.env
+/.env.*
+!/.env.example
+/update.pem
+*.keystore
+*.jks
+
+# Operating system and editor files.
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+*.swp
+*.swo
+*~
