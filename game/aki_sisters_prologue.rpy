@@ -4,9 +4,6 @@
 label start:
 
     scene bg autumn_garden
-    $ st_player_name = renpy.input("你的名字是？", default="旅人").strip()
-    if st_player_name == "":
-        $ st_player_name = "旅人"
 
     window hide None
     jump prologue_tree
