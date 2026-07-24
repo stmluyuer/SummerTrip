@@ -15,8 +15,6 @@ label prologue_tree:
     show autumn_glow at leaf_shiver
     with scene_blend
     window auto
-    play music "audio/AutumnMinuet.mp3" fadein 1.0
-
     n "风里有泥土、草叶和一点烤番薯的甜味。"
     n "你睁开眼，最先看见的是一片红得过分鲜明的叶子。"
     n "它挂在枝头，却像被谁从边缘擦掉了颜色，一半红，一半青。"
