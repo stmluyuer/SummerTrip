@@ -186,6 +186,10 @@ init python:
     build.classify('game/gui/source/**', None)
     build.classify('game/images/**/unused/**', None)
     build.classify('game/**.psd', None)
+    build.classify('game/fonts/SourceHanSansCN/SourceHanSansCN-Normal.otf', None)
+    build.classify('game/fonts/SourceHanSansCN/SourceHanSansCN-Light.otf', None)
+    build.classify('game/fonts/SourceHanSansCN/SourceHanSansCN-ExtraLight.otf', None)
+    build.classify('game/images/ChatGPT Image 2026年5月15日 22_34_35.png', None)
 
     ## 若要封装文件，需将其列为“archive”。
 
