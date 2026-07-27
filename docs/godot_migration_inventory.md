@@ -6,9 +6,9 @@
 
 - 现有 `game/` 目录是可运行基准，不移动、不改名、不删除。
 - 迁移中间产物统一放在 `migration/`。
-- 当前目标是整理完整序章原文和迁移清单，不创建 Godot 工程，也不安装生产依赖。
-- 对话目标格式为 Dialogue Manager 3 的 `.dialogue` 格式。
-- 建议实现基线为 Godot 4.6.x 与 Dialogue Manager 3.10.x；真正创建工程时再锁定补丁版本。
+- 当前已完成序章原文、迁移清单、目标架构和实施路线整理；Godot 工程尚未创建，也未安装生产依赖。
+- 当前对话迁移稿使用 Dialogue Manager 3 的 `.dialogue` 语法；如果版本决策选择 v4，先通过 `DialogueGateway` 适配并验证迁移稿。
+- 引擎与 Dialogue Manager 的兼容版本组合尚待确认；创建工程前按 `godot_architecture.md` 和 `godot_implementation_roadmap.md` 的版本决策门锁定准确版本。
 
 ## 2. 当前项目概况
 
@@ -30,7 +30,7 @@
 | Ren'Py 来源 | 内容 | 迁移目标 | 处理方式 |
 | --- | --- | --- | --- |
 | `game/aki_sisters_prologue.rpy` | 完整序章、选择、跳转、结尾 | `migration/dialogue/prologue.dialogue` | 一对一转换，原文不改 |
-| `game/story_setup.rpy` | 角色、变量、背景、立绘位置 | `characters.tsv`、`variables.tsv`、Godot Autoload | 拆分整理 |
+| `game/story_setup.rpy` | 角色、变量、背景、立绘位置 | `characters.tsv`、`variables.tsv`、`GameSession`、`ContentCatalog` | 拆分整理 |
 | `game/effects.rpy` | 转场和 Tween 参数 | `Presentation`、AnimationPlayer/Tween | 在 Godot 中重写 |
 | `game/ui_screens.rpy` | 对话框、选择框、快捷菜单覆盖 | Godot `Control` 场景 | 在 Godot 中重写 |
 | `game/ui_theme.rpy` | 项目配色、尺寸和字体样式 | Godot `Theme` | 转换参数 |
@@ -45,18 +45,18 @@
 
 | 模块 | 职责 | 来源 |
 | --- | --- | --- |
-| `VisualNovelStage` | 背景、叠色、角色立绘和对话 UI | `story_setup.rpy`、`effects.rpy`、`ui_screens.rpy` |
-| `GameState` Autoload | 玩家名和剧情变量 | `story_setup.rpy` |
-| `Presentation` Autoload | 切换场景、显示立绘、显示叠色和执行转场 | `story_setup.rpy`、`effects.rpy` |
-| `DialogueController` | 驱动 Dialogue Manager、记录当前位置和已读状态 | `aki_sisters_prologue.rpy` |
-| `SaveManager` | 手动/自动/快速存读档、截图、版本检查 | `screens.rpy` |
-| `HistoryManager` | 保存最近 250 条显示过的文本 | `gui.rpy`、`screens.rpy` |
-| `Settings` Autoload | 显示、文字速度、自动播放和音量 | `options.rpy`、`screens.rpy` |
+| `VNMode` / `StageController` | 背景、叠色、角色立绘、转场和对话 UI 组合 | `story_setup.rpy`、`effects.rpy`、`ui_screens.rpy` |
+| `GameSession` | 玩家名、剧情变量、当前位置、历史和游玩时间 | `story_setup.rpy` |
+| `DialogueContext` | 把 `GameState` 与 `Presentation` 命名空间注入对话运行时 | `story_setup.rpy`、`effects.rpy` |
+| `VNDirector` / `DialogueGateway` | 驱动 Dialogue Manager、管理运行状态并记录当前位置 | `aki_sisters_prologue.rpy` |
+| `SaveService` | 手动/自动/快速存读档、截图、版本检查 | `screens.rpy` |
+| `ProfileData` | 保存跨存档的已读文本、结局和未来解锁项 | `gui.rpy`、`screens.rpy` |
+| `SettingsService` Autoload | 显示、文字速度、自动播放和音量 | `options.rpy`、`screens.rpy` |
 | `MainMenu` / `GameMenu` | 开始、继续、保存、读取、设置、退出 | `screens.rpy`、`ui_screens.rpy` |
 
 ## 5. Dialogue Manager 对接约定
 
-转换后的 `prologue.dialogue` 使用两个尚待 Godot 工程实现的 Autoload：
+转换后的 `prologue.dialogue` 使用两个尚待 Godot 工程实现的公开命名空间。它们通过 Dialogue Manager 的额外游戏状态注入，不要求作为 Godot Autoload：
 
 ### `GameState`
 
@@ -79,6 +79,17 @@ func change_scene(
 func show_character(character_id: String, expression_id: String, position_id: String) -> void
 ```
 
+Godot 侧由 `DialogueContext` 注入类似以下结构：
+
+```gdscript
+[
+    {
+        "GameState": game_session,
+        "Presentation": stage_controller,
+    }
+]
+```
+
 约定：
 
 - `change_scene` 原子地设置背景、叠色与转场，对应 Ren'Py 的 `scene`、`show overlay` 和 `with`；调用时清除旧立绘和旧叠色。
@@ -87,6 +98,7 @@ func show_character(character_id: String, expression_id: String, position_id: St
 - 动画方法可以是协程；Dialogue Manager 的 `do` 会等待方法结束。
 - 对话文件中的 `[ID:...]` 是稳定原文标识，供翻译、已读记录和存档定位使用，不应在文案修改时随意重命名。
 - 读取存档时先恢复 `GameState` 和舞台快照，再恢复到保存的对话 ID，避免重复执行已发生的变量变更。
+- Dialogue Manager 的具体调用只放在 `DialogueGateway`，便于锁定版本或以后升级插件。
 
 ## 6. 剧情流程
 
@@ -154,6 +166,7 @@ screenshot_path
 
 - `game_state` 保存 `variables.tsv` 中标记为 `save_required` 的所有字段。
 - `presentation_state` 保存当前背景、叠色、在场角色、表情、位置和音乐播放状态。
+- `read_line_ids` 的跨存档事实来源是 `ProfileData`；读取存档时只合并，不因读取较早存档而删除后来读过的 ID。
 - 截图目标尺寸沿用 Ren'Py：384×216。
 - 手动档沿用每页 3×2 槽位；自动档和快速档使用独立命名空间。
 - Ren'Py 旧存档默认不兼容 Godot，新版本需显示明确提示。
@@ -161,7 +174,7 @@ screenshot_path
 ## 9. 已知疑点与风险
 
 1. `farm_basket` 和 `maple_tree_investigation` 的叙述发生在山路/红叶树下，但原脚本仍使用 `bg autumn_room`。转换文件原样保留该表现，开始制作 Godot 场景前需要确认是占位背景还是脚本错误。
-2. Dialogue Manager 尚未加入仓库；安装它属于新增第三方依赖，创建 Godot 工程时需要锁定版本并提交许可证。
+2. Dialogue Manager 尚未加入仓库；安装它属于新增第三方依赖，创建 Godot 工程时需要锁定兼容版本并提交许可证。截至 2026-07-27，官方说明 v3.10 面向 Godot 4.4/4.5，而 Godot 4.6+ 对应的 v4 尚未正式发布，不能直接使用原建议的 “Godot 4.6.x + Dialogue Manager 3.10.x” 组合。
 3. 当前没有可用于验证 `.dialogue` 编译结果的 Godot 工程或 Dialogue Manager 插件。本阶段只能检查文本、标题、跳转、ID 和缩进结构。
 4. 仓库没有完整的美术授权清单。迁移前应补充每项正式资源的作者、来源、许可证和可再发布范围。
 5. 字体目录约 61 MB；当前界面实际使用 Regular、Medium、Bold 和 Heavy，其他字重可在 Godot 构建验证后排除。
@@ -175,4 +188,6 @@ screenshot_path
 | `migration/manifests/assets.tsv` | 资源迁移、复用和排除清单 |
 | `migration/manifests/characters.tsv` | 角色与立绘位置清单 |
 | `migration/manifests/variables.tsv` | 剧情状态与存档字段清单 |
+| `docs/godot_architecture.md` | Godot 目标架构、模块边界和数据流 |
+| `docs/godot_implementation_roadmap.md` | 分阶段实施顺序、验证方式和退出条件 |
 | `docs/godot_feature_checklist.md` | Godot 功能对等验收表 |

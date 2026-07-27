@@ -1,5 +1,7 @@
 # SummerTrip Godot 功能对等验收表
 
+目标结构见 `godot_architecture.md`，实施顺序见 `godot_implementation_roadmap.md`，迁移输入见 `godot_migration_inventory.md`。
+
 状态说明：
 
 - `已整理`：迁移输入和验收标准已经明确。
@@ -83,6 +85,7 @@
 
 | ID | 优先级 | 功能 | 验收标准 | 状态 |
 | --- | --- | --- | --- | --- |
+| TOOLCHAIN-001 | P0 | 引擎与对话插件 | 锁定官方声明兼容的 Godot 与 Dialogue Manager 准确版本，插件能在真实工程中编译 `prologue.dialogue`，许可证已记录 | 阻塞 |
 | DISPLAY-001 | P0 | 设计分辨率 | 基准为 1920×1080，窗口缩放时 UI 锚点不漂移 | 未开始 |
 | DISPLAY-002 | P0 | 宽高比策略 | 明确选择 `keep` 黑边或 `expand` 扩展，并在 16:9、16:10、21:9 验证 | 阻塞 |
 | ASSET-001 | P0 | 正式资源 | `assets.tsv` 中所有 P0 文件成功导入且无丢失引用 | 已整理 |
