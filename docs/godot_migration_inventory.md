@@ -7,8 +7,8 @@
 - 现有 `game/` 目录是可运行基准，不移动、不改名、不删除。
 - 迁移中间产物统一放在 `migration/`。
 - 当前已完成序章原文、迁移清单、目标架构和实施路线整理；Godot 工程尚未创建，也未安装生产依赖。
-- 当前对话迁移稿使用 Dialogue Manager 3 的 `.dialogue` 语法；如果版本决策选择 v4，先通过 `DialogueGateway` 适配并验证迁移稿。
-- 引擎与 Dialogue Manager 的兼容版本组合尚待确认；创建工程前按 `godot_architecture.md` 和 `godot_implementation_roadmap.md` 的版本决策门锁定准确版本。
+- 当前对话迁移稿使用 Dialogue Manager 3 的 `.dialogue` 语法，与已锁定的 Dialogue Manager `v3.10.5` 一致。
+- 引擎与对话插件组合已确认为 `Godot 4.7.1-stable` + `Dialogue Manager v3.10.5`；真实工程导入和编译验证在 M1 完成。
 
 ## 2. 当前项目概况
 
@@ -174,7 +174,7 @@ screenshot_path
 ## 9. 已知疑点与风险
 
 1. `farm_basket` 和 `maple_tree_investigation` 的叙述发生在山路/红叶树下，但原脚本仍使用 `bg autumn_room`。转换文件原样保留该表现，开始制作 Godot 场景前需要确认是占位背景还是脚本错误。
-2. Dialogue Manager 尚未加入仓库；安装它属于新增第三方依赖，创建 Godot 工程时需要锁定兼容版本并提交许可证。截至 2026-07-27，官方说明 v3.10 面向 Godot 4.4/4.5，而 Godot 4.6+ 对应的 v4 尚未正式发布，不能直接使用原建议的 “Godot 4.6.x + Dialogue Manager 3.10.x” 组合。
+2. Dialogue Manager 尚未加入仓库。版本已锁定为官方面向 Godot 4.7 的 `v3.10.5`（commit `0049d4d`）；M1 安装时必须同时提交 MIT 许可证，并保持第三方源码不作项目内修改。
 3. 当前没有可用于验证 `.dialogue` 编译结果的 Godot 工程或 Dialogue Manager 插件。本阶段只能检查文本、标题、跳转、ID 和缩进结构。
 4. 仓库没有完整的美术授权清单。迁移前应补充每项正式资源的作者、来源、许可证和可再发布范围。
 5. 字体目录约 61 MB；当前界面实际使用 Regular、Medium、Bold 和 Heavy，其他字重可在 Godot 构建验证后排除。

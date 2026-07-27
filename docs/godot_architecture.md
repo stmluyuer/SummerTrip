@@ -281,7 +281,7 @@ choose_response(response, context)
 ]
 ```
 
-Dialogue Manager v3 支持把节点、对象或字典作为 `extra_game_states` 传入。这样可以保留现有剧情语法，同时限制变量和舞台控制器的生命周期。
+Dialogue Manager v3.10.5 支持把节点、对象或字典作为 `extra_game_states` 传入。这样可以保留现有剧情语法，同时限制变量和舞台控制器的生命周期。
 
 ### 8.3 推进方式
 
@@ -553,26 +553,27 @@ Director 根据当前运行状态决定动作是否生效。控件不直接监�
 - CG/成就：写入 `ProfileData`，不混入单个存档路线状态。
 - 本地化：稳定对白 ID 继续作为翻译键，不以中文原文作为持久标识。
 
-## 16. 待确认决策
+## 16. 决策记录
 
 | ID | 决策 | 当前建议 | 状态 |
 | --- | --- | --- | --- |
-| ARCH-001 | Godot 与 Dialogue Manager 版本组合 | 优先选择正式稳定且互相声明兼容的组合 | 待确认 |
+| ARCH-001 | Godot 与 Dialogue Manager 版本组合 | `Godot 4.7.1-stable` + `Dialogue Manager v3.10.5` | 已确认 |
 | ARCH-002 | 非 16:9 显示策略 | `canvas_items` + `keep` | 待确认 |
 | ARCH-003 | 树下调查段的室内背景 | 保留原表现直到获得新背景或明确修正 | 待确认 |
 | ARCH-004 | 正式发布平台 | 第一阶段仅 Windows | 暂定 |
 | ARCH-005 | 美术与字体授权 | 发布前补全来源和再发布范围 | 阻塞发布 |
 
-截至 2026-07-27，Dialogue Manager 官方仓库说明 v3.10 面向 Godot 4.4/4.5，而 Godot 4.6+ 对应的 v4 尚未正式发布。因此不能直接把 “Godot 4.6.x + Dialogue Manager 3.10.x” 当作已验证组合。安装生产依赖前必须重新核对上游状态、锁定准确版本并提交其许可证。
+`ARCH-001` 于 2026-07-27 确认为 `Godot 4.7.1-stable` 与 `Dialogue Manager v3.10.5`。Dialogue Manager 的官方发布页明确将 v3.10.5 标记为面向 Godot 4.7；项目锁定插件 tag `v3.10.5`（commit `0049d4d`），继续使用现有 v3 `.dialogue` 语法。该决定只解决版本选择；插件导入、许可证落库、序章编译和稳定 ID 恢复仍必须在 M1 的真实工程中验证。
 
 ## 17. 参考资料
 
-- [Godot 4.6 Best practices](https://docs.godotengine.org/en/4.6/tutorials/best_practices/index.html)
+- [Godot 4.7.1 release](https://godotengine.org/article/maintenance-release-godot-4-7-1/)
+- [Godot 4.7 Best practices](https://docs.godotengine.org/en/4.7/tutorials/best_practices/index.html)
 - [Godot Scene organization](https://docs.godotengine.org/en/stable/tutorials/best_practices/scene_organization.html)
 - [Godot Project organization](https://docs.godotengine.org/en/stable/tutorials/best_practices/project_organization.html)
 - [Godot Multiple resolutions](https://docs.godotengine.org/en/stable/tutorials/rendering/multiple_resolutions.html)
 - [Godot FileAccess](https://docs.godotengine.org/en/stable/classes/class_fileaccess.html)
-- [Dialogue Manager repository and version guidance](https://github.com/nathanhoad/godot_dialogue_manager)
-- [Dialogue Manager v3 conditions, mutations and extra game states](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.x/docs/Conditions_Mutations.md)
-- [Dialogue Manager v3 runtime usage](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.x/docs/Using_Dialogue.md)
-- [Dialogue Manager v3 API](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.x/docs/API.md)
+- [Dialogue Manager v3.10.5 for Godot 4.7](https://github.com/nathanhoad/godot_dialogue_manager/releases/tag/v3.10.5)
+- [Dialogue Manager v3.10.5 conditions, mutations and extra game states](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.10.5/docs/Conditions_Mutations.md)
+- [Dialogue Manager v3.10.5 runtime usage](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.10.5/docs/Using_Dialogue.md)
+- [Dialogue Manager v3.10.5 API](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.10.5/docs/API.md)

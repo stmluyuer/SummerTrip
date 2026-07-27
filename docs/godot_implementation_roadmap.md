@@ -59,21 +59,18 @@ M8 Windows 发布验证
 
 ### D-001 引擎与对话插件版本
 
-当前官方版本说明存在以下两条路径：
+状态：`已确认（2026-07-27）`
 
-| 方案 | 优点 | 代价 |
+锁定组合：
+
+| 组件 | 锁定版本 | 来源与标识 |
 | --- | --- | --- |
-| Godot 4.5.x + Dialogue Manager 3.10.x | 使用当前已发布的 Dialogue Manager v3 语法，和现有 `prologue.dialogue` 接近 | 不是最新 Godot 大版本 |
-| Godot 4.6.x + Dialogue Manager 4 正式版 | 使用 Godot 4.6 和新插件接口 | Dialogue Manager 4 当前尚未正式发布；不能把预发布版默认当作生产基线 |
+| Godot | `4.7.1-stable` | 官方维护版本，engine commit `a13da4feb` |
+| Dialogue Manager | `v3.10.5` | 官方面向 Godot 4.7 的发布，tag `v3.10.5`，commit `0049d4d`，MIT |
 
-建议优先选择第一条稳定组合，除非 Dialogue Manager 4 在工程开工时已经正式发布并完成兼容验证。
+选择 v3.10.5 可以直接沿用当前 `prologue.dialogue` 的 v3 语法，并避免把尚未正式发布的 Dialogue Manager 4 作为生产基线。Dialogue Manager v3.10.5 已获准作为项目生产依赖；插件源码和许可证在 M1 一起加入仓库。
 
-完成条件：
-
-- 用户确认版本路径。
-- 锁定准确补丁版本或插件 tag/commit。
-- 确认 MIT 许可证随第三方依赖记录进入仓库。
-- 在真实 Godot 工程中编译 `prologue.dialogue`，不只做文本检查。
+版本选择已经完成，但兼容声明不能代替项目验证。M1 仍必须使用锁定版本实际导入插件、编译 `prologue.dialogue`，并验证额外游戏状态和稳定 ID 恢复行为。
 
 ### D-002 分辨率策略
 
@@ -127,7 +124,7 @@ migration/manifests/*
 - [x] 生成序章 Dialogue Manager 源文件。
 - [x] 建立目标架构。
 - [x] 建立分阶段实施路线。
-- [ ] 确认 D-001 版本组合。
+- [x] 确认 D-001 版本组合。
 - [ ] 确认 D-002 分辨率策略。
 - [ ] 确认 D-003 背景处理。
 - [ ] 建立正式资源授权记录。
@@ -170,7 +167,7 @@ godot/tests/smoke_prologue.gd
 
 1. 创建 `godot/` 子项目，不改变 Ren'Py `game/`。
 2. 配置应用名、版本、1920×1080 设计区域和输入动作。
-3. 按 D-001 安装并锁定 Dialogue Manager。
+3. 安装并锁定 Dialogue Manager `v3.10.5`（commit `0049d4d`）。
 4. 提交第三方许可证，不修改插件源码。
 5. 将 `migration/dialogue/prologue.dialogue` 移动到 Godot 项目内。
 6. 让插件实际导入并编译 `.dialogue`。
@@ -186,7 +183,7 @@ godot/tests/smoke_prologue.gd
 
 ### 退出条件
 
-- 锁定版本组合在本机验证通过。
+- `Godot 4.7.1-stable` 与 `Dialogue Manager v3.10.5` 在本机验证通过。
 - 工程从全新导入缓存启动成功。
 - 没有把 `.godot/` 缓存、编辑器日志或导出包提交进仓库。
 
@@ -557,9 +554,8 @@ godot/export_presets.cfg
 
 ## 16. 下一步
 
-进入 M1 前只需要完成两个确认：
+`D-001` 已完成：项目使用 `Godot 4.7.1-stable` 与 `Dialogue Manager v3.10.5`，并已同意在 M1 将插件作为生产依赖加入仓库。
 
-1. 选择 D-001 的版本组合，并明确同意加入 Dialogue Manager 生产依赖。
-2. 确认 D-002 使用 `keep` 黑边策略，或决定改为 `expand`。
+进入 M1 前只需确认 D-002 使用 `keep` 黑边策略，或决定改为 `expand`。
 
 D-003 的背景问题可以暂时按原版表现保留，到 M5 前再决定。
