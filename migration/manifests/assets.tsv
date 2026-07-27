@@ -1,0 +1,53 @@
+source_path	target_path	category	priority	action	status	notes
+game/images/backgrounds/autumn_garden.png	res://assets/backgrounds/autumn_garden.png	background	P0	copy	active	序章开场背景，保持1920x1080构图
+game/images/backgrounds/autumn_room.png	res://assets/backgrounds/autumn_room.png	background	P0	copy	active	室内与当前调查段背景；树下段用途待确认
+game/images/characters/minoriko.png	res://assets/characters/minoriko.png	character	P0	copy	active	秋穰子neutral立绘
+game/images/characters/sizuha.png	res://assets/characters/shizuha.png	character	P0	copy	active	秋静叶neutral立绘
+game/gui/menu/title_background.png	res://assets/ui/menu/title_background.png	ui	P0	copy	active	主菜单全屏背景
+game/gui/game_menu.png	res://assets/ui/menu/game_menu.png	ui	P0	copy	active	游戏菜单背景
+game/gui/window_icon.png	res://assets/ui/window_icon.png	ui	P0	copy	active	窗口和导出图标来源
+game/gui/dialogue/box_compact.png	res://assets/ui/dialogue/box_compact.png	ui	P0	copy	active	当前对话框背景
+game/gui/namebox.png	res://assets/ui/dialogue/namebox.png	ui	P0	copy	active	当前角色名字框样式仍引用默认namebox
+game/gui/dialogue/button_skip.png	res://assets/ui/dialogue/button_skip.png	ui	P0	copy	active	对话框快进图标
+game/gui/dialogue/button_auto.png	res://assets/ui/dialogue/button_auto.png	ui	P0	copy	active	对话框自动播放图标
+game/gui/dialogue/button_history.png	res://assets/ui/dialogue/button_history.png	ui	P0	copy	active	对话框历史图标
+game/gui/button/choice_idle_background.png	res://assets/ui/button/choice_idle_background.png	ui	P0	copy	active	选择按钮普通状态
+game/gui/button/choice_hover_background.png	res://assets/ui/button/choice_hover_background.png	ui	P0	copy	active	选择按钮悬停状态
+game/gui/button/quick_idle_background.png	res://assets/ui/button/quick_idle_background.png	ui	P0	copy	active	快捷菜单普通状态
+game/gui/button/quick_hover_background.png	res://assets/ui/button/quick_hover_background.png	ui	P0	copy	active	快捷菜单悬停状态
+game/gui/button/idle_background.png	res://assets/ui/button/idle_background.png	ui	P0	copy	active	通用菜单按钮普通状态
+game/gui/button/hover_background.png	res://assets/ui/button/hover_background.png	ui	P0	copy	active	通用菜单按钮悬停状态
+game/gui/button/slot_idle_background.png	res://assets/ui/save/slot_idle_background.png	ui	P0	copy	active	存档槽普通状态
+game/gui/button/slot_hover_background.png	res://assets/ui/save/slot_hover_background.png	ui	P0	copy	active	存档槽悬停状态
+game/gui/frame.png	res://assets/ui/frame.png	ui	P0	copy	active	确认框和通用面板九宫格来源
+game/gui/overlay/main_menu.png	res://assets/ui/overlay/main_menu.png	ui	P1	copy	active	主菜单文字区域遮罩/面板
+game/gui/overlay/game_menu.png	res://assets/ui/overlay/game_menu.png	ui	P1	copy	active	游戏菜单导航区域遮罩/面板
+game/gui/overlay/confirm.png	res://assets/ui/overlay/confirm.png	ui	P1	copy	active	确认弹窗全屏遮罩
+game/gui/button/radio_foreground.png	res://assets/ui/settings/radio_foreground.png	ui	P1	copy	active	单选未选状态
+game/gui/button/radio_selected_foreground.png	res://assets/ui/settings/radio_selected_foreground.png	ui	P1	copy	active	单选已选状态
+game/gui/button/check_foreground.png	res://assets/ui/settings/check_foreground.png	ui	P1	copy	active	复选未选状态
+game/gui/button/check_selected_foreground.png	res://assets/ui/settings/check_selected_foreground.png	ui	P1	copy	active	复选已选状态
+game/gui/slider/horizontal_idle_bar.png	res://assets/ui/settings/horizontal_idle_bar.png	ui	P1	copy	active	设置滑块普通轨道
+game/gui/slider/horizontal_idle_thumb.png	res://assets/ui/settings/horizontal_idle_thumb.png	ui	P1	copy	active	设置滑块普通滑块
+game/gui/slider/horizontal_hover_bar.png	res://assets/ui/settings/horizontal_hover_bar.png	ui	P1	copy	active	设置滑块悬停轨道
+game/gui/slider/horizontal_hover_thumb.png	res://assets/ui/settings/horizontal_hover_thumb.png	ui	P1	copy	active	设置滑块悬停滑块
+game/gui/scrollbar/vertical_idle_bar.png	res://assets/ui/scrollbar/vertical_idle_bar.png	ui	P1	copy	active	历史和设置页面普通滚动轨道
+game/gui/scrollbar/vertical_idle_thumb.png	res://assets/ui/scrollbar/vertical_idle_thumb.png	ui	P1	copy	active	历史和设置页面普通滚动滑块
+game/gui/scrollbar/vertical_hover_bar.png	res://assets/ui/scrollbar/vertical_hover_bar.png	ui	P1	copy	active	历史和设置页面悬停滚动轨道
+game/gui/scrollbar/vertical_hover_thumb.png	res://assets/ui/scrollbar/vertical_hover_thumb.png	ui	P1	copy	active	历史和设置页面悬停滚动滑块
+game/gui/skip.png	res://assets/ui/indicators/skip.png	ui	P1	copy	active	快进状态提示
+game/gui/notify.png	res://assets/ui/indicators/notify.png	ui	P1	copy	active	快存、截图等通知背景
+game/fonts/SourceHanSansCN/SourceHanSansCN-Regular.otf	res://assets/fonts/SourceHanSansCN-Regular.otf	font	P0	copy	active	正文与选择文字
+game/fonts/SourceHanSansCN/SourceHanSansCN-Medium.otf	res://assets/fonts/SourceHanSansCN-Medium.otf	font	P0	copy	active	名字与界面文字
+game/fonts/SourceHanSansCN/SourceHanSansCN-Bold.otf	res://assets/fonts/SourceHanSansCN-Bold.otf	font	P0	copy	active	当前对话与名字覆盖样式
+game/fonts/SourceHanSansCN/SourceHanSansCN-Heavy.otf	res://assets/fonts/SourceHanSansCN-Heavy.otf	font	P1	copy	active	玩家名输入文字
+game/images/ui/text_icon.png	res://assets/ui/text_icon.png	ui	P2	review	unreferenced	旧清单标记active，但当前rpy没有直接引用
+game/gui/scrollbar/horizontal_*	res://assets/ui/scrollbar/	ui	P2	defer	optional	当前桌面界面没有明确需要水平滚动
+game/gui/slider/vertical_*	res://assets/ui/settings/	ui	P2	defer	optional	当前设置只使用水平滑块
+game/gui/bar/*	res://assets/ui/bar/	ui	P2	defer	optional	当前界面没有直接使用进度条
+game/gui/bubble.png;game/gui/thoughtbubble.png;game/gui/nvl.png	res://assets/ui/optional/	ui	P2	defer	optional	当前剧情不使用气泡或NVL模式
+game/gui/main_menu.png;game/gui/dialogue_box.png;game/gui/textbox.png		ui	P2	exclude	superseded	已被title_background和box_compact覆盖
+game/gui/phone/**		ui	P2	defer	platform	仅在确认移动端目标后迁移
+game/gui/source/**		source	-	exclude	source	编辑源图，不进入运行时构建
+game/images/characters/unused/**		character	-	exclude	unused	归档立绘，不进入运行时构建
+game/fonts/SourceHanSansLite.ttf;game/fonts/SourceHanSansCN/SourceHanSansCN-Normal.otf;game/fonts/SourceHanSansCN/SourceHanSansCN-Light.otf;game/fonts/SourceHanSansCN/SourceHanSansCN-ExtraLight.otf		font	P2	exclude	unreferenced	当前rpy没有引用，完成中文显示验证后排除

@@ -1,0 +1,5 @@
+source_symbol	target_id	display_name	name_color	sprite_id	expression	position	source_transform	save_required	notes
+n	narrator		#5a554e				none	no	叙述文本不显示名字或立绘
+m	minoriko	秋穰子	#d98a2b	minoriko	neutral	right	minoriko_right	yes	右侧底部锚定，缩放0.66，从右侧淡入
+s	shizuha	秋静叶	#b85a4a	shizuha	neutral	left	sizuha_left	yes	左侧底部锚定，缩放0.66，从左侧淡入
+p	player	{{GameState.player_name}}	#6f8fb8				none	no	玩家名来自GameState.player_name

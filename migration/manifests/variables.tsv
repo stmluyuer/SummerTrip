@@ -1,0 +1,5 @@
+source_name	target_name	type	default_value	save_required	rollback_required	scope	purpose	notes
+st_player_name	player_name	String	旅人	yes	yes	GameState	玩家显示名	读取后必须在显示下一句前恢复
+st_minoriko_affection	minoriko_affection	int	0	yes	yes	GameState	秋穰子好感	当前序章只增加不减少
+st_shizuha_trust	shizuha_trust	int	0	yes	yes	GameState	秋静叶信任	当前序章只增加不减少
+st_autumn_mystery	autumn_mystery	int	0	yes	yes	GameState	季节异常调查值	当前序章只增加不减少

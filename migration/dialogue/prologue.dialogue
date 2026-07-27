@@ -1,0 +1,201 @@
+~ start
+do Presentation.change_scene("autumn_garden", "", "", "none")
+=> prologue_tree
+
+~ prologue_tree
+do Presentation.change_scene("autumn_garden", "autumn_glow", "leaf_shiver", "scene_blend")
+风里有泥土、草叶和一点烤番薯的甜味。 [ID:ST_PRT_L001]
+你睁开眼，最先看见的是一片红得过分鲜明的叶子。 [ID:ST_PRT_L002]
+它挂在枝头，却像被谁从边缘擦掉了颜色，一半红，一半青。 [ID:ST_PRT_L003]
+do Presentation.show_character("minoriko", "neutral", "right")
+秋穰子: 啊，你醒啦！ [ID:ST_PRT_L004]
+秋穰子: 先别急着起来。你刚才倒在树下，脸色比霜打过的叶子还难看。 [ID:ST_PRT_L005]
+一个戴着红色荷叶边帽子的少女蹲在你身旁。帽檐上垂着葡萄藤，衣角还沾着田里的细土。 [ID:ST_PRT_L006]
+{{GameState.player_name}}: 这里是……哪里？ [ID:ST_PRT_L007]
+秋穰子: 妖怪之山的山脚。嗯——反正不是那种会把人丢树下不管的地方。 [ID:ST_PRT_L008]
+秋穰子: 我是秋穰子，掌管丰收的神明。你呢？外界人？迷路的人？还是被谁捉弄了？ [ID:ST_PRT_L009]
+你试着回想，却只记得一阵突如其来的雾，以及雾中像钟声一样的低响。 [ID:ST_PRT_L010]
+秋穰子: 想不起来也没关系。先跟我回去吧。 [ID:ST_PRT_L011]
+秋穰子: 虽然我本来要把收好的作物带回家…… [ID:ST_PRT_L012]
+她回头看了一眼树下的竹篮，像是在心里和那篮番薯认真道歉。 [ID:ST_PRT_L013]
+秋穰子: 算了，救人比较重要。作物先放在这里，等下再回来拿！ [ID:ST_PRT_L014]
+她向你伸出手。掌心温暖，带着晒过稻穗的气味。 [ID:ST_PRT_L015]
+=> aki_house_wakeup
+
+~ aki_house_wakeup
+do Presentation.change_scene("autumn_room", "autumn_glow", "leaf_shiver", "slow_dissolve")
+do Presentation.show_character("minoriko", "neutral", "right")
+再次清醒时，你躺在一间暖色木屋的客房里。窗外有风拂过，红叶轻叩窗棂。 [ID:ST_AHW_L001]
+秋穰子: 醒得正好。我煮了热汤，放的是新收的萝卜。 [ID:ST_AHW_L002]
+do Presentation.show_character("shizuha", "neutral", "left")
+秋静叶: 穰子，他刚醒，不要把碗直接塞到人家手里。 [ID:ST_AHW_L003]
+说话的是另一位少女。她站在窗边，金色眼睛落在你袖口，又落在桌上的一片叶子上。 [ID:ST_AHW_L004]
+秋静叶: 秋静叶。她的姐姐。 [ID:ST_AHW_L005]
+秋静叶: 你身上有外界的尘，也有不属于这个季节的气息。 [ID:ST_AHW_L006]
+秋穰子: 姐姐，你说得太吓人了。 [ID:ST_AHW_L007]
+秋静叶: 我只是说事实。 [ID:ST_AHW_L008]
+秋静叶: 这片叶子是在你旁边捡到的。红色在往回褪——正常的秋天不会这样。 [ID:ST_AHW_L009]
+桌上的叶片一半红，一半青，像被看不见的手拨乱了时间。 [ID:ST_AHW_L010]
+- 先感谢穰子的照顾 [ID:ST_AHW_R001]
+	do GameState.minoriko_affection += 1
+	=> thank_minoriko
+- 询问静叶那片叶子的异常 [ID:ST_AHW_R002]
+	do GameState.shizuha_trust += 1
+	do GameState.autumn_mystery += 1
+	=> ask_shizuha_leaf
+- 说明自己只记得雾和钟声 [ID:ST_AHW_R003]
+	do GameState.autumn_mystery += 1
+	=> mention_bell
+
+~ thank_minoriko
+{{GameState.player_name}}: 谢谢你救了我……还有热汤。 [ID:ST_THM_L001]
+秋穰子: 嘿嘿，不用那么正式啦。 [ID:ST_THM_L002]
+秋穰子: 丰收之神看到有人饿着、冷着、倒在树下，总不能当作没看见吧。 [ID:ST_THM_L003]
+秋静叶: 所以你把收好的作物忘在树下了。 [ID:ST_THM_L004]
+秋穰子: 呜。 [ID:ST_THM_L005]
+穰子的笑容僵了一瞬。窗外的风恰好吹过，像是在替谁小声提醒。 [ID:ST_THM_L006]
+秋穰子: 我、我等下就去拿！ [ID:ST_THM_L007]
+- 提出陪穰子一起去取作物 [ID:ST_THM_R001]
+	do GameState.minoriko_affection += 1
+	=> farm_basket
+- 建议先听静叶说完异常 [ID:ST_THM_R002]
+	do GameState.shizuha_trust += 1
+	=> ask_shizuha_leaf
+
+~ ask_shizuha_leaf
+{{GameState.player_name}}: 这片叶子为什么会倒着变回绿色？ [ID:ST_ASL_L001]
+秋静叶: 如果只是颜色褪去，那是秋天结束。 [ID:ST_ASL_L002]
+秋静叶: 但它不是褪色。它在回到夏天。 [ID:ST_ASL_L003]
+静叶把叶子举到窗前。光穿过叶脉，你看见红与青交界处有细小的裂纹。 [ID:ST_ASL_L004]
+秋静叶: 有人——或者某种力量——把季节的顺序弄乱了。 [ID:ST_ASL_L005]
+秋静叶: 你倒下的地方，是第一处异常。 [ID:ST_ASL_L006]
+秋穰子: 也就是说，只要回到那棵树下面，也许就能找到线索？ [ID:ST_ASL_L007]
+秋静叶: 也许。也可能找到麻烦。 [ID:ST_ASL_L008]
+- 立刻回到红叶树下调查 [ID:ST_ASL_R001]
+	do GameState.autumn_mystery += 1
+	=> maple_tree_investigation
+- 先帮穰子取回作物，再一起调查 [ID:ST_ASL_R002]
+	do GameState.minoriko_affection += 1
+	=> farm_basket
+
+~ mention_bell
+{{GameState.player_name}}: 我只记得雾，还有像钟声一样的声音。 [ID:ST_MBL_L001]
+秋穰子: 钟声？山脚这边没有钟吧。 [ID:ST_MBL_L002]
+秋静叶: 秋祭会场有旧铃。不是钟，但在雾里听起来可能相似。 [ID:ST_MBL_L003]
+静叶的视线微微一沉。 [ID:ST_MBL_L004]
+秋静叶: 如果声音来自那里，事情就不只是迷路了。 [ID:ST_MBL_L005]
+- 询问秋祭是什么 [ID:ST_MBL_R001]
+	=> ask_festival
+- 请求她们带你去听到钟声的方向 [ID:ST_MBL_R002]
+	do GameState.autumn_mystery += 1
+	=> maple_tree_investigation
+
+~ ask_festival
+{{GameState.player_name}}: 秋祭是什么？ [ID:ST_AFS_L001]
+秋穰子: 是感谢收成、迎接红叶最盛时节的祭典！会有热汤、烤番薯、栗子饭，还有很多人来参拜。 [ID:ST_AFS_L002]
+秋静叶: 也是秋天秩序最容易被看见的时刻。 [ID:ST_AFS_L003]
+秋静叶: 如果异常和秋祭有关，我们最好在祭典结束前弄清楚。 [ID:ST_AFS_L004]
+她说得很平静，但你看见她指尖压住了那片倒色的叶子。 [ID:ST_AFS_L005]
+=> route_choice
+
+~ farm_basket
+do Presentation.change_scene("autumn_room", "autumn_glow", "leaf_shiver", "scene_blend")
+do Presentation.show_character("minoriko", "neutral", "right")
+你和穰子沿着山脚小路往回走。树影落在路上，像一层被风揉皱的红色薄毯。 [ID:ST_FBT_L001]
+秋穰子: 希望篮子还在。里面有今天最好的番薯。 [ID:ST_FBT_L002]
+秋穰子: 我本来想晚上烤给姐姐吃的。她最近总说红叶颜色不够漂亮，心情有点差。 [ID:ST_FBT_L003]
+{{GameState.player_name}}: 你很在意她。 [ID:ST_FBT_L004]
+秋穰子: 那当然。她可是我姐姐。 [ID:ST_FBT_L005]
+秋穰子: 虽然她有时候说话像冷掉的茶，但其实很温柔。 [ID:ST_FBT_L006]
+前方的红叶树下，竹篮还在。 [ID:ST_FBT_L007]
+只是篮子旁边，多了一圈浅浅的青色草痕。 [ID:ST_FBT_L008]
+do GameState.autumn_mystery += 1
+=> maple_tree_investigation
+
+~ maple_tree_investigation
+do Presentation.change_scene("autumn_room", "mystery_glow", "leaf_shiver", "scene_blend")
+do Presentation.show_character("minoriko", "neutral", "right")
+do Presentation.show_character("shizuha", "neutral", "left")
+你们回到那棵红叶树下。 [ID:ST_MTI_L001]
+树根旁的草叶呈现出奇怪的青色，像有一小块夏天被硬塞进了秋天。 [ID:ST_MTI_L002]
+秋静叶: 就是这里。 [ID:ST_MTI_L003]
+秋穰子: 我的篮子也在这里。太好了……不对，现在不是高兴的时候。 [ID:ST_MTI_L004]
+静叶蹲下身，捡起一片叶子。穰子则把手放在竹篮旁，像在确认作物有没有受伤。 [ID:ST_MTI_L005]
+秋静叶: 旅人，你站在这里时，有没有感觉到什么？ [ID:ST_MTI_L006]
+- 触碰那片青色草痕 [ID:ST_MTI_R001]
+	do GameState.autumn_mystery += 1
+	=> touch_green_trace
+- 请穰子用丰收之力确认作物变化 [ID:ST_MTI_R002]
+	do GameState.minoriko_affection += 1
+	=> minoriko_checks_crops
+- 请静叶继续观察红叶颜色 [ID:ST_MTI_R003]
+	do GameState.shizuha_trust += 1
+	=> shizuha_reads_leaves
+
+~ touch_green_trace
+你伸手触碰草痕。 [ID:ST_TGT_L001]
+一瞬间，雾声、铃声、夏夜的虫鸣同时涌进耳中。 [ID:ST_TGT_L002]
+{{GameState.player_name}}: 这里……不是只有秋天。 [ID:ST_TGT_L003]
+秋静叶: 看来你能感到边界。 [ID:ST_TGT_L004]
+秋穰子: 那就更不能放着不管了。 [ID:ST_TGT_L005]
+=> route_choice
+
+~ minoriko_checks_crops
+秋穰子: 我试试看。 [ID:ST_MCC_L001]
+穰子把掌心覆在竹篮上。几枚番薯微微发热，泥土的香气变得清晰。 [ID:ST_MCC_L002]
+秋穰子: 奇怪。它们成熟过头了。 [ID:ST_MCC_L003]
+秋穰子: 明明刚收起来，却像在地里多待了半个月。 [ID:ST_MCC_L004]
+秋静叶: 季节被加速了。至少在作物上是这样。 [ID:ST_MCC_L005]
+=> route_choice
+
+~ shizuha_reads_leaves
+秋静叶: 红叶不是单纯变色。它们在记住风经过的顺序。 [ID:ST_SRL_L001]
+静叶沿着叶脉轻轻一划。 [ID:ST_SRL_L002]
+秋静叶: 这里的顺序断了。有人从秋天里拿走了一小段时间。 [ID:ST_SRL_L003]
+秋穰子: 拿走时间？听起来像很麻烦的妖怪会做的事。 [ID:ST_SRL_L004]
+秋静叶: 也可能是迷路的人无意中带来的。 [ID:ST_SRL_L005]
+=> route_choice
+
+~ route_choice
+do Presentation.change_scene("autumn_room", "autumn_glow", "leaf_shiver", "scene_blend")
+do Presentation.show_character("minoriko", "neutral", "right")
+do Presentation.show_character("shizuha", "neutral", "left")
+傍晚，小屋的灯亮了。锅里煮着热汤，桌上放着那片倒色的叶子。 [ID:ST_RTC_L001]
+秋祭还有三天。若在那之前找不到原因，你也许会被困在这个错位的秋天里。 [ID:ST_RTC_L002]
+秋穰子: 明天我想去小农场看看。作物如果也受影响，大家的收成都会出问题。 [ID:ST_RTC_L003]
+秋静叶: 我去红叶林。颜色先乱起来的地方，通常知道最多。 [ID:ST_RTC_L004]
+两人同时看向你。 [ID:ST_RTC_L005]
+- 明天帮穰子调查小农场 [ID:ST_RTC_R001]
+	do GameState.minoriko_affection += 1
+	=> ending_minoriko_prologue
+- 明天陪静叶前往红叶林 [ID:ST_RTC_R002]
+	do GameState.shizuha_trust += 1
+	=> ending_shizuha_prologue
+- 提议三人一起行动，先整理所有线索 [ID:ST_RTC_R003]
+	do GameState.autumn_mystery += 1
+	=> ending_sisters_prologue
+
+~ ending_minoriko_prologue
+秋穰子: 那就说定了！明天要早起哦。 [ID:ST_EMI_L001]
+秋穰子: 我会准备热乎乎的早饭。调查也要先吃饱才行。 [ID:ST_EMI_L002]
+秋静叶: 别把人家喂到走不动。 [ID:ST_EMI_L003]
+穰子鼓起脸，静叶却轻轻笑了一下。 [ID:ST_EMI_L004]
+你的第一个秋日夜晚，就在热汤的香气与红叶敲窗声里落下帷幕。 [ID:ST_EMI_L005]
+=> END
+
+~ ending_shizuha_prologue
+秋静叶: 红叶林清晨很冷。穿厚一点。 [ID:ST_ESH_L001]
+秋穰子: 姐姐这是在关心你哦。 [ID:ST_ESH_L002]
+秋静叶: 我只是避免他冻倒之后，又要把人搬回来。 [ID:ST_ESH_L003]
+静叶移开视线，耳尖却比窗外的叶子更红。 [ID:ST_ESH_L004]
+你的第一个秋日夜晚，就在未解的叶色与安静的灯火中落下帷幕。 [ID:ST_ESH_L005]
+=> END
+
+~ ending_sisters_prologue
+{{GameState.player_name}}: 如果异常同时影响作物和红叶，也许分开会漏掉什么。 [ID:ST_ESI_L001]
+秋穰子: 三个人一起？听起来也不错。 [ID:ST_ESI_L002]
+秋静叶: 效率未必高，但至少穰子不会把篮子又忘在路边。 [ID:ST_ESI_L003]
+秋穰子: 姐姐！ [ID:ST_ESI_L004]
+争辩声让小屋热闹起来。桌上的叶子却在灯下轻轻颤动，红与青的边界又扩大了一点。 [ID:ST_ESI_L005]
+你的第一个秋日夜晚，就在姐妹的拌嘴与逼近的谜团中落下帷幕。 [ID:ST_ESI_L006]
+=> END
