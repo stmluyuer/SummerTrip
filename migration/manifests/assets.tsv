@@ -40,7 +40,7 @@ game/gui/notify.png	res://assets/ui/indicators/notify.png	ui	P1	copy	active	快�
 game/fonts/SourceHanSansCN/SourceHanSansCN-Regular.otf	res://assets/fonts/SourceHanSansCN-Regular.otf	font	P0	copy	active	正文与选择文字
 game/fonts/SourceHanSansCN/SourceHanSansCN-Medium.otf	res://assets/fonts/SourceHanSansCN-Medium.otf	font	P0	copy	active	名字与界面文字
 game/fonts/SourceHanSansCN/SourceHanSansCN-Bold.otf	res://assets/fonts/SourceHanSansCN-Bold.otf	font	P0	copy	active	当前对话与名字覆盖样式
-game/fonts/SourceHanSansCN/SourceHanSansCN-Heavy.otf	res://assets/fonts/SourceHanSansCN-Heavy.otf	font	P1	copy	active	玩家名输入文字
+game/fonts/SourceHanSansCN/SourceHanSansCN-Heavy.otf	res://assets/fonts/SourceHanSansCN-Heavy.otf	font	P2	defer	optional	当前仅定义通用input样式，剧情没有姓名输入调用；新增姓名输入时再迁移
 game/images/ui/text_icon.png	res://assets/ui/text_icon.png	ui	P2	review	unreferenced	旧清单标记active，但当前rpy没有直接引用
 game/gui/scrollbar/horizontal_*	res://assets/ui/scrollbar/	ui	P2	defer	optional	当前桌面界面没有明确需要水平滚动
 game/gui/slider/vertical_*	res://assets/ui/settings/	ui	P2	defer	optional	当前设置只使用水平滑块

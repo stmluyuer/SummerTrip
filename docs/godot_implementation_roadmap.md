@@ -10,7 +10,8 @@
 - [Godot 架构设计](godot_architecture.md)：目标结构和模块边界。
 - [Godot 功能对等验收表](godot_feature_checklist.md)：最终验收标准。
 - `migration/dialogue/prologue.dialogue`：已整理的序章剧情。
-- `migration/manifests/`：资源、角色和变量映射。
+- `migration/manifests/`：资源、角色、变量和舞台表现映射。
+- `tools/check_assets.ps1`：资源清单结构与精确复制源校验。
 
 当前状态：`M0` 进行中，其余阶段未开始。
 
@@ -116,14 +117,17 @@ docs/godot_implementation_roadmap.md
 docs/godot_migration_inventory.md
 docs/godot_feature_checklist.md
 migration/manifests/*
+tools/check_assets.ps1
 ```
 
 ### 工作项
 
 - [x] 整理原 Ren'Py 剧情、变量、角色和资源。
+- [x] 把角色位置、叠色动画和转场参数整理为 `presentation.tsv`。
 - [x] 生成序章 Dialogue Manager 源文件。
 - [x] 建立目标架构。
 - [x] 建立分阶段实施路线。
+- [x] 让资源校验脚本以 `migration/manifests/assets.tsv` 为唯一输入。
 - [x] 确认 D-001 版本组合。
 - [ ] 确认 D-002 分辨率策略。
 - [ ] 确认 D-003 背景处理。
@@ -134,6 +138,8 @@ migration/manifests/*
 - 文档中的文件名、模块名和状态模型一致。
 - 架构文档、路线图与功能验收表互相链接。
 - 迁移清单不再把未确认版本写成已验证组合。
+- `tools/check_assets.ps1` 校验新资源清单的列、P0 约束、重复路径和全部精确复制源。
+- `presentation.tsv` 中位置、动画与转场参数和 `story_setup.rpy`、`effects.rpy` 一致。
 - 现有 `game/` 原文件没有被移动或修改。
 
 ### 退出条件
@@ -178,7 +184,7 @@ godot/tests/smoke_prologue.gd
 - Godot 编辑器可以打开项目且无导入错误。
 - 主场景可以启动并正常退出。
 - `prologue.dialogue` 编译无语法错误。
-- `start` title 和已整理的稳定 ID 可由运行 API 查询。
+- `start` title 可由运行 API 查询；每个 `[ID:...]` 都能通过 `static_id_to_line_ids()` 唯一解析为一个运行时 ID，并返回相同 `translation_key` 的行或选项。
 - headless 检查以非零退出码报告失败。
 
 ### 退出条件
@@ -219,7 +225,7 @@ godot/tests/smoke_prologue.gd
 1. `GameSession` 实现玩家名和三个剧情整数的默认值。
 2. `DialogueContext` 以额外状态提供 `GameState` 与由 `StageController` 实现的 `Presentation`。
 3. `DialogueGateway` 封装插件的逐行请求、下一行和选项跳转。
-4. `VNDirector` 建立最小状态机。
+4. `VNDirector` 分别建立最小 `InteractionState` 与 `OperationState`，菜单或保存操作不得覆盖当前对白交互状态。
 5. 对话 UI 显示角色名、叙述、正文和选项。
 6. 动态玩家名 `{{GameState.player_name}}` 正确显示。
 7. 选项出现时普通推进失效。
@@ -270,7 +276,7 @@ godot/tests/validate_content.gd
 - `autumn_garden.png`
 - `autumn_room.png`
 - `minoriko.png`
-- `sizuha.png`
+- `shizuha.png`
 - `box_compact.png`
 - 选择按钮 idle/hover
 - 窗口图标
@@ -279,7 +285,7 @@ godot/tests/validate_content.gd
 
 ### 工作项
 
-1. 建立背景、角色、位置、叠色和转场目录。
+1. 以 `migration/manifests/presentation.tsv` 为参数事实来源，建立背景、角色、位置、叠色和转场目录。
 2. 实现 `Presentation.change_scene()`。
 3. 实现 `Presentation.show_character()`。
 4. 实现左右角色槽、底部锚定和 0.66 缩放。
@@ -290,8 +296,9 @@ godot/tests/validate_content.gd
 ### 验证
 
 - 花园和室内背景铺满 1920×1080 设计区域。
-- 穰子位于 72%，静叶位于 28% 横坐标。
+- 穰子位于 72%、静叶位于 28% 横坐标；两者 `y=1.02`、锚点 `(0.5,1.0)`、缩放 `0.66`。
 - 角色从对应方向位移 64 px 并淡入。
+- `leaf_shiver` 先在 0.25 秒到达 0.22 透明度，再以每段 1.6 秒在 0.12 与 0.24 间往返，完整周期为 3.2 秒。
 - `change_scene()` 清理旧立绘和旧叠色。
 - 故意输入未知 ID 时测试明确失败，而不是静默显示空白。
 
@@ -321,13 +328,14 @@ godot/tests/save_roundtrip.gd
 ### 工作项
 
 1. `GameSession`、`StageController` 和 Director 提供快照。
-2. `SaveSchema` 校验版本、必填字段和字段类型。
-3. `SaveService` 使用 `user://` 和替换式写入。
-4. 区分手动、快速和自动存档命名空间。
-5. 实现 Profile 的已读 ID 合并。
-6. 验证从稳定行 ID 恢复当前对白。
-7. 恢复时跳过当前行之前的 mutation。
-8. 损坏 JSON、缺字段和不支持版本返回可理解错误。
+2. `SaveSchema` 使用统一的 `story.resource_id`、`story.chapter_id` 和 `story.static_line_id`，并校验版本、必填字段、字段类型和受控相对路径。
+3. `SaveService` 使用 `user://`，先写不可变代次截图，再以已验证的临时 JSON 替换正式 JSON。
+4. 区分 54 个手动槽、1 个快速槽和 6 个轮换自动槽；`index.json` 只是可重建缓存。
+5. 读档先解析资源、静态行 ID 和全部舞台语义 ID，在候选会话中预取当前行；全部成功后才提交当前会话和舞台。
+6. Profile 的已读 ID 先在候选数据中合并；候选 Profile 原子写入成功后才替换内存 Profile。
+7. 验证 `DialogueLine.translation_key` 经 `static_id_to_line_ids()` 唯一解析后恢复当前对白。
+8. 恢复时使用 `MutationBehaviour.Skip`，不重放当前行之前的 mutation。
+9. 损坏 JSON、缺字段、不安全路径和不支持版本返回可理解错误，失败读档不改变现有会话、舞台或 Profile。
 
 ### 必测保存点
 
@@ -354,8 +362,10 @@ godot/tests/save_roundtrip.gd
 额外验证：
 
 - 临时文件无效时上一份正式存档仍可读取。
+- 在截图写入后、JSON 提交前中断时，旧 JSON 仍引用旧截图，新截图只作为可清理孤立文件存在。
 - 截图缺失不会导致 JSON 存档崩溃。
 - 读取较早存档不会清除 Profile 中后来读过的对白 ID。
+- 静态行 ID、资源 ID 或舞台 ID 无效时，读档前的内存状态保持不变。
 
 ### 退出条件
 
@@ -387,7 +397,7 @@ docs/godot_feature_checklist.md
 1. 验证 16 个 title、6 个选择点、15 个选项。
 2. 对照原版验证 100 条剧情文本。
 3. 确认 D-003 的背景处理。
-4. 在主要 title 和结尾加入自动存档触发点。
+4. 为 `aki_house_wakeup`、`maple_tree_investigation` 和 `route_choice` 配置自动存档点：仅在前置 mutation/转场完成、第一条可交互行稳定显示后写入 6 槽轮换自动档；结尾在最后一行稳定显示后写入。
 5. 记录三个序章结尾到 Profile。
 6. 完成历史记录基础数据。
 
@@ -437,7 +447,7 @@ godot/core/settings/settings_service.gd
 
 - 主菜单：新游戏、继续、读取、设置、关于、退出。
 - 游戏菜单：保存、读取、历史、设置、返回标题。
-- 存档页：每页 3×2、1–9 页、384×216 截图。
+- 存档页：每页 3×2、1–9 页、384×216 截图，并通过 `story.chapter_id` 显示本地化章节名。
 - 设置：窗口/全屏、文字速度、自动等待、快进策略和预留音量。
 - 确认弹窗：覆盖、删除、返回标题、退出。
 - 通知：快存、快读、截图和错误提示。
@@ -445,6 +455,7 @@ godot/core/settings/settings_service.gd
 ### 验证
 
 - 菜单暂停时剧情和游玩计时行为符合设计。
+- 从 `WAITING_ADVANCE` 或 `CHOOSING` 打开菜单、保存并返回后，原交互状态保持不变。
 - 空槽、损坏槽和截图缺失都有明确状态。
 - 继续按钮正确选择最近有效存档。
 - 设置在重新启动后仍然生效。
@@ -471,7 +482,7 @@ godot/core/settings/settings_service.gd
 3. 自动播放。
 4. 快速存档和快速读取入口。
 5. 截图。
-6. 按句回退。
+6. 按句回退，并绑定快捷菜单与鼠标滚轮上滑。
 
 ### 验证重点
 

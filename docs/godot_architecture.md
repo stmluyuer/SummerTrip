@@ -83,6 +83,7 @@
 
 - 原版事实来源：`game/*.rpy`。
 - 迁移映射来源：`migration/manifests/*.tsv`。
+- 舞台位置、叠色、动画和转场参数来源：`migration/manifests/presentation.tsv`。
 - Godot 开工后的正式剧情来源：`godot/content/dialogue/*.dialogue`。
 - 运行时资源映射来源：Godot `ContentCatalog`。
 
@@ -90,9 +91,9 @@
 
 ### 3.5 快照恢复，不重放副作用
 
-存档保存当前剧情位置、剧情变量和舞台状态。读取时直接恢复这些数据，并从保存的稳定对白 ID 取得当前行。
+存档保存当前剧情位置、剧情变量和舞台状态。保存的剧情位置是 Dialogue Manager 的静态翻译键，也就是 `.dialogue` 中的 `[ID:...]`，而不是插件生成的运行时 `DialogueLine.id`。
 
-读取过程不得从章节开头重放已经执行过的 `do` 或 `set`，否则好感、信任和谜团值会重复增加。
+读取时先把静态翻译键唯一解析为运行时行 ID，完成全部预检后再提交会话和舞台快照。读取过程不得从章节开头重放已经执行过的 `do` 或 `set`，否则好感、信任和谜团值会重复增加。
 
 ## 4. 目标目录
 
@@ -287,7 +288,7 @@ Dialogue Manager v3.10.5 支持把节点、对象或字典作为 `extra_game_sta
 
 正式运行时由 `VNDirector` 主动逐行请求 `DialogueLine`，不直接依赖插件示例气泡：
 
-1. Gateway 根据 title 或稳定 ID 请求当前行。
+1. 新章节由 Gateway 根据 title 请求第一条可显示行；读档由 Gateway 先把保存的静态翻译键解析为运行时行 ID，再请求当前行。
 2. Director 把角色名和正文交给 `DialogueUI`。
 3. UI 完成打字后进入等待推进状态。
 4. 有选项时进入选择状态，禁止普通推进。
@@ -300,8 +301,11 @@ Dialogue Manager v3.10.5 支持把节点、对象或字典作为 `extra_game_sta
 
 - 每条可显示对白和每个选项必须保留唯一 `[ID:...]`。
 - 文案修改不得顺手重命名稳定 ID。
-- 存档保存当前可显示行的 ID，而不是数组下标或临时 `next_id`。
-- 实现存档前必须用锁定版本验证：以稳定行 ID 请求时，可以直接返回该行且不会重复执行此前的状态变更。
+- `[ID:...]` 在 Dialogue Manager v3.10.5 中对应 `DialogueLine.translation_key`，本文统一称为“静态行 ID”。
+- 存档保存当前可显示行的 `translation_key`，不得保存数组下标、插件运行时 `id` 或临时 `next_id`。
+- Gateway 恢复时调用 `DialogueManager.static_id_to_line_ids(resource, static_id)`；结果必须恰好为一条，否则返回可定位错误。
+- Gateway 再以解析出的运行时 ID 调用 `get_next_dialogue_line(..., DialogueManager.MutationBehaviour.Skip)`，避免恢复过程执行 mutation。
+- 实现存档前必须用锁定版本验证静态 ID 到运行时 ID 的一对一映射、当前行恢复和变量不重复增加。
 - 如果插件升级改变这一行为，只修改 Gateway 和存档恢复适配，不改剧情业务层。
 
 ## 9. 状态模型
@@ -316,7 +320,8 @@ minoriko_affection
 shizuha_trust
 autumn_mystery
 story_resource_id
-current_line_id
+chapter_id
+current_static_line_id
 history
 play_time_seconds
 chapter_flags
@@ -326,7 +331,7 @@ chapter_flags
 
 运行时归属与 JSON 顶层结构不要求一一对应。生成存档快照时，当前位置、历史和游玩时间从 `GameSession` 提取到 `story`、`history` 和 `play_time_seconds` 顶层字段，`session` 对象只保存玩家名、路线数值和章节标记，避免同一字段在存档中出现两份。
 
-`VNDirector` 持有插件返回的临时 `DialogueLine` 对象；当一行进入可交互的稳定状态时，它把该行的稳定 ID 写回 `GameSession.current_line_id`。历史记录最多保留最近 250 条。
+`VNDirector` 持有插件返回的临时 `DialogueLine` 对象；当一行进入可交互的稳定状态时，它把该行的 `translation_key` 写回 `GameSession.current_static_line_id`。历史记录最多保留最近 250 条。
 
 ### 9.2 `ProfileData`
 
@@ -360,21 +365,32 @@ music_position
 
 ### 9.4 运行时状态
 
-`VNDirector` 使用明确状态，而不是多个互相冲突的布尔值：
+`VNDirector` 把“对白交互状态”和“外层操作状态”分开，避免打开菜单或开始保存后丢失原先是在等待推进还是等待选择：
 
 ```text
-BOOTING
-TRANSITIONING
-TYPING
-WAITING_ADVANCE
-CHOOSING
-MENU_PAUSED
-SAVING
-RESTORING_SAVE
-FINISHED
+InteractionState
+├─ NONE
+├─ TYPING
+├─ WAITING_ADVANCE
+├─ CHOOSING
+└─ FINISHED
+
+OperationState
+├─ BOOTING
+├─ ACTIVE
+├─ TRANSITIONING
+├─ MENU_PAUSED
+├─ SAVING
+└─ RESTORING_SAVE
 ```
 
-允许保存的稳定状态是 `WAITING_ADVANCE` 和 `CHOOSING`。在 `TYPING` 中请求保存时，先完成当前句显示，再生成快照。转场、写入和恢复过程中拒绝新的保存或推进请求。
+规则：
+
+- 只有交互状态为 `WAITING_ADVANCE` 或 `CHOOSING` 时可以生成存档快照。
+- 操作状态为 `ACTIVE` 或 `MENU_PAUSED` 时可以发起保存；从游戏菜单保存完成后回到 `MENU_PAUSED`，关闭菜单后回到 `ACTIVE`，交互状态保持不变。
+- 在 `TYPING` 中请求快速保存时，先完成当前句显示并进入 `WAITING_ADVANCE`，再生成快照。
+- 进入菜单时如果仍在打字，先完成当前句；选择界面打开菜单后仍保留 `CHOOSING`。
+- 转场、写入和恢复过程中拒绝新的保存或推进请求。
 
 ## 10. 存读档设计
 
@@ -389,7 +405,8 @@ FINISHED
   "saved_at": "ISO-8601 timestamp",
   "story": {
     "resource_id": "prologue",
-    "line_id": "ST_AHW_L010"
+    "chapter_id": "prologue",
+    "static_line_id": "ST_AHW_L010"
   },
   "session": {},
   "presentation": {},
@@ -409,40 +426,48 @@ user://
 ├─ profile.json
 ├─ settings.json
 └─ saves/
+   ├─ index.json
    ├─ manual/
    ├─ quick/
    └─ auto/
 ```
 
 - 手动档每页 3×2，最多 9 页。
-- 快速档和自动档使用独立命名空间。
+- 快速档使用 1 个独立槽位。
+- 自动档使用 6 个轮换槽位。
 - 截图尺寸为 384×216。
 - 文件名由 `SaveService` 统一生成，UI 不拼接磁盘路径。
+- `index.json` 只是可重建的槽位缓存；存档 JSON 才是每个槽位的事实来源。
+- 自动存档只在配置的主要 title 已执行完前置 mutation/转场、第一条可交互行稳定显示后触发；结尾自动档在结尾最后一行稳定显示后触发，不在 title 标记本身写入。
 
 ### 10.3 防损坏写入
 
-每次保存采用替换式写入：
+每次保存采用“不可变截图先落盘、JSON 最后提交”的替换式写入：
 
-1. 写入同目录临时文件。
-2. 关闭文件并重新读取、解析和校验临时文件。
-3. 保留上一份有效文件作为备份。
-4. 用已验证的临时文件替换正式文件。
-5. 任一步失败时返回可显示错误，不删除上一份有效数据。
+1. 为本次保存生成新的代次号，并把截图写入同一槽位目录下的唯一文件，例如 `slot_001.g000042.png`。
+2. 关闭截图文件并验证 PNG 可读取、尺寸正确。
+3. 写入引用该代次截图的临时 JSON。
+4. 关闭 JSON 后重新读取、解析并按 `SaveSchema` 校验。
+5. 保留上一份有效 JSON 作为备份，再用已验证的临时 JSON 替换正式 JSON；正式 JSON 的替换是槽位提交点。
+6. 用相同的临时文件与替换流程更新可重建的 `index.json`。
+7. 提交成功后再尽力清理旧截图和孤立临时文件；清理失败不破坏新旧任一有效存档。
 
-截图和 JSON 都成功后才更新槽位索引。覆盖或删除存档必须经过 UI 确认。
+如果在 JSON 提交前中断，新截图只是可安全清理的孤立文件，旧 JSON 仍引用旧截图；不会出现旧元数据指向被覆盖截图的情况。`screenshot_path` 必须由 `SaveService` 生成并限制在对应槽位目录内，不能直接信任外部 JSON 中的任意路径。覆盖或删除存档必须经过 UI 确认。
 
 ### 10.4 读取顺序
 
-1. `VNDirector` 进入 `RESTORING_SAVE`，冻结推进和保存输入。
-2. `SaveService` 解析并校验 schema、字段类型和游戏版本。
-3. `GameSession` 重置后恢复存档数据。
-4. 存档内 `read_line_ids` 合并到 `ProfileData`。
-5. `StageController` 无动画恢复舞台快照。
-6. Gateway 以保存的稳定行 ID 请求当前行，并跳过该位置之前的副作用。
-7. `DialogueUI` 直接显示完整当前行或当前选项。
-8. Director 回到 `WAITING_ADVANCE` 或 `CHOOSING`。
+读取分成“预检”和“提交”两个阶段：
 
-任何步骤失败都保持原文件不变，并回到可操作的菜单状态。
+1. `VNDirector` 把操作状态切换到 `RESTORING_SAVE`，冻结推进和保存输入，同时保留当前可恢复的内存快照。
+2. `SaveService` 解析并校验 schema、字段类型、游戏版本和所有受控相对路径。
+3. 根据 `story.resource_id` 载入对白资源；Gateway 把 `story.static_line_id` 解析为恰好一个运行时 ID。
+4. 在新的候选 `GameSession` 中恢复数据，并验证所有舞台语义 ID、角色位置和资源都可解析。
+5. 使用候选会话作为 `GameState`，以 `MutationBehaviour.Skip` 请求当前 `DialogueLine`，确认其 `translation_key` 与存档一致，并重建可用选项。
+6. 只有以上步骤全部成功后才进入提交阶段：替换当前会话、无动画恢复舞台、显示完整当前行或当前选项。
+7. 根据返回行是否含可用选项，把交互状态设置为 `WAITING_ADVANCE` 或 `CHOOSING`，操作状态恢复为 `ACTIVE`。
+8. 最后构造合并了存档 `read_line_ids` 的候选 Profile；候选文件原子写入成功后，才替换内存中的 `ProfileData`。
+
+提交阶段任一步失败时恢复进入读档前的内存快照，不替换 Profile，并回到可操作的菜单状态。失败不会改写原存档文件。
 
 ### 10.5 回退
 
@@ -457,9 +482,11 @@ user://
 ```text
 backgrounds.autumn_garden -> Texture2D
 characters.minoriko.neutral -> Texture2D
-positions.right -> x=0.72, bottom_anchor=true, scale=0.66
+positions.right -> x=0.72, y=1.02, anchor=(0.5,1.0), scale=0.66
 overlays.autumn_glow -> color=#d98a2b22
+overlay_animations.leaf_shiver -> initial=(0.25,0.22), cycle_leg=(1.6,0.12,0.24), full_cycle=3.2
 transitions.scene_blend -> fade_out=0.35, hold=0.2, fade_in=0.55
+chapters.prologue -> title_key=chapter.prologue, autosave_titles=[aki_house_wakeup,maple_tree_investigation,route_choice]
 ```
 
 约束：
@@ -490,6 +517,7 @@ vn_menu
 vn_hide_ui
 vn_skip
 vn_auto
+vn_rollback
 vn_quick_save
 vn_quick_load
 vn_screenshot
@@ -497,7 +525,7 @@ ui_accept
 ui_cancel
 ```
 
-Director 根据当前运行状态决定动作是否生效。控件不直接监听所有物理按键，设置页以后可以调整绑定。
+默认绑定沿用原版：鼠标左键/Enter/Space 推进，鼠标右键/Esc 打开或关闭游戏菜单，Ctrl 快进，H 隐藏 UI，S 截图，鼠标滚轮上滑回退。Director 根据当前运行状态决定动作是否生效；控件不直接监听所有物理按键，设置页以后可以调整绑定。
 
 ### 12.3 分辨率
 
@@ -538,8 +566,8 @@ Director 根据当前运行状态决定动作是否生效。控件不直接监�
 
 | 文件 | 验证内容 |
 | --- | --- |
-| `tests/smoke_prologue.gd` | `.dialogue` 可编译、入口存在、能到达第一处选择 |
-| `tests/save_roundtrip.gd` | 快照写入、进程内清空、读取恢复后字段完全一致 |
+| `tests/smoke_prologue.gd` | `.dialogue` 可编译、入口存在、全部静态 ID 唯一且能各自解析为一个运行时 ID、能到达第一处选择 |
+| `tests/save_roundtrip.gd` | 快照写入、进程内清空、静态 ID 恢复后字段完全一致，失败读档不改变当前会话或 Profile |
 | `tests/validate_content.gd` | 剧情使用的背景、角色、位置、叠色和转场 ID 均存在 |
 
 人工验证以 `godot_feature_checklist.md` 的回归路线为准。存档 UI 开始前，必须先通过稳定 ID 恢复和变量不重复增加的专项验证。
@@ -574,6 +602,8 @@ Director 根据当前运行状态决定动作是否生效。控件不直接监�
 - [Godot Multiple resolutions](https://docs.godotengine.org/en/stable/tutorials/rendering/multiple_resolutions.html)
 - [Godot FileAccess](https://docs.godotengine.org/en/stable/classes/class_fileaccess.html)
 - [Dialogue Manager v3.10.5 for Godot 4.7](https://github.com/nathanhoad/godot_dialogue_manager/releases/tag/v3.10.5)
+- [Dialogue Manager v3.10.5 API](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.10.5/docs/API.md)
+- [Dialogue Manager v3.10.5 static translation keys](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.10.5/docs/Translations.md)
+- [Dialogue Manager v3.10.5 static ID resolver](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.10.5/addons/dialogue_manager/dialogue_manager.gd#L541-L550)
 - [Dialogue Manager v3.10.5 conditions, mutations and extra game states](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.10.5/docs/Conditions_Mutations.md)
 - [Dialogue Manager v3.10.5 runtime usage](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.10.5/docs/Using_Dialogue.md)
-- [Dialogue Manager v3.10.5 API](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.10.5/docs/API.md)
