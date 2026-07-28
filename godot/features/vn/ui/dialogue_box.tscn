@@ -1,0 +1,77 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://features/vn/ui/DialogueBox.cs" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/ui/dialogue/box_compact.png" id="2_box"]
+[ext_resource type="Theme" path="res://ui/themes/vn_theme.tres" id="3_theme"]
+[ext_resource type="FontFile" path="res://assets/fonts/SourceHanSansCN-Bold.otf" id="4_bold"]
+
+[node name="DialogueBox" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("3_theme")
+script = ExtResource("1_script")
+
+[node name="Frame" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 48.0
+offset_top = -610.0
+offset_right = -48.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+texture = ExtResource("2_box")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Content" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 168.0
+offset_top = -500.0
+offset_right = -168.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="Layout" type="VBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="CharacterName" type="Label" parent="Content/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.15, 0.03, 1)
+theme_override_fonts/font = ExtResource("4_bold")
+theme_override_font_sizes/font_size = 32
+text = "角色名"
+vertical_alignment = 1
+
+[node name="DialogueText" type="RichTextLabel" parent="Content/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 128)
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_colors/default_color = Color(0.18, 0.1, 0.05, 1)
+theme_override_font_sizes/normal_font_size = 30
+text = "对话正文"
+fit_content = true
+scroll_active = false
+
+[node name="Choices" type="VBoxContainer" parent="Content/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8

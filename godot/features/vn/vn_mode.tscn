@@ -1,0 +1,37 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://features/vn/VNMode.cs" id="1_mode"]
+[ext_resource type="Script" path="res://features/vn/VNDirector.cs" id="2_director"]
+[ext_resource type="Script" path="res://features/vn/stage/StageController.cs" id="3_stage"]
+[ext_resource type="PackedScene" path="res://features/vn/ui/dialogue_box.tscn" id="4_dialogue_box"]
+
+[node name="VNMode" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_mode")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.16, 0.12, 0.08, 1)
+
+[node name="StageController" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_stage")
+
+[node name="VNDirector" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_director")
+
+[node name="DialogueBox" parent="." instance=ExtResource("4_dialogue_box")]
+unique_name_in_owner = true
+layout_mode = 1

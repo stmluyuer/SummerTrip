@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://app/Main.cs" id="1_main"]
+[ext_resource type="PackedScene" path="res://features/vn/vn_mode.tscn" id="2_vn"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -11,19 +12,5 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_main")
 
-[node name="Status" type="Label" parent="."]
+[node name="VNMode" parent="." instance=ExtResource("2_vn")]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -240.0
-offset_top = -24.0
-offset_right = 240.0
-offset_bottom = 24.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "SummerTrip · M1 .NET 工程验证完成"
-horizontal_alignment = 1
-vertical_alignment = 1

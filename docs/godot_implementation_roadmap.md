@@ -14,7 +14,7 @@
 - `migration/manifests/asset_licenses.tsv`：全部复制资源的授权状态记录。
 - `tools/check_assets.ps1`：资源清单、精确复制源和授权记录覆盖校验。
 
-当前状态：`M0`、`M1` 已完成，`M2` 是下一阶段。
+当前状态：`M0`、`M1`、`M2` 已完成，`M3` 是下一阶段。
 
 ## 2. 状态定义
 
@@ -201,7 +201,7 @@ godot/third_party/dialogue_manager.NOTICE.md
 
 ## 7. M2：纯对话竖切
 
-状态：`未开始`
+状态：`已完成`
 
 ### 目标
 
@@ -223,6 +223,7 @@ godot/ui/themes/vn_theme.tres
 godot/assets/fonts/SourceHanSansCN-Regular.otf
 godot/assets/fonts/SourceHanSansCN-Medium.otf
 godot/assets/fonts/SourceHanSansCN-Bold.otf
+godot/assets/ui/dialogue/box_compact.png
 godot/tests/SmokePrologue.cs
 ```
 
@@ -255,6 +256,8 @@ godot/tests/SmokePrologue.cs
 - 运行状态不会同时处于打字和选择。
 - Dialogue Manager API 只出现在 Gateway 和插件目录。
 
+实际验证结果：C# 构建为 0 个错误；Godot 4.7.1 .NET 编辑器重导入和主场景 headless 启动均通过；smoke 输出 `SMOKE_PROLOGUE_M2_OK titles=16 static_ids=115 first_choice_branches=3`。测试覆盖开场到第一处三选项的 25 条对白、动态玩家名、三条分支增量与目标行、舞台逻辑状态、交互/操作状态隔离，以及三个字体字重的关键中文字符。构建中的 23 条可空性警告仍全部来自未修改的上游 Dialogue Manager C# 文件。
+
 ## 8. M3：舞台表现竖切
 
 状态：`未开始`
@@ -283,7 +286,6 @@ godot/tests/ValidateContent.cs
 - `autumn_room.png`
 - `minoriko.png`
 - `shizuha.png`
-- `box_compact.png`
 - 选择按钮 idle/hover
 - 窗口图标
 
@@ -571,8 +573,8 @@ godot/export_presets.cfg
 
 ## 16. 下一步
 
-`M0` 和 `M1` 已完成：Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、主场景、序章编译和稳定 ID smoke 均已落地并通过验证。
+`M0`、`M1` 和 `M2` 已完成：Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、最小 VN 对话界面，以及开场到第一处三选项的三条分支均已落地并通过验证。
 
-下一步进入 `M2`，用 C# 实现 `DialogueContext`、`DialogueGateway`、`GameSession`、最小 `VNMode` 和对话框，跑通开场到第一处三选项。
+下一步进入 `M3`，建立内容目录并为现有语义舞台状态接入背景、角色、叠色和转场表现，使开场到第一处选项的画面接近 Ren'Py 基准。
 
 全部 41 个复制资源的授权台账已经建立，但所有记录仍未核实，只能用于本地迁移验证，不能进入正式发布。

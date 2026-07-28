@@ -1,5 +1,8 @@
-using DialogueManagerRuntime;
 using Godot;
+using SummerTrip.Core.Dialogue;
+using SummerTrip.Core.Session;
+using SummerTrip.Features.Vn;
+using SummerTrip.Features.Vn.Stage;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -13,6 +16,42 @@ public partial class SmokePrologue : Node
     private const string ExpectedDialogueManagerVersion = "3.10.5";
     private const int ExpectedStaticIdCount = 115;
     private const int ExpectedTitleCount = 16;
+
+    private static readonly string[] FirstChoiceLineIds =
+    [
+        "ST_PRT_L001",
+        "ST_PRT_L002",
+        "ST_PRT_L003",
+        "ST_PRT_L004",
+        "ST_PRT_L005",
+        "ST_PRT_L006",
+        "ST_PRT_L007",
+        "ST_PRT_L008",
+        "ST_PRT_L009",
+        "ST_PRT_L010",
+        "ST_PRT_L011",
+        "ST_PRT_L012",
+        "ST_PRT_L013",
+        "ST_PRT_L014",
+        "ST_PRT_L015",
+        "ST_AHW_L001",
+        "ST_AHW_L002",
+        "ST_AHW_L003",
+        "ST_AHW_L004",
+        "ST_AHW_L005",
+        "ST_AHW_L006",
+        "ST_AHW_L007",
+        "ST_AHW_L008",
+        "ST_AHW_L009",
+        "ST_AHW_L010",
+    ];
+
+    private static readonly BranchExpectation[] Branches =
+    [
+        new(0, "ST_THM_L001", 1, 0, 0),
+        new(1, "ST_ASL_L001", 0, 1, 1),
+        new(2, "ST_MBL_L001", 0, 0, 1),
+    ];
 
     private static readonly (string Action, int MinimumBindings)[] RequiredInputActions =
     [
@@ -37,52 +76,33 @@ public partial class SmokePrologue : Node
         {
             await RunAsync();
             GD.Print(
-                $"SMOKE_PROLOGUE_OK titles={ExpectedTitleCount} " +
-                $"static_ids={ExpectedStaticIdCount} first=ST_PRT_L001"
+                $"SMOKE_PROLOGUE_M2_OK titles={ExpectedTitleCount} " +
+                $"static_ids={ExpectedStaticIdCount} first_choice_branches={Branches.Length}"
             );
             exitCode = 0;
         }
         catch (Exception exception)
         {
-            GD.PushError($"SMOKE_PROLOGUE_FAILED: {exception}");
+            GD.PushError($"SMOKE_PROLOGUE_M2_FAILED: {exception}");
         }
 
         GetTree().Quit(exitCode);
     }
 
-    private static async Task RunAsync()
+    private async Task RunAsync()
     {
         ValidateProjectSettings();
+        ValidateFonts();
+        var (staticIds, titles) = ValidateDialogueSource();
 
-        if (!Engine.HasSingleton("DialogueManager"))
+        foreach (var branch in Branches)
         {
-            throw new InvalidOperationException("DialogueManager singleton is unavailable.");
+            await ValidateBranchAsync(staticIds, titles, branch);
         }
+    }
 
-        using var dialogue = ResourceLoader.Load<Resource>(
-            DialoguePath,
-            cacheMode: ResourceLoader.CacheMode.IgnoreDeep
-        );
-        if (dialogue is null)
-        {
-            throw new InvalidOperationException($"Unable to load {DialoguePath}.");
-        }
-
-        var importedVersion = dialogue
-            .GetMeta("dialogue_manager_version", default)
-            .AsString();
-        if (!string.Equals(
-                importedVersion,
-                ExpectedDialogueManagerVersion,
-                StringComparison.Ordinal
-            ))
-        {
-            throw new InvalidOperationException(
-                $"Expected Dialogue Manager {ExpectedDialogueManagerVersion}, " +
-                $"imported resource reports '{importedVersion}'."
-            );
-        }
-
+    private static (string[] StaticIds, string[] Titles) ValidateDialogueSource()
+    {
         var source = Godot.FileAccess.GetFileAsString(DialoguePath);
         if (string.IsNullOrWhiteSpace(source))
         {
@@ -109,7 +129,7 @@ public partial class SmokePrologue : Node
             throw new InvalidOperationException("The dialogue source contains duplicate static IDs.");
         }
 
-        var sourceTitles = Regex.Matches(
+        var titles = Regex.Matches(
                 source,
                 @"^~ (?<title>[a-z0-9_]+)\s*$",
                 RegexOptions.CultureInvariant | RegexOptions.Multiline
@@ -117,77 +137,255 @@ public partial class SmokePrologue : Node
             .Select(match => match.Groups["title"].Value)
             .ToArray();
 
-        if (sourceTitles.Length != ExpectedTitleCount)
+        if (titles.Length != ExpectedTitleCount)
         {
             throw new InvalidOperationException(
-                $"Expected {ExpectedTitleCount} titles, found {sourceTitles.Length}."
+                $"Expected {ExpectedTitleCount} titles, found {titles.Length}."
             );
         }
 
-        using var compiledTitles = dialogue.Get("titles").AsGodotDictionary();
-        foreach (var title in sourceTitles)
+        if (!source.Contains("风里有泥土、草叶", StringComparison.Ordinal))
         {
-            if (!compiledTitles.ContainsKey(title))
+            throw new InvalidOperationException("The first Chinese line is not intact.");
+        }
+
+        return (staticIds, titles);
+    }
+
+    private async Task ValidateBranchAsync(
+        string[] staticIds,
+        string[] titles,
+        BranchExpectation expectation
+    )
+    {
+        using var session = new GameSession();
+        var stage = new StageController();
+        var director = new VNDirector();
+        AddChild(stage);
+        AddChild(director);
+
+        try
+        {
+            var context = new DialogueContext(session, stage);
+            using var gateway = new DialogueGateway(DialoguePath, context);
+
+            ValidateCompiledDialogue(gateway, staticIds, titles);
+            director.Initialize(gateway, session);
+            await director.StartAsync();
+
+            for (var index = 0; index < FirstChoiceLineIds.Length; index++)
+            {
+                var line = director.CurrentLine
+                    ?? throw new InvalidOperationException("Dialogue ended before the first choice.");
+                var expectedId = FirstChoiceLineIds[index];
+
+                if (!string.Equals(line.StaticId, expectedId, StringComparison.Ordinal))
+                {
+                    throw new InvalidOperationException(
+                        $"Expected line '{expectedId}', found '{line.StaticId}'."
+                    );
+                }
+
+                if (director.Interaction != InteractionState.Typing)
+                {
+                    throw new InvalidOperationException(
+                        $"Line '{expectedId}' did not enter the typing state."
+                    );
+                }
+
+                if (
+                    expectedId == "ST_PRT_L007" &&
+                    !string.Equals(line.Character, GameSession.DefaultPlayerName, StringComparison.Ordinal)
+                )
+                {
+                    throw new InvalidOperationException(
+                        $"Dynamic player name resolved to '{line.Character}'."
+                    );
+                }
+
+                var expectedCharacter = expectedId switch
+                {
+                    "ST_PRT_L001" => "",
+                    "ST_PRT_L004" => "秋穰子",
+                    "ST_AHW_L003" => "秋静叶",
+                    _ => null,
+                };
+                if (
+                    expectedCharacter is not null &&
+                    !string.Equals(line.Character, expectedCharacter, StringComparison.Ordinal)
+                )
+                {
+                    throw new InvalidOperationException(
+                        $"Line '{expectedId}' resolved character '{line.Character}', " +
+                        $"expected '{expectedCharacter}'."
+                    );
+                }
+
+                director.CompleteTyping();
+                var isChoiceLine = index == FirstChoiceLineIds.Length - 1;
+                var expectedState = isChoiceLine
+                    ? InteractionState.AwaitingChoice
+                    : InteractionState.AwaitingAdvance;
+                if (director.Interaction != expectedState)
+                {
+                    throw new InvalidOperationException(
+                        $"Line '{expectedId}' entered {director.Interaction}, expected {expectedState}."
+                    );
+                }
+
+                if (!isChoiceLine)
+                {
+                    await director.AdvanceAsync();
+                }
+            }
+
+            ValidateStageState(stage);
+            ValidateFirstChoices(director);
+
+            var interactionBeforeMenu = director.Interaction;
+            director.ToggleMenuOperation();
+            if (
+                director.Operation != OperationState.Menu ||
+                director.Interaction != interactionBeforeMenu
+            )
+            {
+                throw new InvalidOperationException(
+                    "Menu operation overwrote the dialogue interaction state."
+                );
+            }
+            director.ToggleMenuOperation();
+
+            await director.AdvanceAsync();
+            if (
+                director.Interaction != InteractionState.AwaitingChoice ||
+                director.CurrentLine?.StaticId != "ST_AHW_L010"
+            )
+            {
+                throw new InvalidOperationException("Advance input bypassed the active choices.");
+            }
+
+            await director.ChooseAsync(expectation.ChoiceIndex);
+            ValidateBranchResult(session, director, expectation);
+        }
+        finally
+        {
+            RemoveChild(director);
+            RemoveChild(stage);
+            director.QueueFree();
+            stage.QueueFree();
+        }
+    }
+
+    private static void ValidateCompiledDialogue(
+        DialogueGateway gateway,
+        string[] staticIds,
+        string[] titles
+    )
+    {
+        if (!string.Equals(
+                gateway.ImportedVersion,
+                ExpectedDialogueManagerVersion,
+                StringComparison.Ordinal
+            ))
+        {
+            throw new InvalidOperationException(
+                $"Expected Dialogue Manager {ExpectedDialogueManagerVersion}, " +
+                $"imported resource reports '{gateway.ImportedVersion}'."
+            );
+        }
+
+        foreach (var title in titles)
+        {
+            if (!gateway.HasTitle(title))
             {
                 throw new InvalidOperationException($"Compiled dialogue is missing title '{title}'.");
             }
         }
 
-        using var compiledLines = dialogue.Get("lines").AsGodotDictionary();
         foreach (var staticId in staticIds)
         {
-            var runtimeIds = DialogueManager.StaticIdToLineIds(dialogue, staticId);
-            if (runtimeIds.Count != 1)
+            var runtimeIds = gateway.ResolveStaticId(staticId);
+            if (runtimeIds.Count != 1 || !gateway.HasCompiledStaticLine(staticId))
             {
                 throw new InvalidOperationException(
-                    $"Static ID '{staticId}' resolved to {runtimeIds.Count} runtime IDs."
-                );
-            }
-
-            var runtimeId = runtimeIds[0];
-            if (!compiledLines.ContainsKey(runtimeId))
-            {
-                throw new InvalidOperationException(
-                    $"Static ID '{staticId}' resolved to missing runtime ID '{runtimeId}'."
-                );
-            }
-
-            using var compiledLine = compiledLines[runtimeId].AsGodotDictionary();
-            var translationKey = compiledLine["translation_key"].AsString();
-            if (!string.Equals(translationKey, staticId, StringComparison.Ordinal))
-            {
-                throw new InvalidOperationException(
-                    $"Runtime ID '{runtimeId}' has translation key '{translationKey}', " +
-                    $"expected '{staticId}'."
+                    $"Static ID '{staticId}' did not resolve to one compiled line."
                 );
             }
         }
+    }
 
-        using var firstLine = await DialogueManager.GetNextDialogueLine(
-            dialogue,
-            "start",
-            null,
-            MutationBehaviour.Skip
-        );
-
-        if (firstLine is null)
+    private static void ValidateStageState(StageController stage)
+    {
+        if (
+            stage.BackgroundId != "autumn_room" ||
+            stage.OverlayId != "autumn_glow" ||
+            stage.AnimationId != "leaf_shiver" ||
+            stage.TransitionId != "slow_dissolve"
+        )
         {
-            throw new InvalidOperationException("The 'start' title returned no printable line.");
+            throw new InvalidOperationException("Stage scene state is incorrect at the first choice.");
         }
 
-        if (!string.Equals(firstLine.TranslationKey, "ST_PRT_L001", StringComparison.Ordinal))
+        if (
+            !stage.Characters.ContainsKey("minoriko") ||
+            !stage.Characters.ContainsKey("shizuha")
+        )
+        {
+            throw new InvalidOperationException("Stage character state is incomplete.");
+        }
+    }
+
+    private static void ValidateFirstChoices(VNDirector director)
+    {
+        var line = director.CurrentLine
+            ?? throw new InvalidOperationException("The first choice line is unavailable.");
+        var expectedChoiceIds = new[]
+        {
+            "ST_AHW_R001",
+            "ST_AHW_R002",
+            "ST_AHW_R003",
+        };
+        var actualChoiceIds = line.Choices.Select(choice => choice.StaticId).ToArray();
+
+        if (!actualChoiceIds.SequenceEqual(expectedChoiceIds, StringComparer.Ordinal))
         {
             throw new InvalidOperationException(
-                $"'start' resolved to '{firstLine.TranslationKey}', expected 'ST_PRT_L001'."
+                $"Unexpected first choice IDs: {string.Join(", ", actualChoiceIds)}."
+            );
+        }
+    }
+
+    private static void ValidateBranchResult(
+        GameSession session,
+        VNDirector director,
+        BranchExpectation expectation
+    )
+    {
+        if (!string.Equals(
+                director.CurrentLine?.StaticId,
+                expectation.TargetStaticId,
+                StringComparison.Ordinal
+            ))
+        {
+            throw new InvalidOperationException(
+                $"Choice {expectation.ChoiceIndex} reached " +
+                $"'{director.CurrentLine?.StaticId}', expected '{expectation.TargetStaticId}'."
             );
         }
 
-        if (!firstLine.Text.Contains("风里有泥土", StringComparison.Ordinal))
+        if (
+            session.minoriko_affection != expectation.MinorikoAffection ||
+            session.shizuha_trust != expectation.ShizuhaTrust ||
+            session.autumn_mystery != expectation.AutumnMystery
+        )
         {
-            throw new InvalidOperationException("The first Chinese line was not imported intact.");
+            throw new InvalidOperationException(
+                $"Choice {expectation.ChoiceIndex} produced state " +
+                $"{session.minoriko_affection}/{session.shizuha_trust}/{session.autumn_mystery}, " +
+                $"expected {expectation.MinorikoAffection}/" +
+                $"{expectation.ShizuhaTrust}/{expectation.AutumnMystery}."
+            );
         }
-
-        dialogue.SetScript(default);
     }
 
     private static void ValidateProjectSettings()
@@ -235,4 +433,38 @@ public partial class SmokePrologue : Node
             }
         }
     }
+
+    private static void ValidateFonts()
+    {
+        var fontPaths = new[]
+        {
+            "res://assets/fonts/SourceHanSansCN-Regular.otf",
+            "res://assets/fonts/SourceHanSansCN-Medium.otf",
+            "res://assets/fonts/SourceHanSansCN-Bold.otf",
+        };
+        var requiredCharacters = "旅人秋穰子静叶，。？！……";
+
+        foreach (var fontPath in fontPaths)
+        {
+            using var font = ResourceLoader.Load<FontFile>(fontPath)
+                ?? throw new InvalidOperationException($"Unable to load font '{fontPath}'.");
+            foreach (var character in requiredCharacters)
+            {
+                if (!font.HasChar(character))
+                {
+                    throw new InvalidOperationException(
+                        $"Font '{fontPath}' is missing required character '{character}'."
+                    );
+                }
+            }
+        }
+    }
+
+    private sealed record BranchExpectation(
+        int ChoiceIndex,
+        string TargetStaticId,
+        int MinorikoAffection,
+        int ShizuhaTrust,
+        int AutumnMystery
+    );
 }
