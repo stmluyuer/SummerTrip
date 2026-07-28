@@ -1,0 +1,115 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://features/menu/TitleMenu.cs" id="1_script"]
+[ext_resource type="Theme" path="res://ui/themes/vn_theme.tres" id="2_theme"]
+
+[node name="TitleMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.13, 0.055, 0.025, 1)
+
+[node name="Accent" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 0.38
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.76, 0.29, 0.05, 0.78)
+
+[node name="Content" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 150.0
+offset_top = 120.0
+offset_right = -150.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Columns" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 170
+
+[node name="Brand" type="VBoxContainer" parent="Content/Columns"]
+custom_minimum_size = Vector2(680, 0)
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Title" type="Label" parent="Content/Columns/Brand"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.91, 0.68, 1)
+theme_override_font_sizes/font_size = 76
+text = "SUMMER TRIP"
+
+[node name="Subtitle" type="Label" parent="Content/Columns/Brand"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.76, 0.4, 1)
+theme_override_font_sizes/font_size = 34
+text = "秋日旅途 · 序章"
+
+[node name="Version" type="Label" parent="Content/Columns/Brand"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.66, 0.48, 1)
+theme_override_font_sizes/font_size = 22
+text = "Godot Migration 0.1.0-m6"
+
+[node name="Buttons" type="VBoxContainer" parent="Content/Columns"]
+custom_minimum_size = Vector2(480, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="NewGameButton" type="Button" parent="Content/Columns/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+text = "新游戏"
+
+[node name="ContinueButton" type="Button" parent="Content/Columns/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+text = "继续"
+
+[node name="LoadButton" type="Button" parent="Content/Columns/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+text = "读取"
+
+[node name="SettingsButton" type="Button" parent="Content/Columns/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+text = "设置"
+
+[node name="AboutButton" type="Button" parent="Content/Columns/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+text = "关于"
+
+[node name="ExitButton" type="Button" parent="Content/Columns/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+text = "退出"

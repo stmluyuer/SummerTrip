@@ -49,6 +49,22 @@ public sealed record LoadedSave(
     bool ScreenshotExists
 );
 
+public enum SaveSlotStatus
+{
+    Empty,
+    Valid,
+    ScreenshotMissing,
+    Corrupt,
+}
+
+public sealed record SaveSlotSummary(
+    SaveSlot Slot,
+    SaveSlotStatus Status,
+    SaveDocument? Document,
+    string? ScreenshotPath,
+    string? Error
+);
+
 internal enum SaveWriteCheckpoint
 {
     ScreenshotValidated,
@@ -238,6 +254,119 @@ public sealed class SaveService
         return new LoadedSave(document, File.Exists(screenshotPath));
     }
 
+    public SaveSlotSummary Inspect(SaveSlot slot)
+    {
+        if (!File.Exists(GetSlotJsonPath(slot)))
+        {
+            return new SaveSlotSummary(
+                slot,
+                SaveSlotStatus.Empty,
+                null,
+                null,
+                null
+            );
+        }
+
+        try
+        {
+            var loaded = Load(slot);
+            var screenshotPath = ResolveControlledRelativePath(
+                loaded.Document.ScreenshotPath
+            );
+            return new SaveSlotSummary(
+                slot,
+                loaded.ScreenshotExists
+                    ? SaveSlotStatus.Valid
+                    : SaveSlotStatus.ScreenshotMissing,
+                loaded.Document,
+                loaded.ScreenshotExists ? screenshotPath : null,
+                loaded.ScreenshotExists ? null : "存档截图缺失，仍可读取。"
+            );
+        }
+        catch (Exception exception) when (
+            exception is IOException ||
+            exception is UnauthorizedAccessException ||
+            exception is SaveValidationException
+        )
+        {
+            return new SaveSlotSummary(
+                slot,
+                SaveSlotStatus.Corrupt,
+                null,
+                null,
+                $"存档已损坏：{exception.Message}"
+            );
+        }
+    }
+
+    public SaveSlotSummary? GetLatestValidSlot()
+    {
+        SaveSlotSummary? latest = null;
+        DateTimeOffset latestSavedAt = DateTimeOffset.MinValue;
+        foreach (var kind in new[]
+        {
+            SaveSlotKind.Manual,
+            SaveSlotKind.Quick,
+            SaveSlotKind.Auto,
+        })
+        {
+            var count = kind switch
+            {
+                SaveSlotKind.Manual => ManualSlotCount,
+                SaveSlotKind.Quick => QuickSlotCount,
+                SaveSlotKind.Auto => AutoSlotCount,
+                _ => 0,
+            };
+            for (var index = 1; index <= count; index++)
+            {
+                var summary = Inspect(new SaveSlot(kind, index));
+                if (
+                    summary.Status is not (
+                        SaveSlotStatus.Valid or SaveSlotStatus.ScreenshotMissing
+                    ) ||
+                    summary.Document is null ||
+                    !DateTimeOffset.TryParseExact(
+                        summary.Document.SavedAt,
+                        "O",
+                        CultureInfo.InvariantCulture,
+                        DateTimeStyles.RoundtripKind,
+                        out var savedAt
+                    ) ||
+                    savedAt <= latestSavedAt
+                )
+                {
+                    continue;
+                }
+
+                latest = summary;
+                latestSavedAt = savedAt;
+            }
+        }
+
+        return latest;
+    }
+
+    public void Delete(SaveSlot slot)
+    {
+        var jsonPath = GetSlotJsonPath(slot);
+        var directory = Path.GetDirectoryName(jsonPath)
+            ?? throw new InvalidOperationException("Save slot path has no directory.");
+        if (!Directory.Exists(directory))
+        {
+            return;
+        }
+
+        foreach (var path in Directory.EnumerateFiles(
+            directory,
+            $"{GetSlotBaseName(slot)}.*"
+        ))
+        {
+            File.Delete(path);
+        }
+
+        TryUpdateIndex();
+    }
+
     public ProfileData LoadProfile()
     {
         if (!File.Exists(_profilePath))
@@ -294,11 +423,9 @@ public sealed class SaveService
         {
             Directory.CreateDirectory(_saveRoot);
             var entries = EnumerateSlotJsonFiles()
-                .Select(path => new SaveIndexEntry
-                {
-                    Path = Path.GetRelativePath(_saveRoot, path).Replace('\\', '/'),
-                    SavedAt = SaveSchema.Deserialize(File.ReadAllText(path)).SavedAt,
-                })
+                .Select(TryReadIndexEntry)
+                .Where(entry => entry is not null)
+                .Select(entry => entry!)
                 .OrderByDescending(entry => entry.SavedAt, StringComparer.Ordinal)
                 .ToList();
             var index = new SaveIndexData { SchemaVersion = 1, Entries = entries };
@@ -322,6 +449,26 @@ public sealed class SaveService
         )
         {
             GD.PushWarning($"Save index cache could not be updated: {exception.Message}");
+        }
+    }
+
+    private SaveIndexEntry? TryReadIndexEntry(string path)
+    {
+        try
+        {
+            return new SaveIndexEntry
+            {
+                Path = Path.GetRelativePath(_saveRoot, path).Replace('\\', '/'),
+                SavedAt = SaveSchema.Deserialize(File.ReadAllText(path)).SavedAt,
+            };
+        }
+        catch (Exception exception) when (
+            exception is IOException ||
+            exception is UnauthorizedAccessException ||
+            exception is SaveValidationException
+        )
+        {
+            return null;
         }
     }
 

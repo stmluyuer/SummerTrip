@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://app/Main.cs" id="1_main"]
-[ext_resource type="PackedScene" path="res://features/vn/vn_mode.tscn" id="2_vn"]
+[ext_resource type="PackedScene" path="res://app/app_shell.tscn" id="2_shell"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -12,5 +12,5 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_main")
 
-[node name="VNMode" parent="." instance=ExtResource("2_vn")]
+[node name="AppShell" parent="." instance=ExtResource("2_shell")]
 layout_mode = 1

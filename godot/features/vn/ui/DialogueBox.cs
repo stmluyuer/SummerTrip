@@ -1,25 +1,28 @@
 using Godot;
 using SummerTrip.Core.Dialogue;
+using SummerTrip.Core.Settings;
 using System;
 
 namespace SummerTrip.Features.Vn.Ui;
 
 public partial class DialogueBox : Control
 {
-    private const float CharactersPerSecond = 48.0f;
-
     private Label _characterName = null!;
     private RichTextLabel _dialogueText = null!;
     private VBoxContainer _choices = null!;
     private VNDirector? _director;
     private DialogueEntry? _line;
+    private SettingsService? _settings;
     private float _visibleCharacterProgress;
+
+    public event Action? MenuRequested;
 
     public override void _Ready()
     {
         _characterName = GetNode<Label>("%CharacterName");
         _dialogueText = GetNode<RichTextLabel>("%DialogueText");
         _choices = GetNode<VBoxContainer>("%Choices");
+        _settings = GetNodeOrNull<SettingsService>("/root/SettingsService");
         SetProcess(false);
     }
 
@@ -40,7 +43,8 @@ public partial class DialogueBox : Control
             return;
         }
 
-        _visibleCharacterProgress += CharactersPerSecond * (float)delta;
+        _visibleCharacterProgress +=
+            (_settings?.Current.TextCharactersPerSecond ?? 48.0f) * (float)delta;
         _dialogueText.VisibleCharacters = Mathf.FloorToInt(_visibleCharacterProgress);
         if (_dialogueText.VisibleCharacters >= _line.Text.Length)
         {
@@ -57,7 +61,7 @@ public partial class DialogueBox : Control
 
         if (@event.IsActionPressed("vn_menu"))
         {
-            _director.ToggleMenuOperation();
+            MenuRequested?.Invoke();
             GetViewport().SetInputAsHandled();
             return;
         }

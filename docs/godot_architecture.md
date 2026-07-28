@@ -12,7 +12,7 @@
 - `migration/manifests/`：保存角色、变量和资源的一对一迁移映射。
 - `migration/manifests/asset_licenses.tsv`：保存资源授权核实状态和再发布范围。
 
-当前状态：`M0` 至 `M5` 已完成；Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、完整序章六条路线、三个结尾、舞台表现和无槽位 UI 的存读档闭环已验证，下一阶段是 `M6` 菜单与设置。
+当前状态：`M0` 至 `M6` 已完成；Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、完整序章六条路线、三个结尾、舞台表现、存读档、菜单和持久化设置均已接入，下一阶段是 `M7` AVG 辅助功能。
 
 ## 2. 设计目标与边界
 
@@ -50,9 +50,9 @@
 
 ### 3.1 持久外壳，按模式替换内容
 
-`Main` 是唯一常驻的游戏入口。它保留全局 UI 和当前会话，在 `ModeHost` 下装载或卸载 `VNMode`、未来的探索模式或小游戏模式。
+`Main` 是唯一常驻的游戏入口，`AppShell` 保留全局 UI 和共享服务，并在 `ModeHost` 下装载或卸载 `VNMode`、未来的探索模式或小游戏模式。
 
-模式切换不应销毁设置服务、存档服务或当前会话。模式内部的舞台、输入和临时动画状态则随模式释放。
+设置服务和存档服务不随模式切换销毁；`GameSession` 由 `VNMode` 持有，返回标题时随旧模式释放，未来在游戏内切换其他模式时再显式移交。模式内部的舞台、输入和临时动画状态随模式释放。
 
 ### 3.2 场景拥有运行时对象
 
@@ -109,6 +109,8 @@ godot/
 ├─ third_party/
 │  └─ dialogue_manager.NOTICE.md        # 上游版本、提交与许可证位置
 ├─ app/
+│  ├─ app_shell.tscn
+│  ├─ AppShell.cs
 │  ├─ main.tscn
 │  └─ Main.cs
 ├─ core/
@@ -167,6 +169,8 @@ godot/
 └─ tests/
    ├─ SmokePrologue.cs
    ├─ SaveRoundtrip.cs
+   ├─ FullPrologue.cs
+   ├─ M6MenuSettings.cs
    └─ ValidateContent.cs
 ```
 
@@ -178,20 +182,22 @@ godot/
 
 ```text
 Main
-├─ ModeHost
-│  └─ VNMode                        # 当前模式，可被其他模式替换
-└─ GlobalUI
-   ├─ MenuLayer
-   ├─ NotificationLayer
-   └─ ConfirmLayer
+└─ AppShell
+   ├─ ModeHost
+   │  └─ VNMode                     # 当前模式，可被其他模式替换
+   ├─ TitleMenu
+   └─ GlobalUI
+      ├─ MenuLayer
+      ├─ NotificationLayer
+      └─ ConfirmLayer
 ```
 
-`Main` 的职责：
+`AppShell` 的职责：
 
-- 创建或接收当前 `GameSession`。
-- 装载和卸载游戏模式。
+- 持有跨标题菜单和游戏模式使用的 `SaveService`。
+- 创建和释放拥有当前 `GameSession` 的游戏模式。
 - 协调标题菜单、继续游戏和返回标题。
-- 把会话与共享服务注入当前模式。
+- 协调保存、读取、历史、设置、确认和通知界面。
 - 不直接显示对白或操作角色立绘。
 
 ### 5.2 AVG 模式
@@ -221,7 +227,7 @@ VNMode
 
 | 模块 | 拥有的数据 | 允许调用 | 不负责 |
 | --- | --- | --- | --- |
-| `Main` | 当前模式、当前会话引用 | 模式、全局 UI、共享服务 | 对白逐句推进、舞台动画 |
+| `AppShell` | 当前模式、全局菜单、确认和通知 | 模式、全局 UI、共享服务 | 对白逐句推进、舞台动画 |
 | `GameSession` | 玩家名、路线值、剧情标记、当前章节、历史、游玩时间 | 纯数据转换和校验 | 文件读写、节点操作 |
 | `ProfileData` | 已读对白、已解锁结局、未来的 CG/成就 | 合并和序列化 | 当前存档路线值 |
 | `DialogueGateway` | Dialogue Manager 版本适配 | 插件公开 API | UI、舞台节点、存档文件 |
@@ -229,7 +235,7 @@ VNMode
 | `VNDirector` | 当前对白、下一位置、运行状态 | Gateway、Stage、DialogueUI | 磁盘路径、资源文件路径 |
 | `StageController` | 当前背景、叠色、角色槽和转场状态 | ContentCatalog、Tween/AnimationPlayer | 剧情分支、存档槽 |
 | `DialogueUI` | 当前显示文本和控件临时状态 | 通过信号向 Director 发请求 | 修改剧情变量 |
-| `SaveService` | 槽位索引、存档与配置文件 | `FileAccess`、`DirAccess` | 从场景树主动抓取状态 |
+| `SaveService` | 槽位索引、存档与 Profile 文件 | 受控路径下的 .NET 文件 API | 从场景树主动抓取状态 |
 | `SettingsService` | 显示、文字速度、自动等待、音量设置 | Godot 窗口和音频 API | 剧情状态 |
 | `ContentCatalog` | 语义 ID 到 Godot 资源的映射 | `ResourceLoader` | 运行时进度 |
 
@@ -238,10 +244,11 @@ VNMode
 依赖只允许从组合层指向具体能力：
 
 ```text
-Main
-├─ GameSession
+AppShell
 ├─ SaveService
+├─ GlobalUI
 └─ VNMode
+   ├─ GameSession
    ├─ VNDirector
    │  ├─ DialogueGateway ──> Dialogue Manager
    │  ├─ DialogueContext ──> GameSession + StageController
@@ -256,7 +263,7 @@ Main
 2. `VNDirector` 决定意图在当前状态是否有效。
 3. `StageController` 完成动画后发出完成信号或返回可等待的调用。
 4. `SaveService` 接收已经构造好的基础类型快照；它不搜索 `VNDirector` 或 `Stage`。
-5. 加载时 `SaveService` 返回已校验的数据，由 `Main` 和 `VNDirector` 执行恢复。
+5. 加载时 `SaveService` 返回已校验的数据，由 `AppShell` 和 `VNDirector` 执行恢复。
 6. 跨模块访问不得依赖硬编码的远距离 `NodePath`。
 
 ## 8. Dialogue Manager 对接
@@ -553,7 +560,6 @@ ui_cancel
 | 名称 | 原因 |
 | --- | --- |
 | `DialogueManager` | Dialogue Manager 插件提供的运行入口 |
-| `SaveService` | 跨标题菜单和游戏模式访问，且只管理自己的文件与索引 |
 | `SettingsService` | 跨场景保持并应用用户设置 |
 
 暂不设为 Autoload：
@@ -566,7 +572,7 @@ ui_cancel
 - `HistoryManager`
 - `AudioService`
 
-`ProfileData` 可由 `SaveService` 加载并交给 `Main` 持有。当前项目没有音频调用，等音频实际进入工程后再判断是否需要跨模式服务。
+`SaveService` 保持为不依赖场景树的普通 C# 服务，由常驻 `AppShell` 持有并提供给标题菜单和当前游戏模式；UI 只提交槽位意图，不拼接路径或直接写文件。`ProfileData` 由 `SaveService` 加载并交给 `VNMode` 持有。当前项目没有音频调用，等音频实际进入工程后再判断是否需要跨模式服务。
 
 ## 14. 验证策略
 
@@ -577,6 +583,8 @@ ui_cancel
 | `tests/SmokePrologue.cs` | `.dialogue` 可编译、入口存在、全部静态 ID 唯一且能各自解析为一个运行时 ID、能到达第一处选择 |
 | `tests/SaveRoundtrip.cs` | 快照写入、进程内清空、静态 ID 恢复后字段完全一致，失败读档不改变当前会话或 Profile |
 | `tests/ValidateContent.cs` | 剧情使用的背景、角色、位置、叠色和转场 ID 均存在 |
+| `tests/FullPrologue.cs` | 六条路线、三个结尾、全文与选项、Profile 和轮换自动档 |
+| `tests/M6MenuSettings.cs` | 菜单暂停状态、跨类型继续、槽位状态与删除、3×2 页面、设置重启持久化和键盘焦点 |
 
 人工验证以 `godot_feature_checklist.md` 的回归路线为准。存档 UI 开始前，必须先通过稳定 ID 恢复和变量不重复增加的专项验证。
 

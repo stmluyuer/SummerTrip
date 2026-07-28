@@ -1,0 +1,108 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://features/save_ui/SaveLoadScreen.cs" id="1_script"]
+[ext_resource type="Theme" path="res://ui/themes/vn_theme.tres" id="2_theme"]
+
+[node name="SaveLoadScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Shade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.035, 0.018, 0.01, 0.94)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 90.0
+offset_top = 45.0
+offset_right = -90.0
+offset_bottom = -45.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Layout" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Toolbar" type="HBoxContainer" parent="Margin/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Heading" type="Label" parent="Margin/Layout/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.76, 0.4, 1)
+theme_override_font_sizes/font_size = 42
+text = "读取游戏"
+
+[node name="ManualButton" type="Button" parent="Margin/Layout/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 54)
+layout_mode = 2
+text = "手动"
+
+[node name="AutoButton" type="Button" parent="Margin/Layout/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 54)
+layout_mode = 2
+text = "自动"
+
+[node name="QuickButton" type="Button" parent="Margin/Layout/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 54)
+layout_mode = 2
+text = "快速"
+
+[node name="CloseButton" type="Button" parent="Margin/Layout/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 54)
+layout_mode = 2
+text = "返回"
+
+[node name="SlotGrid" type="GridContainer" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 14
+columns = 3
+
+[node name="Pagination" type="HBoxContainer" parent="Margin/Layout"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="PreviousButton" type="Button" parent="Margin/Layout/Pagination"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 54)
+layout_mode = 2
+text = "上一页"
+
+[node name="PageLabel" type="Label" parent="Margin/Layout/Pagination"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 54)
+layout_mode = 2
+text = "1 / 9"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NextButton" type="Button" parent="Margin/Layout/Pagination"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 54)
+layout_mode = 2
+text = "下一页"

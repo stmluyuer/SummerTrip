@@ -1,0 +1,63 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://features/save_ui/SaveSlot.cs" id="1_script"]
+
+[node name="SaveSlot" type="PanelContainer"]
+custom_minimum_size = Vector2(500, 360)
+script = ExtResource("1_script")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="Layout" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SelectButton" type="Button" parent="Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "手动 01"
+
+[node name="Screenshot" type="TextureRect" parent="Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(384, 216)
+layout_mode = 2
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="HBoxContainer" parent="Margin/Layout"]
+layout_mode = 2
+
+[node name="Labels" type="VBoxContainer" parent="Margin/Layout/Info"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title" type="Label" parent="Margin/Layout/Info/Labels"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "空槽位"
+
+[node name="Time" type="Label" parent="Margin/Layout/Info/Labels"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+
+[node name="Status" type="Label" parent="Margin/Layout/Info/Labels"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.54, 0.23, 0.08, 1)
+theme_override_font_sizes/font_size = 18
+text = "可保存"
+
+[node name="DeleteButton" type="Button" parent="Margin/Layout/Info"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 50)
+layout_mode = 2
+text = "删除"

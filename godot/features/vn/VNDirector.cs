@@ -255,7 +255,7 @@ public partial class VNDirector : Node
 
             saveService.SaveProfile(candidateProfile);
             _profile.ReplaceWith(candidateProfile);
-            Operation = OperationState.None;
+            Operation = previousOperation;
         }
         catch
         {
