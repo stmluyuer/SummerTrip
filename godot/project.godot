@@ -11,10 +11,10 @@ config_version=5
 [application]
 
 config/name="SummerTrip"
-config/version="0.1.0-m2"
+config/version="0.1.0-m3"
 run/main_scene="res://app/main.tscn"
 config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="res://assets/ui/window_icon.png"
 
 [autoload]
 

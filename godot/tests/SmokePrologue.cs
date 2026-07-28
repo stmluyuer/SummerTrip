@@ -159,7 +159,12 @@ public partial class SmokePrologue : Node
     )
     {
         using var session = new GameSession();
-        var stage = new StageController();
+        using var stageScene = ResourceLoader.Load<PackedScene>(
+            "res://features/vn/stage/stage.tscn"
+        ) ?? throw new InvalidOperationException("Unable to load the stage scene.");
+        var stage = stageScene.Instantiate<StageController>();
+        stage.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.TopLeft);
+        stage.Size = new Vector2(1920, 1080);
         var director = new VNDirector();
         AddChild(stage);
         AddChild(director);
@@ -239,6 +244,7 @@ public partial class SmokePrologue : Node
                 }
             }
 
+            await ToSignal(GetTree().CreateTimer(0.35), SceneTreeTimer.SignalName.Timeout);
             ValidateStageState(stage);
             ValidateFirstChoices(director);
 
@@ -332,6 +338,30 @@ public partial class SmokePrologue : Node
         )
         {
             throw new InvalidOperationException("Stage character state is incomplete.");
+        }
+
+        if (stage.BackgroundTexture is null || stage.OverlayAlpha <= 0.0f)
+        {
+            throw new InvalidOperationException("Stage visual resources were not applied.");
+        }
+
+        ValidateCharacterLayout(stage.GetCharacterNode("minoriko"), 0.72f);
+        ValidateCharacterLayout(stage.GetCharacterNode("shizuha"), 0.28f);
+    }
+
+    private static void ValidateCharacterLayout(TextureRect? character, float expectedX)
+    {
+        if (
+            character is null ||
+            !Mathf.IsEqualApprox(character.AnchorLeft, expectedX) ||
+            !Mathf.IsEqualApprox(character.AnchorTop, 1.02f) ||
+            !character.Scale.IsEqualApprox(Vector2.One * 0.66f) ||
+            character.Modulate.A < 0.99f
+        )
+        {
+            throw new InvalidOperationException(
+                $"Character layout did not reach x={expectedX}, y=1.02, scale=0.66."
+            );
         }
     }
 

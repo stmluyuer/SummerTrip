@@ -12,7 +12,7 @@
 - `migration/manifests/`：保存角色、变量和资源的一对一迁移映射。
 - `migration/manifests/asset_licenses.tsv`：保存资源授权核实状态和再发布范围。
 
-当前状态：`M0`、`M1`、`M2` 已完成；Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、最小 VN 对话界面和首个三选项的三条分支已验证，下一阶段是 `M3` 舞台表现竖切。
+当前状态：`M0`、`M1`、`M2`、`M3` 已完成；Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、最小 VN 对话界面、首个三选项的三条分支和舞台表现竖切已验证，下一阶段是 `M4` 存读档闭环。
 
 ## 2. 设计目标与边界
 

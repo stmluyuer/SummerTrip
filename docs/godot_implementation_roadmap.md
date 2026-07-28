@@ -14,7 +14,7 @@
 - `migration/manifests/asset_licenses.tsv`：全部复制资源的授权状态记录。
 - `tools/check_assets.ps1`：资源清单、精确复制源和授权记录覆盖校验。
 
-当前状态：`M0`、`M1`、`M2` 已完成，`M3` 是下一阶段。
+当前状态：`M0`、`M1`、`M2`、`M3` 已完成，`M4` 是下一阶段。
 
 ## 2. 状态定义
 
@@ -260,7 +260,7 @@ godot/tests/SmokePrologue.cs
 
 ## 8. M3：舞台表现竖切
 
-状态：`未开始`
+状态：`已完成`
 
 ### 目标
 
@@ -315,6 +315,8 @@ godot/tests/ValidateContent.cs
 - 开场到第一处选项的画面和原版基准一致。
 - 剧情文件中不存在 `res://`、节点路径或像素坐标。
 - `ValidateContent.cs` 通过。
+
+实际验证结果：C# 构建为 0 个错误；Godot 4.7.1 .NET 重导入和主场景 headless 启动通过；`ValidateContent.cs` 输出 `VALIDATE_CONTENT_OK backgrounds=2 characters=2 positions=2 overlays=2 ui=4`，M2 序章 smoke 继续输出 `SMOKE_PROLOGUE_M2_OK titles=16 static_ids=115 first_choice_branches=3`。测试覆盖资源解析、未知语义 ID 报错、背景铺满、角色锚点与缩放、0.28 秒入场、叠色动画参数、换场清理和剧情语义边界。
 
 ## 9. M4：存读档闭环
 
@@ -573,8 +575,8 @@ godot/export_presets.cfg
 
 ## 16. 下一步
 
-`M0`、`M1` 和 `M2` 已完成：Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、最小 VN 对话界面，以及开场到第一处三选项的三条分支均已落地并通过验证。
+`M0`、`M1`、`M2` 和 `M3` 已完成：Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、最小 VN 对话界面、首个三选项的三条分支，以及背景、立绘、叠色和转场舞台表现均已落地并通过验证。
 
-下一步进入 `M3`，建立内容目录并为现有语义舞台状态接入背景、角色、叠色和转场表现，使开场到第一处选项的画面接近 Ren'Py 基准。
+下一步进入 `M4`，实现稳定行 ID 驱动的存读档闭环、原子写入和读档失败回滚，并先用无存档槽 UI 的测试验证四个必测保存点。
 
 全部 41 个复制资源的授权台账已经建立，但所有记录仍未核实，只能用于本地迁移验证，不能进入正式发布。
