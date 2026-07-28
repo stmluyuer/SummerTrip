@@ -6,9 +6,9 @@
 
 - 现有 `game/` 目录是可运行基准，不移动、不改名、不删除。
 - 迁移中间产物统一放在 `migration/`。
-- 当前已完成序章原文、迁移清单、目标架构以及 M1 工程骨架；Godot 4.7.1 .NET、Dialogue Manager v3.10.5、主场景和 headless smoke 已验证。
+- 当前已完成序章原文、迁移清单、目标架构和 M0 技术决策；Godot 工程尚未创建，也未安装生产依赖。
 - 当前对话迁移稿使用 Dialogue Manager 3 的 `.dialogue` 语法，与已锁定的 Dialogue Manager `v3.10.5` 一致。
-- 引擎与对话插件组合已确认为 `Godot 4.7.1-stable` .NET + `Dialogue Manager v3.10.5`；M1 已完成真实工程导入、C# 构建和剧情编译验证。
+- 引擎与对话插件组合已确认为 `Godot 4.7.1-stable` .NET + `Dialogue Manager v3.10.5`，项目自有运行时代码和测试使用 C#；真实工程导入、C# 构建和剧情编译验证在 M1 完成。
 
 ## 2. 当前项目概况
 
@@ -29,7 +29,7 @@
 
 | Ren'Py 来源 | 内容 | 迁移目标 | 处理方式 |
 | --- | --- | --- | --- |
-| `game/aki_sisters_prologue.rpy` | 完整序章、选择、跳转、结尾 | `godot/content/dialogue/prologue.dialogue` | 一对一转换，原文不改 |
+| `game/aki_sisters_prologue.rpy` | 完整序章、选择、跳转、结尾 | `migration/dialogue/prologue.dialogue` | 一对一转换，原文不改 |
 | `game/story_setup.rpy` | 角色、变量、背景、立绘位置 | `characters.tsv`、`variables.tsv`、`presentation.tsv`、`GameSession`、`ContentCatalog` | 拆分整理 |
 | `game/effects.rpy` | 转场和 Tween 参数 | `presentation.tsv`、`Presentation`、AnimationPlayer/Tween | 在 Godot 中重写 |
 | `game/ui_screens.rpy` | 对话框、选择框、快捷菜单覆盖 | Godot `Control` 场景 | 在 Godot 中重写 |
@@ -180,8 +180,8 @@ screenshot_path
 ## 9. 已知疑点与风险
 
 1. `farm_basket` 和 `maple_tree_investigation` 的叙述发生在山路/红叶树下，但原脚本仍使用 `bg autumn_room`。已于 2026-07-28 确认迁移版原样保留；未来替换背景属于内容改版，不属于迁移纠错。
-2. Dialogue Manager 已从官方 `v3.10.5` tag（commit `0049d4d`）原样加入，MIT 许可证和上游版本记录已落库；后续不得直接修改 vendored 插件源码。
-3. `.dialogue` 已在 Godot 4.7.1 .NET 中成功编译；16 个 title 和 115 个静态 ID 已通过运行时 smoke 验证，每个静态 ID 恰好解析为一个运行时 ID。
+2. Dialogue Manager 尚未加入仓库。版本已锁定为官方面向 Godot 4.7 的 `v3.10.5`（commit `0049d4d`）；M1 安装时必须同时提交 MIT 许可证，并保持第三方源码不作项目内修改。
+3. 当前没有可用于验证 `.dialogue` 编译结果的 Godot 工程或 Dialogue Manager 插件。本阶段只能检查文本、标题、跳转、静态 ID 和缩进结构；静态 ID 到运行时 ID 的解析必须在 M1 验证。
 4. `asset_licenses.tsv` 已覆盖 24 个 P0 资源，但全部记录仍为 `unverified`、`local_validation_only`。P1/P2 在进入迁移范围时建档；所有正式资源在发布前仍须补全作者、来源、许可证和可再发布范围。
 5. 字体目录约 61 MB；当前剧情实际需要 Regular、Medium 和 Bold。Heavy 只用于尚未被剧情调用的通用输入样式，延后到确认新增姓名输入时再迁移；其他字重可在 Godot 构建验证后排除。
 6. 手机版 GUI 素材存在，但第一阶段发布范围已限定为 Windows；移动端素材继续延后，不进入当前工程。
@@ -190,7 +190,7 @@ screenshot_path
 
 | 文件 | 用途 |
 | --- | --- |
-| `godot/content/dialogue/prologue.dialogue` | Godot 工程内唯一可编辑的完整序章 Dialogue Manager 原文 |
+| `migration/dialogue/prologue.dialogue` | 完整序章 Dialogue Manager 原文 |
 | `migration/manifests/assets.tsv` | 资源迁移、复用和排除清单 |
 | `migration/manifests/asset_licenses.tsv` | P0 资源授权状态与再发布范围记录 |
 | `migration/manifests/characters.tsv` | 角色与立绘位置清单 |

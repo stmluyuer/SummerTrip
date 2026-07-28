@@ -9,12 +9,12 @@
 - [Godot 迁移清单](godot_migration_inventory.md)：迁移输入。
 - [Godot 架构设计](godot_architecture.md)：目标结构和模块边界。
 - [Godot 功能对等验收表](godot_feature_checklist.md)：最终验收标准。
-- `godot/content/dialogue/prologue.dialogue`：Godot 工程内唯一可编辑的序章剧情源。
+- `migration/dialogue/prologue.dialogue`：已整理的序章剧情。
 - `migration/manifests/`：资源、角色、变量和舞台表现映射。
 - `migration/manifests/asset_licenses.tsv`：P0 资源授权状态记录。
 - `tools/check_assets.ps1`：资源清单、精确复制源和授权记录覆盖校验。
 
-当前状态：`M0`、`M1` 已完成，`M2` 是下一阶段。
+当前状态：`M0` 已完成，`M1` 尚未开始。
 
 ## 2. 状态定义
 
@@ -148,13 +148,11 @@ tools/check_assets.ps1
 
 ## 6. M1：工程骨架与依赖验证
 
-状态：`完成（2026-07-28）`
+状态：`未开始`
 
 ### 目标
 
 建立最小 Godot 工程，确认引擎、插件、中文资源和 headless 验证链路可用。
-
-已用 Godot 4.7.1 .NET 编辑器建立 `godot/` 子项目，项目自有代码采用 C#/.NET 8。Dialogue Manager v3.10.5、主场景、输入动作、序章源文件和 headless smoke 已加入并通过全新缓存验证。
 
 ### 预计文件
 
@@ -196,8 +194,6 @@ godot/third_party/dialogue_manager.NOTICE.md
 - `Godot 4.7.1-stable` 与 `Dialogue Manager v3.10.5` 在本机验证通过。
 - 工程从全新导入缓存启动成功。
 - 没有把 `.godot/` 缓存、编辑器日志或导出包提交进仓库。
-
-实际验证结果：C# 构建为 0 个错误；主场景输出 `SummerTrip M1 bootstrap ready.`；smoke 输出 `SMOKE_PROLOGUE_OK titles=16 static_ids=115 first=ST_PRT_L001`。构建中的 23 条可空性警告全部来自未修改的上游 Dialogue Manager C# 文件。
 
 ## 7. M2：纯对话竖切
 
@@ -571,8 +567,8 @@ godot/export_presets.cfg
 
 ## 16. 下一步
 
-`M0` 和 `M1` 已完成：Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、主场景、序章编译和稳定 ID smoke 均已落地并通过验证。
+`M0` 已完成：项目基线确认为 Godot 4.7.1 .NET、C# 业务代码和 Dialogue Manager v3.10.5，D-002 与 D-003 已确定，P0 授权台账已经建立。
 
-下一步进入 `M2`，用 C# 实现 `DialogueContext`、`DialogueGateway`、`GameSession`、最小 `VNMode` 和对话框，跑通开场到第一处三选项。
+下一步进入 `M1`，建立最小 Godot 工程并验证插件导入、C# 构建、中文序章编译、稳定 ID 恢复和 headless smoke。
 
 P0 授权台账已经建立，但 24 项记录仍未核实，只能用于本地迁移验证，不能进入正式发布。
