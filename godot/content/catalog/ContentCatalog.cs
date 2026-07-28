@@ -30,6 +30,12 @@ public sealed record TransitionDefinition(
     Color Color
 );
 
+public sealed record ChapterDefinition(
+    string TitleKey,
+    IReadOnlyDictionary<string, string> AutosaveTitleFirstLines,
+    IReadOnlyDictionary<string, string> EndingFinalLines
+);
+
 public partial class ContentCatalog : Resource
 {
     private static readonly Dictionary<string, string> Backgrounds = new()
@@ -76,6 +82,25 @@ public partial class ContentCatalog : Resource
         ["scene_blend"] = new(0.0f, 0.35f, 0.2f, 0.55f, new Color("#120b08")),
     };
 
+    private static readonly Dictionary<string, ChapterDefinition> Chapters = new()
+    {
+        ["prologue"] = new(
+            "chapter.prologue",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["aki_house_wakeup"] = "ST_AHW_L001",
+                ["maple_tree_investigation"] = "ST_MTI_L001",
+                ["route_choice"] = "ST_RTC_L001",
+            },
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["ending_minoriko_prologue"] = "ST_EMI_L005",
+                ["ending_shizuha_prologue"] = "ST_ESH_L005",
+                ["ending_sisters_prologue"] = "ST_ESI_L006",
+            }
+        ),
+    };
+
     public Texture2D GetBackground(string backgroundId)
     {
         return LoadTexture(Backgrounds, backgroundId, "background");
@@ -113,6 +138,11 @@ public partial class ContentCatalog : Resource
     public TransitionDefinition GetTransition(string transitionId)
     {
         return GetRequired(Transitions, transitionId, "transition");
+    }
+
+    public ChapterDefinition GetChapter(string chapterId)
+    {
+        return GetRequired(Chapters, chapterId, "chapter");
     }
 
     public IReadOnlyList<string> Validate()

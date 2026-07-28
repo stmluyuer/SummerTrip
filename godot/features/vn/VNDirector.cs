@@ -34,6 +34,7 @@ public partial class VNDirector : Node
 
     public event Action<DialogueEntry?>? LineChanged;
     public event Action? TypingSkipRequested;
+    public event Action<DialogueEntry>? StableLineReached;
 
     public DialogueEntry? CurrentLine { get; private set; }
     public InteractionState Interaction { get; private set; } = InteractionState.Loading;
@@ -124,6 +125,7 @@ public partial class VNDirector : Node
         Interaction = CurrentLine.Choices.Count > 0
             ? InteractionState.AwaitingChoice
             : InteractionState.AwaitingAdvance;
+        StableLineReached?.Invoke(CurrentLine);
     }
 
     public void ToggleMenuOperation()
@@ -299,10 +301,15 @@ public partial class VNDirector : Node
             _profile?.ReadLineIds.Add(line.StaticId);
         }
 
-        Interaction = forceComplete || string.IsNullOrEmpty(line.Text)
+        var isImmediatelyStable = forceComplete || string.IsNullOrEmpty(line.Text);
+        Interaction = isImmediatelyStable
             ? ResolveWaitingState(line)
             : InteractionState.Typing;
         LineChanged?.Invoke(line);
+        if (isImmediatelyStable && !forceComplete)
+        {
+            StableLineReached?.Invoke(line);
+        }
     }
 
     private static InteractionState ResolveWaitingState(DialogueEntry line)

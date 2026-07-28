@@ -97,6 +97,55 @@ public sealed class SaveService
         return _profilePath;
     }
 
+    public SaveSlot GetNextAutoSlot()
+    {
+        SaveSlot? oldestSlot = null;
+        DateTimeOffset oldestSavedAt = DateTimeOffset.MaxValue;
+        for (var index = 1; index <= AutoSlotCount; index++)
+        {
+            var slot = new SaveSlot(SaveSlotKind.Auto, index);
+            var path = GetSlotJsonPath(slot);
+            if (!File.Exists(path))
+            {
+                return slot;
+            }
+
+            try
+            {
+                var document = SaveSchema.Deserialize(File.ReadAllText(path));
+                if (
+                    !DateTimeOffset.TryParseExact(
+                        document.SavedAt,
+                        "O",
+                        CultureInfo.InvariantCulture,
+                        DateTimeStyles.RoundtripKind,
+                        out var savedAt
+                    )
+                )
+                {
+                    return slot;
+                }
+
+                if (savedAt < oldestSavedAt)
+                {
+                    oldestSavedAt = savedAt;
+                    oldestSlot = slot;
+                }
+            }
+            catch (Exception exception) when (
+                exception is IOException ||
+                exception is UnauthorizedAccessException ||
+                exception is SaveValidationException
+            )
+            {
+                return slot;
+            }
+        }
+
+        return oldestSlot
+            ?? throw new InvalidOperationException("Unable to select an automatic save slot.");
+    }
+
     public SaveDocument Save(SaveSlot slot, SaveDocument document, Image screenshot)
     {
         ArgumentNullException.ThrowIfNull(document);

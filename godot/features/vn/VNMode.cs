@@ -1,5 +1,6 @@
 using Godot;
 using SummerTrip.Core.Dialogue;
+using SummerTrip.Core.Save;
 using SummerTrip.Core.Session;
 using SummerTrip.Features.Vn.Stage;
 using SummerTrip.Features.Vn.Ui;
@@ -14,6 +15,8 @@ public partial class VNMode : Control
     private DialogueGateway? _gateway;
     private GameSession? _session;
     private ProfileData? _profile;
+    private SaveService? _saveService;
+    private PrologueProgression? _progression;
 
     public GameSession Session =>
         _session ?? throw new InvalidOperationException("VNMode is not ready.");
@@ -27,12 +30,20 @@ public partial class VNMode : Control
             var dialogueBox = GetNode<DialogueBox>("%DialogueBox");
 
             _session = new GameSession();
-            _profile = new ProfileData();
+            _saveService = new SaveService();
+            _profile = _saveService.LoadProfile();
             var context = new DialogueContext(_session, stage);
             _gateway = new DialogueGateway(DialoguePath, context);
 
             director.Initialize(_gateway, _session, stage, _profile);
             dialogueBox.Bind(director);
+            _progression = new PrologueProgression(
+                director,
+                _profile,
+                _saveService,
+                stage.Catalog,
+                CaptureSaveScreenshot
+            );
             await director.StartAsync();
         }
         catch (Exception exception)
@@ -43,7 +54,25 @@ public partial class VNMode : Control
 
     public override void _ExitTree()
     {
+        _progression?.Dispose();
         _gateway?.Dispose();
         _session?.Dispose();
+    }
+
+    private Image CaptureSaveScreenshot()
+    {
+        var image = GetViewport().GetTexture().GetImage();
+        if (image.IsEmpty())
+        {
+            image.Dispose();
+            throw new InvalidOperationException("Viewport screenshot is empty.");
+        }
+
+        image.Resize(
+            SaveService.ScreenshotWidth,
+            SaveService.ScreenshotHeight,
+            Image.Interpolation.Lanczos
+        );
+        return image;
     }
 }

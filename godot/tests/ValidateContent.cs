@@ -2,6 +2,7 @@ using Godot;
 using SummerTrip.Content.Catalog;
 using SummerTrip.Features.Vn.Stage;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SummerTrip.Tests;
@@ -83,6 +84,25 @@ public partial class ValidateContent : Node
         RequireUnknown(() => catalog.GetOverlay("unknown"), "overlay");
         RequireUnknown(() => catalog.GetAnimation("unknown"), "animation");
         RequireUnknown(() => catalog.GetTransition("unknown"), "transition");
+        RequireUnknown(() => catalog.GetChapter("unknown"), "chapter");
+
+        var chapter = catalog.GetChapter("prologue");
+        var expectedAutosaveTitles = new[]
+        {
+            "aki_house_wakeup",
+            "maple_tree_investigation",
+            "route_choice",
+        };
+        if (
+            chapter.TitleKey != "chapter.prologue" ||
+            !chapter.AutosaveTitleFirstLines.Keys.SequenceEqual(expectedAutosaveTitles) ||
+            chapter.EndingFinalLines.Count != 3
+        )
+        {
+            throw new InvalidOperationException(
+                "The prologue chapter milestones do not match the M5 catalog."
+            );
+        }
     }
 
     private static void ValidateDialogueSemantics()
