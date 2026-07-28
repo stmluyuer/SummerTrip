@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://features/vn/VNMode.cs" id="1_mode"]
 [ext_resource type="Script" path="res://features/vn/VNDirector.cs" id="2_director"]
 [ext_resource type="PackedScene" path="res://features/vn/stage/stage.tscn" id="3_stage"]
 [ext_resource type="PackedScene" path="res://features/vn/ui/dialogue_box.tscn" id="4_dialogue_box"]
+[ext_resource type="PackedScene" path="res://features/vn/ui/quick_menu.tscn" id="5_quick_menu"]
 
 [node name="VNMode" type="Control"]
 layout_mode = 3
@@ -23,5 +24,9 @@ unique_name_in_owner = true
 script = ExtResource("2_director")
 
 [node name="DialogueBox" parent="." instance=ExtResource("4_dialogue_box")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="QuickMenu" parent="." instance=ExtResource("5_quick_menu")]
 unique_name_in_owner = true
 layout_mode = 1

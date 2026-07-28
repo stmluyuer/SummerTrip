@@ -14,8 +14,11 @@ public partial class DialogueBox : Control
     private DialogueEntry? _line;
     private SettingsService? _settings;
     private float _visibleCharacterProgress;
+    private bool _userHidden;
 
     public event Action? MenuRequested;
+    public event Action? AdvanceRequested;
+    public event Action<int>? ChoiceRequested;
 
     public override void _Ready()
     {
@@ -68,7 +71,7 @@ public partial class DialogueBox : Control
 
         if (@event.IsActionPressed("vn_advance"))
         {
-            _ = AdvanceSafelyAsync();
+            AdvanceRequested?.Invoke();
             GetViewport().SetInputAsHandled();
         }
     }
@@ -85,6 +88,12 @@ public partial class DialogueBox : Control
         _director.TypingSkipRequested += FinishTyping;
     }
 
+    public void SetUserHidden(bool hidden)
+    {
+        _userHidden = hidden;
+        Visible = !hidden && _line is not null;
+    }
+
     private void OnLineChanged(DialogueEntry? line)
     {
         _line = line;
@@ -97,7 +106,7 @@ public partial class DialogueBox : Control
             return;
         }
 
-        Show();
+        Visible = !_userHidden;
         _characterName.Text = line.Character;
         _characterName.Visible = !string.IsNullOrWhiteSpace(line.Character);
         _dialogueText.Text = line.Text;
@@ -147,7 +156,7 @@ public partial class DialogueBox : Control
                 FocusMode = FocusModeEnum.All,
                 CustomMinimumSize = new Vector2(0.0f, 56.0f),
             };
-            button.Pressed += () => _ = ChooseSafelyAsync(choiceIndex);
+            button.Pressed += () => ChoiceRequested?.Invoke(choiceIndex);
             _choices.AddChild(button);
         }
 
@@ -161,31 +170,8 @@ public partial class DialogueBox : Control
     {
         foreach (var child in _choices.GetChildren())
         {
+            _choices.RemoveChild(child);
             child.QueueFree();
-        }
-    }
-
-    private async System.Threading.Tasks.Task AdvanceSafelyAsync()
-    {
-        try
-        {
-            await _director!.AdvanceAsync();
-        }
-        catch (Exception exception)
-        {
-            GD.PushError($"Failed to advance dialogue: {exception}");
-        }
-    }
-
-    private async System.Threading.Tasks.Task ChooseSafelyAsync(int choiceIndex)
-    {
-        try
-        {
-            await _director!.ChooseAsync(choiceIndex);
-        }
-        catch (Exception exception)
-        {
-            GD.PushError($"Failed to choose dialogue response: {exception}");
         }
     }
 }

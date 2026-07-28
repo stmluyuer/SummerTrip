@@ -14,7 +14,7 @@
 - `migration/manifests/asset_licenses.tsv`：全部复制资源的授权状态记录。
 - `tools/check_assets.ps1`：资源清单、精确复制源和授权记录覆盖校验。
 
-当前状态：`M0` 至 `M6` 已完成，`M7` 是下一阶段。
+当前状态：`M0` 至 `M7` 已完成，`M8` 是下一阶段。
 
 ## 2. 状态定义
 
@@ -485,7 +485,7 @@ godot/core/settings/SettingsService.cs
 
 ## 12. M7：AVG 辅助功能
 
-状态：`未开始`
+状态：`完成（2026-07-28）`
 
 ### 目标
 
@@ -512,6 +512,8 @@ godot/core/settings/SettingsService.cs
 
 - 功能验收表中所有 P1 AVG 项目通过。
 - 连续快进、打开菜单、读档、回退的组合操作不产生状态竞争。
+
+实际验证结果：C# 构建为 0 个错误；`M7AvgFeatures.cs` 输出 `M7_AVG_FEATURES_OK unread_stop=true auto_choice_pause=true quick_slots=1 rollback_memory=true quick_menu=8 screenshot=true`。测试确认默认快进会在首条未读对白前停止，自动播放按持久化等待时间推进并在选项处暂停，选择后快进策略可配置，快速存读档使用独立槽且空槽给出通知，H 隐藏 UI 不改变剧情位置，S 写入可读 PNG，八项快捷菜单均可用。回退缓冲最多保存 100 个稳定状态，只在内存中恢复会话、舞台、历史和当前行；磁盘读档会重置回退缓冲。加载或转场期间的读取、回退和推进意图由 Director 状态门禁拒绝。
 
 ## 13. M8：Windows 发布验证
 
@@ -581,8 +583,8 @@ godot/export_presets.cfg
 
 ## 16. 下一步
 
-`M0` 至 `M6` 已完成：Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、完整序章六条路线、三个结尾、舞台表现、Profile 进度、轮换自动存档、完整菜单、存档槽和持久化设置均已落地并通过验证。
+`M0` 至 `M7` 已完成：Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、完整序章六条路线、三个结尾、舞台表现、Profile 进度、存读档、菜单、持久化设置和 AVG 辅助功能均已落地并通过验证。
 
-下一步进入 `M7`，实现隐藏 UI、已读快进、自动播放、快速存读档、截图和按句回退。
+下一步进入 `M8`，核实资源授权、建立 Windows 导出预设并执行干净环境发布回归。
 
 全部 41 个复制资源的授权台账已经建立，但所有记录仍未核实，只能用于本地迁移验证，不能进入正式发布。

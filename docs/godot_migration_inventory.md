@@ -6,9 +6,9 @@
 
 - 现有 `game/` 目录是可运行基准，不移动、不改名、不删除。
 - 迁移中间产物统一放在 `migration/`。
-- 当前已完成序章原文、迁移清单、目标架构以及 M0 至 M6；Godot 4.7.1 .NET、Dialogue Manager v3.10.5、完整序章六条路线、舞台、Profile、轮换自动存档、菜单、存档槽与设置均已验证。
+- 当前已完成序章原文、迁移清单、目标架构以及 M0 至 M7；Godot 4.7.1 .NET、Dialogue Manager v3.10.5、完整序章六条路线、舞台、Profile、存读档、菜单、设置与 AVG 辅助功能均已验证。
 - 当前对话迁移稿使用 Dialogue Manager 3 的 `.dialogue` 语法，与已锁定的 Dialogue Manager `v3.10.5` 一致。
-- 引擎与对话插件组合已确认为 `Godot 4.7.1-stable` .NET + `Dialogue Manager v3.10.5`；当前下一阶段是 M7 AVG 辅助功能。
+- 引擎与对话插件组合已确认为 `Godot 4.7.1-stable` .NET + `Dialogue Manager v3.10.5`；当前下一阶段是 M8 Windows 发布验证。
 
 ## 2. 当前项目概况
 

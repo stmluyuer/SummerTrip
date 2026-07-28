@@ -29,6 +29,7 @@ public partial class AppShell : Control
     private Control? _overlay;
     private Action? _confirmedAction;
     private int _toastGeneration;
+    private bool _overlayPausesGame;
 
     public override void _Ready()
     {
@@ -100,6 +101,10 @@ public partial class AppShell : Control
         mode.InitializationFailed += message =>
             ready.TrySetException(new InvalidOperationException(message));
         mode.GameMenuRequested += OnGameMenuRequested;
+        mode.HistoryRequested += OnQuickHistoryRequested;
+        mode.SaveScreenRequested += OnQuickSaveRequested;
+        mode.SettingsRequested += OnQuickSettingsRequested;
+        mode.NotificationRequested += Notify;
         _vnMode = mode;
         _modeHost.AddChild(mode);
         await ready.Task;
@@ -149,6 +154,7 @@ public partial class AppShell : Control
             return;
         }
 
+        _overlayPausesGame = false;
         _gameMenu = _gameMenuScene.Instantiate<GameMenu>();
         _overlayHost.AddChild(_gameMenu);
         _gameMenu.ResumeRequested += CloseGameMenu;
@@ -157,10 +163,10 @@ public partial class AppShell : Control
         _gameMenu.HistoryRequested += OpenHistory;
         _gameMenu.SettingsRequested += OpenSettings;
         _gameMenu.ReturnTitleRequested += ConfirmReturnToTitle;
-        _gameMenu.SetSaveAvailable(
-            _vnMode.Director.Interaction is
-                InteractionState.AwaitingAdvance or InteractionState.AwaitingChoice
-        );
+        var ioAvailable = _vnMode.Director.Interaction is
+            InteractionState.AwaitingAdvance or InteractionState.AwaitingChoice;
+        _gameMenu.SetSaveAvailable(ioAvailable);
+        _gameMenu.SetLoadAvailable(ioAvailable);
         _gameMenu.FocusDefault();
     }
 
@@ -337,7 +343,18 @@ public partial class AppShell : Control
         }
         else
         {
-            RefreshTitle();
+            if (
+                _overlayPausesGame &&
+                _vnMode?.Director.Operation == OperationState.Menu
+            )
+            {
+                _overlayPausesGame = false;
+                _vnMode.Director.ToggleMenuOperation();
+            }
+            else
+            {
+                RefreshTitle();
+            }
         }
     }
 
@@ -361,6 +378,43 @@ public partial class AppShell : Control
             "未保存的进度将丢失，确定返回标题吗？",
             ReturnToTitle
         );
+    }
+
+    private void OnQuickHistoryRequested()
+    {
+        OpenQuickOverlay(OpenHistory);
+    }
+
+    private void OnQuickSaveRequested()
+    {
+        OpenQuickOverlay(() => OpenSaveScreen(SaveScreenMode.Save));
+    }
+
+    private void OnQuickSettingsRequested()
+    {
+        OpenQuickOverlay(OpenSettings);
+    }
+
+    private void OpenQuickOverlay(Action open)
+    {
+        if (
+            _vnMode is null ||
+            _gameMenu is not null ||
+            _overlay is not null ||
+            _vnMode.Director.Operation != OperationState.None
+        )
+        {
+            return;
+        }
+
+        _vnMode.Director.ToggleMenuOperation();
+        if (_vnMode.Director.Operation != OperationState.Menu)
+        {
+            return;
+        }
+
+        _overlayPausesGame = true;
+        open();
     }
 
     private void ConfirmExit()
@@ -394,6 +448,7 @@ public partial class AppShell : Control
 
     private void ReturnToTitle()
     {
+        _overlayPausesGame = false;
         RemoveOverlay();
         RemoveGameMenu();
         ReleaseVnMode();
@@ -409,6 +464,10 @@ public partial class AppShell : Control
         }
 
         _vnMode.GameMenuRequested -= OnGameMenuRequested;
+        _vnMode.HistoryRequested -= OnQuickHistoryRequested;
+        _vnMode.SaveScreenRequested -= OnQuickSaveRequested;
+        _vnMode.SettingsRequested -= OnQuickSettingsRequested;
+        _vnMode.NotificationRequested -= Notify;
         _modeHost.RemoveChild(_vnMode);
         _vnMode.QueueFree();
         _vnMode = null;

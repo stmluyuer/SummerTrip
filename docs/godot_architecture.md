@@ -12,7 +12,7 @@
 - `migration/manifests/`：保存角色、变量和资源的一对一迁移映射。
 - `migration/manifests/asset_licenses.tsv`：保存资源授权核实状态和再发布范围。
 
-当前状态：`M0` 至 `M6` 已完成；Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、完整序章六条路线、三个结尾、舞台表现、存读档、菜单和持久化设置均已接入，下一阶段是 `M7` AVG 辅助功能。
+当前状态：`M0` 至 `M7` 已完成；Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、完整序章、舞台、存读档、菜单、设置、快进、自动播放、快捷操作和内存回退均已接入，下一阶段是 `M8` Windows 发布验证。
 
 ## 2. 设计目标与边界
 
@@ -114,6 +114,8 @@ godot/
 │  ├─ main.tscn
 │  └─ Main.cs
 ├─ core/
+│  ├─ capture/
+│  │  └─ ScreenshotService.cs
 │  ├─ dialogue/
 │  │  ├─ DialogueContext.cs
 │  │  └─ DialogueGateway.cs
@@ -130,12 +132,15 @@ godot/
 │  │  ├─ vn_mode.tscn
 │  │  ├─ VNMode.cs
 │  │  ├─ VNDirector.cs
+│  │  ├─ VNRollbackBuffer.cs
 │  │  ├─ stage/
 │  │  │  ├─ stage.tscn
 │  │  │  └─ StageController.cs
 │  │  └─ ui/
 │  │     ├─ dialogue_box.tscn
-│  │     └─ DialogueBox.cs
+│  │     ├─ DialogueBox.cs
+│  │     ├─ quick_menu.tscn
+│  │     └─ QuickMenu.cs
 │  ├─ menu/
 │  │  ├─ title_menu.tscn
 │  │  ├─ TitleMenu.cs
@@ -171,6 +176,7 @@ godot/
    ├─ SaveRoundtrip.cs
    ├─ FullPrologue.cs
    ├─ M6MenuSettings.cs
+   ├─ M7AvgFeatures.cs
    └─ ValidateContent.cs
 ```
 
@@ -488,7 +494,7 @@ user://
 
 回退与磁盘存档共用快照字段，但使用内存环形缓冲区。每次稳定进入一条对白或一个选择点时记录轻量快照；不为每句话写磁盘或生成截图。
 
-回退在完整存读档闭环通过后再实现。
+`VNRollbackBuffer` 最多保存最近 100 个稳定状态。进入新稳定行时记录当前会话和舞台快照；执行回退时弹出当前状态并恢复前一个状态。回退不修改磁盘存档，也不移除 Profile 中已经读过的静态行 ID；从磁盘读取后清空旧缓冲并以读取后的当前行作为新起点。
 
 ## 11. 舞台和资源目录
 
@@ -540,7 +546,7 @@ ui_accept
 ui_cancel
 ```
 
-默认绑定沿用原版：鼠标左键/Enter/Space 推进，鼠标右键/Esc 打开或关闭游戏菜单，Ctrl 快进，H 隐藏 UI，S 截图，鼠标滚轮上滑回退。Director 根据当前运行状态决定动作是否生效；控件不直接监听所有物理按键，设置页以后可以调整绑定。
+默认绑定沿用原版并补齐快捷操作：鼠标左键/Enter/Space 推进，鼠标右键/Esc 打开或关闭游戏菜单，Ctrl 快进，A 切换自动播放，H 隐藏 UI，Q 快存，L 快读，S 截图，鼠标滚轮上滑回退。Director 根据当前运行状态决定动作是否生效；控件不直接绕过 Director 修改会话。
 
 ### 12.3 分辨率
 
@@ -585,6 +591,7 @@ ui_cancel
 | `tests/ValidateContent.cs` | 剧情使用的背景、角色、位置、叠色和转场 ID 均存在 |
 | `tests/FullPrologue.cs` | 六条路线、三个结尾、全文与选项、Profile 和轮换自动档 |
 | `tests/M6MenuSettings.cs` | 菜单暂停状态、跨类型继续、槽位状态与删除、3×2 页面、设置重启持久化和键盘焦点 |
+| `tests/M7AvgFeatures.cs` | 未读快进边界、自动播放、选项暂停、快存快读、截图、快捷菜单和纯内存回退 |
 
 人工验证以 `godot_feature_checklist.md` 的回归路线为准。存档 UI 开始前，必须先通过稳定 ID 恢复和变量不重复增加的专项验证。
 

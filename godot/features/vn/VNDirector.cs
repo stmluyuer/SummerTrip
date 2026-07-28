@@ -25,6 +25,11 @@ public enum OperationState
     Loading,
 }
 
+public sealed record VNRollbackSnapshot(
+    GameSessionSnapshot Session,
+    StageSnapshot Stage
+);
+
 public partial class VNDirector : Node
 {
     private DialogueGateway? _gateway;
@@ -35,8 +40,10 @@ public partial class VNDirector : Node
     public event Action<DialogueEntry?>? LineChanged;
     public event Action? TypingSkipRequested;
     public event Action<DialogueEntry>? StableLineReached;
+    public event Action? SaveRestored;
 
     public DialogueEntry? CurrentLine { get; private set; }
+    public bool CurrentLineWasRead { get; private set; }
     public InteractionState Interaction { get; private set; } = InteractionState.Loading;
     public OperationState Operation { get; private set; } = OperationState.None;
     public GameSession Session =>
@@ -128,6 +135,11 @@ public partial class VNDirector : Node
         StableLineReached?.Invoke(CurrentLine);
     }
 
+    public void CompleteCurrentTyping()
+    {
+        FinishTypingForSave();
+    }
+
     public void ToggleMenuOperation()
     {
         if (Operation is OperationState.Saving or OperationState.Loading)
@@ -186,6 +198,26 @@ public partial class VNDirector : Node
         }
     }
 
+    public VNRollbackSnapshot CaptureRollbackSnapshot()
+    {
+        EnsureSaveInitialized();
+        if (
+            Interaction is not (
+                InteractionState.AwaitingAdvance or InteractionState.AwaitingChoice
+            )
+        )
+        {
+            throw new InvalidOperationException(
+                $"Cannot capture rollback state while interaction state is {Interaction}."
+            );
+        }
+
+        return new VNRollbackSnapshot(
+            _session!.CaptureSnapshot(),
+            _stage!.CaptureSnapshot()
+        );
+    }
+
     public async Task RestoreAsync(
         SaveDocument document,
         SaveService saveService
@@ -198,6 +230,18 @@ public partial class VNDirector : Node
         {
             throw new InvalidOperationException(
                 $"Cannot load while operation state is {Operation}."
+            );
+        }
+
+        FinishTypingForSave();
+        if (
+            Interaction is not (
+                InteractionState.AwaitingAdvance or InteractionState.AwaitingChoice
+            )
+        )
+        {
+            throw new InvalidOperationException(
+                $"Cannot load while dialogue interaction state is {Interaction}."
             );
         }
 
@@ -256,6 +300,93 @@ public partial class VNDirector : Node
             saveService.SaveProfile(candidateProfile);
             _profile.ReplaceWith(candidateProfile);
             Operation = previousOperation;
+            SaveRestored?.Invoke();
+        }
+        catch
+        {
+            if (runtimeMutated)
+            {
+                RestorePreviousRuntime(
+                    previousSession,
+                    previousSessionSnapshot,
+                    previousStageSnapshot,
+                    previousLine,
+                    previousInteraction
+                );
+            }
+
+            Operation = previousOperation;
+            throw;
+        }
+        finally
+        {
+            candidateGateway?.Dispose();
+            candidateSession.Dispose();
+        }
+    }
+
+    public async Task RestoreRollbackAsync(VNRollbackSnapshot snapshot)
+    {
+        EnsureSaveInitialized();
+        ArgumentNullException.ThrowIfNull(snapshot);
+        if (Operation != OperationState.None)
+        {
+            throw new InvalidOperationException(
+                $"Cannot roll back while operation state is {Operation}."
+            );
+        }
+        if (
+            Interaction is not (
+                InteractionState.AwaitingAdvance or InteractionState.AwaitingChoice
+            )
+        )
+        {
+            throw new InvalidOperationException(
+                $"Cannot roll back while dialogue interaction state is {Interaction}."
+            );
+        }
+
+        var previousOperation = Operation;
+        var previousInteraction = Interaction;
+        var previousLine = CurrentLine;
+        var previousSession = _session!;
+        var previousSessionSnapshot = previousSession.CaptureSnapshot();
+        var previousStageSnapshot = _stage!.CaptureSnapshot();
+        var candidateSession = new GameSession();
+        DialogueGateway? candidateGateway = null;
+        var runtimeMutated = false;
+
+        Operation = OperationState.Loading;
+        try
+        {
+            candidateSession.RestoreSnapshot(snapshot.Session);
+            _stage.ValidateSnapshot(snapshot.Stage);
+            if (!string.Equals(
+                    _gateway!.ResourceId,
+                    candidateSession.StoryResourceId,
+                    StringComparison.Ordinal
+                ))
+            {
+                throw new InvalidOperationException(
+                    $"Rollback story resource '{candidateSession.StoryResourceId}' does not match '{_gateway.ResourceId}'."
+                );
+            }
+
+            candidateGateway = new DialogueGateway(
+                DialogueGateway.ResolveResourcePath(candidateSession.StoryResourceId),
+                new DialogueContext(candidateSession, _stage),
+                candidateSession.StoryResourceId
+            );
+            var candidateLine = await candidateGateway.RestoreAsync(
+                candidateSession.CurrentStaticLineId
+            );
+
+            runtimeMutated = true;
+            _stage.RestoreSnapshot(snapshot.Stage);
+            previousSession.RestoreSnapshot(snapshot.Session);
+            _gateway.ReplaceContext(new DialogueContext(previousSession, _stage));
+            ApplyLine(candidateLine, recordLine: false, forceComplete: true);
+            Operation = previousOperation;
         }
         catch
         {
@@ -289,11 +420,13 @@ public partial class VNDirector : Node
         CurrentLine = line;
         if (line is null)
         {
+            CurrentLineWasRead = false;
             Interaction = InteractionState.Ended;
             LineChanged?.Invoke(null);
             return;
         }
 
+        CurrentLineWasRead = _profile?.ReadLineIds.Contains(line.StaticId) == true;
         _session!.CurrentStaticLineId = line.StaticId;
         if (recordLine)
         {

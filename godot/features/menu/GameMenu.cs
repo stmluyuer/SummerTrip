@@ -48,4 +48,12 @@ public partial class GameMenu : Control
             ? ""
             : "当前正在转场或恢复，暂时不能保存。";
     }
+
+    public void SetLoadAvailable(bool available)
+    {
+        GetNode<Button>("%LoadButton").Disabled = !available;
+        GetNode<Button>("%LoadButton").TooltipText = available
+            ? ""
+            : "当前正在转场或恢复，暂时不能读取。";
+    }
 }

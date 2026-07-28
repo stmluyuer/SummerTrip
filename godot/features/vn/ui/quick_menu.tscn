@@ -1,0 +1,81 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://features/vn/ui/QuickMenu.cs" id="1_script"]
+[ext_resource type="Theme" path="res://ui/themes/vn_theme.tres" id="2_theme"]
+
+[node name="QuickMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -700.0
+offset_top = -88.0
+offset_right = 700.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Buttons" type="HBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="RollbackButton" type="Button" parent="Panel/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(164, 58)
+layout_mode = 2
+text = "回退"
+
+[node name="HistoryButton" type="Button" parent="Panel/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(164, 58)
+layout_mode = 2
+text = "历史"
+
+[node name="SkipButton" type="Button" parent="Panel/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(164, 58)
+layout_mode = 2
+text = "快进"
+
+[node name="AutoButton" type="Button" parent="Panel/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(164, 58)
+layout_mode = 2
+text = "自动"
+
+[node name="SaveButton" type="Button" parent="Panel/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(164, 58)
+layout_mode = 2
+text = "保存"
+
+[node name="QuickSaveButton" type="Button" parent="Panel/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(164, 58)
+layout_mode = 2
+text = "快存"
+
+[node name="QuickLoadButton" type="Button" parent="Panel/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(164, 58)
+layout_mode = 2
+text = "快读"
+
+[node name="SettingsButton" type="Button" parent="Panel/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(164, 58)
+layout_mode = 2
+text = "设置"
