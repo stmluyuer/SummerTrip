@@ -13,6 +13,7 @@ public partial class VNMode : Control
 
     private DialogueGateway? _gateway;
     private GameSession? _session;
+    private ProfileData? _profile;
 
     public GameSession Session =>
         _session ?? throw new InvalidOperationException("VNMode is not ready.");
@@ -26,10 +27,11 @@ public partial class VNMode : Control
             var dialogueBox = GetNode<DialogueBox>("%DialogueBox");
 
             _session = new GameSession();
+            _profile = new ProfileData();
             var context = new DialogueContext(_session, stage);
             _gateway = new DialogueGateway(DialoguePath, context);
 
-            director.Initialize(_gateway, _session);
+            director.Initialize(_gateway, _session, stage, _profile);
             dialogueBox.Bind(director);
             await director.StartAsync();
         }

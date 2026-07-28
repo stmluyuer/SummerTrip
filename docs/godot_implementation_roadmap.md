@@ -14,7 +14,7 @@
 - `migration/manifests/asset_licenses.tsv`：全部复制资源的授权状态记录。
 - `tools/check_assets.ps1`：资源清单、精确复制源和授权记录覆盖校验。
 
-当前状态：`M0`、`M1`、`M2`、`M3` 已完成，`M4` 是下一阶段。
+当前状态：`M0` 至 `M4` 已完成，`M5` 是下一阶段。
 
 ## 2. 状态定义
 
@@ -320,7 +320,7 @@ godot/tests/ValidateContent.cs
 
 ## 9. M4：存读档闭环
 
-状态：`未开始`
+状态：`已完成`
 
 ### 目标
 
@@ -383,6 +383,8 @@ godot/tests/SaveRoundtrip.cs
 - 重新启动进程后仍能读取。
 - 好感、信任和谜团值没有重复增加。
 - 存档核心不依赖任何存档槽 UI 节点。
+
+实际验证结果：C# 构建为 0 个错误；`SaveRoundtrip.cs` 输出 `SAVE_ROUNDTRIP_M4_OK savepoints=4 manual_slots=54 quick_slots=1 auto_slots=6`。测试覆盖四个必测保存点、`MutationBehaviour.Skip` 静态行恢复、会话与舞台快照、Profile 已读集合合并、原子 JSON/Profile 写入、上一代 JSON 与截图组合、截图缺失、无效临时文件、不支持版本、缺字段、不安全路径，以及无效资源/静态行/舞台 ID 的失败回滚。另以两个独立 Godot 进程先后输出 `SAVE_RESTART_PROBE_WRITTEN` 和 `SAVE_RESTART_PROBE_READ_OK`，确认进程重启后仍可读取。
 
 ## 10. M5：完整序章
 
@@ -575,8 +577,8 @@ godot/export_presets.cfg
 
 ## 16. 下一步
 
-`M0`、`M1`、`M2` 和 `M3` 已完成：Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、最小 VN 对话界面、首个三选项的三条分支，以及背景、立绘、叠色和转场舞台表现均已落地并通过验证。
+`M0` 至 `M4` 已完成：Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、最小 VN 对话界面、首个三选项的三条分支、舞台表现和无槽位 UI 的存读档闭环均已落地并通过验证。
 
-下一步进入 `M4`，实现稳定行 ID 驱动的存读档闭环、原子写入和读档失败回滚，并先用无存档槽 UI 的测试验证四个必测保存点。
+下一步进入 `M5`，让完整序章的 16 个 title、6 个选择点、15 个选项和三个结尾全部可到达，并在配置的稳定行接入自动存档触发点。
 
 全部 41 个复制资源的授权台账已经建立，但所有记录仍未核实，只能用于本地迁移验证，不能进入正式发布。

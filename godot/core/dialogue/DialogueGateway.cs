@@ -23,13 +23,20 @@ public sealed record DialogueEntry(
 
 public sealed class DialogueGateway : IDisposable
 {
-    private readonly DialogueContext _context;
+    private DialogueContext _context;
     private readonly Resource _dialogueResource;
 
-    public DialogueGateway(string dialoguePath, DialogueContext context)
+    public DialogueGateway(
+        string dialoguePath,
+        DialogueContext context,
+        string resourceId = "prologue"
+    )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dialoguePath);
         _context = context ?? throw new ArgumentNullException(nameof(context));
+        ArgumentException.ThrowIfNullOrWhiteSpace(resourceId);
+        DialoguePath = dialoguePath;
+        ResourceId = resourceId;
 
         _dialogueResource = ResourceLoader.Load<Resource>(
             dialoguePath,
@@ -39,6 +46,8 @@ public sealed class DialogueGateway : IDisposable
 
     public string ImportedVersion =>
         _dialogueResource.GetMeta("dialogue_manager_version", default).AsString();
+    public string DialoguePath { get; }
+    public string ResourceId { get; }
 
     public Task<DialogueEntry?> StartAsync(string title = "start")
     {
@@ -55,6 +64,47 @@ public sealed class DialogueGateway : IDisposable
     {
         ArgumentNullException.ThrowIfNull(choice);
         return RequestAsync(choice.NextKey);
+    }
+
+    public async Task<DialogueEntry> RestoreAsync(string staticId)
+    {
+        var runtimeIds = ResolveStaticId(staticId);
+        if (runtimeIds.Count != 1)
+        {
+            throw new InvalidOperationException(
+                $"Static dialogue ID '{staticId}' resolved to {runtimeIds.Count} runtime lines; expected exactly one."
+            );
+        }
+
+        var line = await RequestAsync(runtimeIds[0], MutationBehaviour.Skip)
+            ?? throw new InvalidOperationException(
+                $"Static dialogue ID '{staticId}' did not restore a visible line."
+            );
+        if (!string.Equals(line.StaticId, staticId, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(
+                $"Restored dialogue line reported static ID '{line.StaticId}', expected '{staticId}'."
+            );
+        }
+
+        return line;
+    }
+
+    public void ReplaceContext(DialogueContext context)
+    {
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+    }
+
+    public static string ResolveResourcePath(string resourceId)
+    {
+        return resourceId switch
+        {
+            "prologue" => "res://content/dialogue/prologue.dialogue",
+            _ => throw new ArgumentException(
+                $"Unknown dialogue resource ID '{resourceId}'.",
+                nameof(resourceId)
+            ),
+        };
     }
 
     public IReadOnlyList<string> ResolveStaticId(string staticId)
@@ -83,13 +133,21 @@ public sealed class DialogueGateway : IDisposable
         return lines.ContainsKey(runtimeIds[0]);
     }
 
-    private async Task<DialogueEntry?> RequestAsync(string key)
+    private Task<DialogueEntry?> RequestAsync(string key)
+    {
+        return RequestAsync(key, MutationBehaviour.Wait);
+    }
+
+    private async Task<DialogueEntry?> RequestAsync(
+        string key,
+        MutationBehaviour mutationBehaviour
+    )
     {
         using var line = await DialogueManager.GetNextDialogueLine(
             _dialogueResource,
             key,
             _context.ExtraGameStates,
-            MutationBehaviour.Wait
+            mutationBehaviour
         );
 
         if (line is null)

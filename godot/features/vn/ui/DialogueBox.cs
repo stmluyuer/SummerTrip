@@ -98,7 +98,10 @@ public partial class DialogueBox : Control
         _characterName.Visible = !string.IsNullOrWhiteSpace(line.Character);
         _dialogueText.Text = line.Text;
 
-        if (string.IsNullOrEmpty(line.Text))
+        if (
+            string.IsNullOrEmpty(line.Text) ||
+            _director?.Interaction != InteractionState.Typing
+        )
         {
             _dialogueText.VisibleCharacters = -1;
             PopulateChoices();
