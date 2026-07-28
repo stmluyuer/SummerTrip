@@ -204,13 +204,14 @@ foreach ($duplicate in $duplicateLicenseSources) {
     $errors += "Duplicate asset license source_path: '$($duplicate.Name)'."
 }
 
-$p0Rows = @($rows | Where-Object { $_.priority -eq "P0" })
-foreach ($p0Row in $p0Rows) {
-    if (-not $licenseRowsBySource.ContainsKey($p0Row.source_path)) {
-        $errors += "P0 asset is missing an asset license row: '$($p0Row.source_path)'."
+$copyRows = @($rows | Where-Object { $_.action -eq "copy" })
+foreach ($copyRow in $copyRows) {
+    if (-not $licenseRowsBySource.ContainsKey($copyRow.source_path)) {
+        $errors += "Copy asset is missing an asset license row: '$($copyRow.source_path)'."
     }
 }
 
+$p0Rows = @($rows | Where-Object { $_.priority -eq "P0" })
 $unverifiedLicenseRows = @($licenseRows | Where-Object { $_.verification_status -ne "verified" })
 if ($RequireVerifiedLicenses -and $unverifiedLicenseRows.Count -gt 0) {
     $errors += (
@@ -223,12 +224,11 @@ if ($errors.Count -gt 0) {
     throw ("Asset manifest validation failed:`n" + ($errors -join "`n"))
 }
 
-$copyRows = @($rows | Where-Object { $_.action -eq "copy" })
 $verifiedLicenseRows = @($licenseRows | Where-Object { $_.verification_status -eq "verified" })
 Write-Host (
     (
-        "Validated {0} manifest rows; {1} exact copy sources exist; {2} P0 rows are active copies; " +
-        "{3} license rows cover every P0 asset ({4} verified, {5} unverified)."
+        "Validated {0} manifest rows; {1} exact copy sources exist and have license rows; " +
+        "{2} P0 rows are active copies; {3} license rows are verified={4}, unverified={5}."
     ) -f
         $rows.Count,
         $copyRows.Count,

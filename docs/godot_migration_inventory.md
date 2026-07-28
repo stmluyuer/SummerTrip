@@ -16,7 +16,7 @@
 | --- | --- |
 | 类型 | 中文视觉小说序章 Demo |
 | 基准分辨率 | 1920 × 1080，`canvas_items + keep` |
-| Ren'Py 脚本 | 9 个 `.rpy` 文件，约 2143 行 |
+| Ren'Py 脚本 | 9 个 `.rpy` 文件，共 3042 行 |
 | 剧情结构 | 16 个 label、6 个选择菜单、3 个结尾 |
 | 剧情状态 | 玩家名与 3 个整数变量 |
 | 正式场景素材 | 2 张背景、2 张角色立绘 |
@@ -182,7 +182,7 @@ screenshot_path
 1. `farm_basket` 和 `maple_tree_investigation` 的叙述发生在山路/红叶树下，但原脚本仍使用 `bg autumn_room`。已于 2026-07-28 确认迁移版原样保留；未来替换背景属于内容改版，不属于迁移纠错。
 2. Dialogue Manager 已从官方 `v3.10.5` tag（commit `0049d4d`）原样加入，MIT 许可证和上游版本记录已落库；后续不得直接修改 vendored 插件源码。
 3. `.dialogue` 已在 Godot 4.7.1 .NET 中成功编译；16 个 title 和 115 个静态 ID 已通过运行时 smoke 验证，每个静态 ID 恰好解析为一个运行时 ID。
-4. `asset_licenses.tsv` 已覆盖 24 个 P0 资源，但全部记录仍为 `unverified`、`local_validation_only`。P1/P2 在进入迁移范围时建档；所有正式资源在发布前仍须补全作者、来源、许可证和可再发布范围。
+4. `asset_licenses.tsv` 已覆盖 `assets.tsv` 中全部 41 个 `action=copy` 资源，但所有记录仍为 `unverified`、`local_validation_only`；正式发布前仍须补全作者、来源、许可证和可再发布范围。
 5. 字体目录约 61 MB；当前剧情实际需要 Regular、Medium 和 Bold。Heavy 只用于尚未被剧情调用的通用输入样式，延后到确认新增姓名输入时再迁移；其他字重可在 Godot 构建验证后排除。
 6. 手机版 GUI 素材存在，但第一阶段发布范围已限定为 Windows；移动端素材继续延后，不进入当前工程。
 
@@ -192,11 +192,11 @@ screenshot_path
 | --- | --- |
 | `godot/content/dialogue/prologue.dialogue` | Godot 工程内唯一可编辑的完整序章 Dialogue Manager 原文 |
 | `migration/manifests/assets.tsv` | 资源迁移、复用和排除清单 |
-| `migration/manifests/asset_licenses.tsv` | P0 资源授权状态与再发布范围记录 |
+| `migration/manifests/asset_licenses.tsv` | 全部复制资源的授权状态与再发布范围记录 |
 | `migration/manifests/characters.tsv` | 角色与立绘位置清单 |
 | `migration/manifests/presentation.tsv` | 背景、角色位置、叠色动画和转场参数清单 |
 | `migration/manifests/variables.tsv` | 剧情状态与存档字段清单 |
-| `tools/check_assets.ps1` | 校验资源清单、精确复制源、P0 授权覆盖和发布授权门禁 |
+| `tools/check_assets.ps1` | 校验资源清单、精确复制源、全部复制资源授权覆盖和发布授权门禁 |
 | `docs/godot_architecture.md` | Godot 目标架构、模块边界和数据流 |
 | `docs/godot_implementation_roadmap.md` | 分阶段实施顺序、验证方式和退出条件 |
 | `docs/godot_feature_checklist.md` | Godot 功能对等验收表 |

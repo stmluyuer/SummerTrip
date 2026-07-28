@@ -20,6 +20,23 @@ game/gui/button/hover_background.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validatio
 game/gui/button/slot_idle_background.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
 game/gui/button/slot_hover_background.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
 game/gui/frame.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/overlay/main_menu.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/overlay/game_menu.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/overlay/confirm.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/button/radio_foreground.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/button/radio_selected_foreground.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/button/check_foreground.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/button/check_selected_foreground.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/slider/horizontal_idle_bar.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/slider/horizontal_idle_thumb.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/slider/horizontal_hover_bar.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/slider/horizontal_hover_thumb.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/scrollbar/vertical_idle_bar.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/scrollbar/vertical_idle_thumb.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/scrollbar/vertical_hover_bar.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/scrollbar/vertical_hover_thumb.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/skip.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
+game/gui/notify.png	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	待补作者、原始来源、许可证与再发布凭据
 game/fonts/SourceHanSansCN/SourceHanSansCN-Regular.otf	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	文件名指向 Source Han Sans，但尚未用来源或哈希核实许可证
 game/fonts/SourceHanSansCN/SourceHanSansCN-Medium.otf	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	文件名指向 Source Han Sans，但尚未用来源或哈希核实许可证
 game/fonts/SourceHanSansCN/SourceHanSansCN-Bold.otf	UNKNOWN	UNKNOWN	NOASSERTION	local_validation_only	unverified	NONE	文件名指向 Source Han Sans，但尚未用来源或哈希核实许可证

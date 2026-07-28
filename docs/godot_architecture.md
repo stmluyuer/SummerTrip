@@ -504,7 +504,7 @@ chapters.prologue -> title_key=chapter.prologue, autosave_titles=[aki_house_wake
 3. 未知 ID 必须给出包含资源 ID 和剧情位置的错误，不能静默显示错误素材。
 4. 第一阶段只迁移当前竖切所需的 P0 素材。
 5. `game/gui/phone/**`、未使用立绘和编辑源图继续延后。
-6. `asset_licenses.tsv` 必须覆盖所有进入迁移范围的 P0 素材；未核实记录只能用于本地验证，正式发布前必须补全并通过发布门禁。
+6. `asset_licenses.tsv` 必须覆盖 `assets.tsv` 中所有 `action=copy` 的素材；未核实记录只能用于本地验证，正式发布前必须补全并通过发布门禁。
 
 ## 12. UI、输入和分辨率
 
@@ -597,11 +597,11 @@ ui_cancel
 | ARCH-002 | 非 16:9 显示策略 | `canvas_items` + `keep` | 已确认 |
 | ARCH-003 | 树下调查段的室内背景 | 迁移版保留原 `autumn_room` 表现 | 已确认 |
 | ARCH-004 | 正式发布平台 | 第一阶段仅 Windows | 暂定 |
-| ARCH-005 | 美术与字体授权 | P0 先建台账；未核实项仅限本地验证 | 阻塞发布 |
+| ARCH-005 | 美术与字体授权 | 全部复制资源建台账；未核实项仅限本地验证 | 阻塞发布 |
 
 `ARCH-001` 于 2026-07-27 确认为 `Godot 4.7.1-stable` 与 `Dialogue Manager v3.10.5`，并于 2026-07-28 确认使用官方 .NET 编辑器和 C# 业务代码。Dialogue Manager 的官方发布页明确将 v3.10.5 标记为面向 Godot 4.7；项目锁定插件 tag `v3.10.5`（commit `0049d4d`），继续使用现有 v3 `.dialogue` 语法。M1 已完成插件导入、MIT 许可证落库、序章编译、115 个稳定 ID 唯一恢复以及中文首行查询验证。
 
-`ARCH-002` 与 `ARCH-003` 于 2026-07-28 确认。`ARCH-005` 当前只完成 24 个 P0 资源的状态建档，所有记录仍为 `unverified`，不能解释为已经取得再发布授权。
+`ARCH-002` 与 `ARCH-003` 于 2026-07-28 确认。`ARCH-005` 当前已完成全部 41 个复制资源的状态建档，所有记录仍为 `unverified`，不能解释为已经取得再发布授权。
 
 ## 17. 参考资料
 

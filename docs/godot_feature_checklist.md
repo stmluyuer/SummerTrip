@@ -90,9 +90,9 @@
 | TOOLCHAIN-001 | P0 | 引擎与对话插件 | 使用 `Godot 4.7.1-stable` .NET 与 `Dialogue Manager v3.10.5`；插件能编译 `prologue.dialogue`，全部静态 ID 唯一解析为运行时 ID，许可证已记录 | 完成 |
 | DISPLAY-001 | P0 | 设计分辨率 | 基准为 1920×1080，窗口缩放时 UI 锚点不漂移 | 进行中 |
 | DISPLAY-002 | P0 | 宽高比策略 | 使用 `canvas_items + keep`；在 16:9、16:10、21:9 验证黑边和 UI 锚点 | 已确认 |
-| ASSET-001 | P0 | 正式资源 | `check_assets.ps1` 验证 `assets.tsv` schema、P0 约束、重复路径、精确复制源和 P0 授权记录覆盖；随后所有 P0 文件成功导入且无丢失引用 | 已整理 |
+| ASSET-001 | P0 | 正式资源 | `check_assets.ps1` 验证 `assets.tsv` schema、P0 约束、重复路径、精确复制源和全部复制资源的授权记录覆盖；随后所有 P0 文件成功导入且无丢失引用 | 已整理 |
 | ASSET-002 | P1 | 字体裁剪 | 只打包实际使用的字重，中文显示验证后再排除其他字体 | 未开始 |
-| ASSET-003 | P0 | 授权记录 | P0 均已建档；正式背景、角色、UI 和字体发布前均须核实作者、来源、许可证、再发布范围，并通过 `-RequireVerifiedLicenses` | 进行中 |
+| ASSET-003 | P0 | 授权记录 | 全部 `action=copy` 资源均已建档；正式背景、角色、UI 和字体发布前均须核实作者、来源、许可证、再发布范围，并通过 `-RequireVerifiedLicenses` | 进行中 |
 | EXPORT-001 | P0 | Windows 导出 | 干净环境可启动、通关、保存、退出并重新读取 | 未开始 |
 | EXPORT-002 | P2 | Linux/macOS | 是否继续支持 README 声明的平台需先确定，再建立导出预设 | 阻塞 |
 

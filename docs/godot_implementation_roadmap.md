@@ -11,7 +11,7 @@
 - [Godot 功能对等验收表](godot_feature_checklist.md)：最终验收标准。
 - `godot/content/dialogue/prologue.dialogue`：Godot 工程内唯一可编辑的序章剧情源。
 - `migration/manifests/`：资源、角色、变量和舞台表现映射。
-- `migration/manifests/asset_licenses.tsv`：P0 资源授权状态记录。
+- `migration/manifests/asset_licenses.tsv`：全部复制资源的授权状态记录。
 - `tools/check_assets.ps1`：资源清单、精确复制源和授权记录覆盖校验。
 
 当前状态：`M0`、`M1` 已完成，`M2` 是下一阶段。
@@ -96,7 +96,7 @@ Godot 迁移版原样保留 `autumn_room`，以原脚本表现为对等基线。
 
 正式发布前，每项背景、角色、UI 和字体必须记录作者、来源、许可证和再发布范围。授权未明确的素材可以用于本地迁移验证，但不能视为可发布资产。
 
-M0 先在 `migration/manifests/asset_licenses.tsv` 建立全部 24 个 P0 资源的记录。当前没有足够证据核实其作者、来源和许可证，因此均标记为 `unverified`、`local_validation_only`；P1/P2 资源在进入迁移范围时再补充。M8 发布校验必须使用 `tools/check_assets.ps1 -RequireVerifiedLicenses`，在仍有未核实记录时失败。
+`migration/manifests/asset_licenses.tsv` 已覆盖 `assets.tsv` 中全部 41 个 `action=copy` 资源。当前没有足够证据核实其作者、来源和许可证，因此均标记为 `unverified`、`local_validation_only`。M8 发布校验必须使用 `tools/check_assets.ps1 -RequireVerifiedLicenses`，在任一复制资源缺少记录或仍未核实时失败。
 
 ## 5. M0：技术决策与文档基线
 
@@ -128,14 +128,14 @@ tools/check_assets.ps1
 - [x] 确认 D-001 版本组合。
 - [x] 确认 D-002 分辨率策略。
 - [x] 确认 D-003 背景处理。
-- [x] 建立 P0 资源授权状态记录。
+- [x] 建立全部复制资源的授权状态记录。
 
 ### 验证
 
 - 文档中的文件名、模块名和状态模型一致。
 - 架构文档、路线图与功能验收表互相链接。
 - 迁移清单不再把未确认版本写成已验证组合。
-- `tools/check_assets.ps1` 校验资源清单的列、P0 约束、重复路径、全部精确复制源，以及 P0 授权记录覆盖和发布门禁。
+- `tools/check_assets.ps1` 校验资源清单的列、P0 约束、重复路径、全部精确复制源，以及所有复制资源的授权记录覆盖和发布门禁。
 - `presentation.tsv` 中位置、动画与转场参数和 `story_setup.rpy`、`effects.rpy` 一致。
 - 现有 `game/` 原文件没有被移动或修改。
 
@@ -575,4 +575,4 @@ godot/export_presets.cfg
 
 下一步进入 `M2`，用 C# 实现 `DialogueContext`、`DialogueGateway`、`GameSession`、最小 `VNMode` 和对话框，跑通开场到第一处三选项。
 
-P0 授权台账已经建立，但 24 项记录仍未核实，只能用于本地迁移验证，不能进入正式发布。
+全部 41 个复制资源的授权台账已经建立，但所有记录仍未核实，只能用于本地迁移验证，不能进入正式发布。
