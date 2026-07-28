@@ -6,16 +6,16 @@
 
 - 现有 `game/` 目录是可运行基准，不移动、不改名、不删除。
 - 迁移中间产物统一放在 `migration/`。
-- 当前已完成序章原文、迁移清单、目标架构和实施路线整理；Godot 工程尚未创建，也未安装生产依赖。
+- 当前已完成序章原文、迁移清单、目标架构以及 M1 工程骨架；Godot 4.7.1 .NET、Dialogue Manager v3.10.5、主场景和 headless smoke 已验证。
 - 当前对话迁移稿使用 Dialogue Manager 3 的 `.dialogue` 语法，与已锁定的 Dialogue Manager `v3.10.5` 一致。
-- 引擎与对话插件组合已确认为 `Godot 4.7.1-stable` + `Dialogue Manager v3.10.5`；真实工程导入和编译验证在 M1 完成。
+- 引擎与对话插件组合已确认为 `Godot 4.7.1-stable` .NET + `Dialogue Manager v3.10.5`；M1 已完成真实工程导入、C# 构建和剧情编译验证。
 
 ## 2. 当前项目概况
 
 | 项目 | 当前值 |
 | --- | --- |
 | 类型 | 中文视觉小说序章 Demo |
-| 基准分辨率 | 1920 × 1080 |
+| 基准分辨率 | 1920 × 1080，`canvas_items + keep` |
 | Ren'Py 脚本 | 9 个 `.rpy` 文件，约 2143 行 |
 | 剧情结构 | 16 个 label、6 个选择菜单、3 个结尾 |
 | 剧情状态 | 玩家名与 3 个整数变量 |
@@ -29,7 +29,7 @@
 
 | Ren'Py 来源 | 内容 | 迁移目标 | 处理方式 |
 | --- | --- | --- | --- |
-| `game/aki_sisters_prologue.rpy` | 完整序章、选择、跳转、结尾 | `migration/dialogue/prologue.dialogue` | 一对一转换，原文不改 |
+| `game/aki_sisters_prologue.rpy` | 完整序章、选择、跳转、结尾 | `godot/content/dialogue/prologue.dialogue` | 一对一转换，原文不改 |
 | `game/story_setup.rpy` | 角色、变量、背景、立绘位置 | `characters.tsv`、`variables.tsv`、`presentation.tsv`、`GameSession`、`ContentCatalog` | 拆分整理 |
 | `game/effects.rpy` | 转场和 Tween 参数 | `presentation.tsv`、`Presentation`、AnimationPlayer/Tween | 在 Godot 中重写 |
 | `game/ui_screens.rpy` | 对话框、选择框、快捷菜单覆盖 | Godot `Control` 场景 | 在 Godot 中重写 |
@@ -60,34 +60,36 @@
 
 ### `GameState`
 
-```gdscript
-var player_name: String = "旅人"
-var minoriko_affection: int = 0
-var shizuha_trust: int = 0
-var autumn_mystery: int = 0
+```csharp
+public string PlayerName { get; set; } = "旅人";
+public int MinorikoAffection { get; set; }
+public int ShizuhaTrust { get; set; }
+public int AutumnMystery { get; set; }
 ```
 
 ### `Presentation`
 
-```gdscript
-func change_scene(
-    background_id: String,
-    overlay_id: String,
-    overlay_animation_id: String,
-    transition_id: String
-) -> void
-func show_character(character_id: String, expression_id: String, position_id: String) -> void
+```csharp
+void ChangeScene(
+    string backgroundId,
+    string overlayId,
+    string overlayAnimationId,
+    string transitionId
+);
+void ShowCharacter(string characterId, string expressionId, string positionId);
 ```
 
 Godot 侧由 `DialogueContext` 注入类似以下结构：
 
-```gdscript
-[
+```csharp
+new Godot.Collections.Array<Variant>
+{
+    new Godot.Collections.Dictionary
     {
-        "GameState": game_session,
-        "Presentation": stage_controller,
-    }
-]
+        ["GameState"] = gameSession,
+        ["Presentation"] = stageController,
+    },
+};
 ```
 
 约定：
@@ -135,7 +137,7 @@ route_choice
 | Ren'Py 标识 | Godot 标识 | 参数 |
 | --- | --- | --- |
 | `bg autumn_garden` | `autumn_garden` | 1920×1080 全屏背景 |
-| `bg autumn_room` | `autumn_room` | 1920×1080 全屏背景 |
+| `bg autumn_room` | `autumn_room` | 1920×1080 全屏背景；树下调查段也按原版保留该背景 |
 | `minoriko neutral at minoriko_right` | `minoriko/neutral/right` | `x=0.72`、`y=1.02`、锚点 `(0.5,1.0)`、缩放 `0.66`、从右侧偏移 64 px 并在 0.28 秒淡入 |
 | `sizuha neutral at sizuha_left` | `shizuha/neutral/left` | `x=0.28`、`y=1.02`、锚点 `(0.5,1.0)`、缩放 `0.66`、从左侧偏移 64 px 并在 0.28 秒淡入 |
 | `autumn_glow at leaf_shiver` | `autumn_glow/leaf_shiver` | `#d98a2b22`；0.25 秒淡入到 0.22，之后每段 1.6 秒在 0.12 与 0.24 间往返，完整周期 3.2 秒 |
@@ -177,23 +179,24 @@ screenshot_path
 
 ## 9. 已知疑点与风险
 
-1. `farm_basket` 和 `maple_tree_investigation` 的叙述发生在山路/红叶树下，但原脚本仍使用 `bg autumn_room`。转换文件原样保留该表现，开始制作 Godot 场景前需要确认是占位背景还是脚本错误。
-2. Dialogue Manager 尚未加入仓库。版本已锁定为官方面向 Godot 4.7 的 `v3.10.5`（commit `0049d4d`）；M1 安装时必须同时提交 MIT 许可证，并保持第三方源码不作项目内修改。
-3. 当前没有可用于验证 `.dialogue` 编译结果的 Godot 工程或 Dialogue Manager 插件。本阶段只能检查文本、标题、跳转、静态 ID 和缩进结构；静态 ID 到运行时 ID 的解析必须在 M1 验证。
-4. 仓库没有完整的美术授权清单。迁移前应补充每项正式资源的作者、来源、许可证和可再发布范围。
+1. `farm_basket` 和 `maple_tree_investigation` 的叙述发生在山路/红叶树下，但原脚本仍使用 `bg autumn_room`。已于 2026-07-28 确认迁移版原样保留；未来替换背景属于内容改版，不属于迁移纠错。
+2. Dialogue Manager 已从官方 `v3.10.5` tag（commit `0049d4d`）原样加入，MIT 许可证和上游版本记录已落库；后续不得直接修改 vendored 插件源码。
+3. `.dialogue` 已在 Godot 4.7.1 .NET 中成功编译；16 个 title 和 115 个静态 ID 已通过运行时 smoke 验证，每个静态 ID 恰好解析为一个运行时 ID。
+4. `asset_licenses.tsv` 已覆盖 24 个 P0 资源，但全部记录仍为 `unverified`、`local_validation_only`。P1/P2 在进入迁移范围时建档；所有正式资源在发布前仍须补全作者、来源、许可证和可再发布范围。
 5. 字体目录约 61 MB；当前剧情实际需要 Regular、Medium 和 Bold。Heavy 只用于尚未被剧情调用的通用输入样式，延后到确认新增姓名输入时再迁移；其他字重可在 Godot 构建验证后排除。
-6. 手机版 GUI 素材存在，但当前发布配置仅包含 Windows。是否支持手机端应在建立 Godot 工程前单独确认。
+6. 手机版 GUI 素材存在，但第一阶段发布范围已限定为 Windows；移动端素材继续延后，不进入当前工程。
 
 ## 10. 本次整理产物
 
 | 文件 | 用途 |
 | --- | --- |
-| `migration/dialogue/prologue.dialogue` | 完整序章 Dialogue Manager 原文 |
+| `godot/content/dialogue/prologue.dialogue` | Godot 工程内唯一可编辑的完整序章 Dialogue Manager 原文 |
 | `migration/manifests/assets.tsv` | 资源迁移、复用和排除清单 |
+| `migration/manifests/asset_licenses.tsv` | P0 资源授权状态与再发布范围记录 |
 | `migration/manifests/characters.tsv` | 角色与立绘位置清单 |
 | `migration/manifests/presentation.tsv` | 背景、角色位置、叠色动画和转场参数清单 |
 | `migration/manifests/variables.tsv` | 剧情状态与存档字段清单 |
-| `tools/check_assets.ps1` | 校验新资源清单 schema、P0 约束、重复源/目标和精确复制源文件 |
+| `tools/check_assets.ps1` | 校验资源清单、精确复制源、P0 授权覆盖和发布授权门禁 |
 | `docs/godot_architecture.md` | Godot 目标架构、模块边界和数据流 |
 | `docs/godot_implementation_roadmap.md` | 分阶段实施顺序、验证方式和退出条件 |
 | `docs/godot_feature_checklist.md` | Godot 功能对等验收表 |

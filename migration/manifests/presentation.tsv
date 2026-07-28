@@ -1,6 +1,6 @@
 kind	id	source_symbol	resource_id	x	y	x_anchor	y_anchor	scale	enter_offset_x	enter_duration	color	initial_duration	initial_alpha	cycle_leg_duration	cycle_min_alpha	cycle_max_alpha	duration	fade_out	hold	fade_in	notes
 background	autumn_garden	bg autumn_garden	res://assets/backgrounds/autumn_garden.png	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	原图由 Ren'Py 拉伸到 1920x1080
-background	autumn_room	bg autumn_room	res://assets/backgrounds/autumn_room.png	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	树下调查段是否继续使用该背景由 D-003 决定
+background	autumn_room	bg autumn_room	res://assets/backgrounds/autumn_room.png	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	D-003 已确认树下调查段按原版继续使用该背景
 character_position	right	minoriko_right	-	0.72	1.02	0.5	1.0	0.66	64	0.28	-	-	-	-	-	-	-	-	-	-	穰子从右侧淡入；y=1.02 表示锚点低于画面底边
 character_position	left	sizuha_left	-	0.28	1.02	0.5	1.0	0.66	-64	0.28	-	-	-	-	-	-	-	-	-	-	静叶从左侧淡入；保留 Ren'Py 源 transform 拼写
 overlay	autumn_glow	image autumn_glow	-	-	-	-	-	-	-	-	#d98a2b22	-	-	-	-	-	-	-	-	-	秋色叠层

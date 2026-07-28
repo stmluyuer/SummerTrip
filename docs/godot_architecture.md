@@ -10,8 +10,9 @@
 - [Godot 实施路线图](godot_implementation_roadmap.md)：说明按什么顺序实现。
 - [Godot 功能对等验收表](godot_feature_checklist.md)：说明怎样判断功能完成。
 - `migration/manifests/`：保存角色、变量和资源的一对一迁移映射。
+- `migration/manifests/asset_licenses.tsv`：保存资源授权核实状态和再发布范围。
 
-当前状态：架构设计已建立，Godot 工程尚未创建，生产依赖尚未安装。
+当前状态：`M0`、`M1` 已完成；Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、主场景和序章 smoke 已验证，下一阶段是 `M2` 纯对话竖切。
 
 ## 2. 设计目标与边界
 
@@ -29,6 +30,7 @@
 
 - 内容范围：`0.1.0-prologue` 序章。
 - 设计分辨率：1920×1080。
+- 编辑器与脚本基线：Godot 4.7.1 .NET；项目自有运行时代码和测试统一使用 C#，第三方 Dialogue Manager 保持上游 GDScript/C# 混合实现。
 - 首要发布目标：Windows PC。
 - 输入基线：鼠标和键盘。
 - 对话源格式：Dialogue Manager `.dialogue`。
@@ -82,12 +84,14 @@
 ### 3.4 单一事实来源
 
 - 原版事实来源：`game/*.rpy`。
-- 迁移映射来源：`migration/manifests/*.tsv`。
+- 资源路径映射来源：`migration/manifests/assets.tsv`。
+- 资源授权状态来源：`migration/manifests/asset_licenses.tsv`。
+- 角色和变量映射来源：`migration/manifests/characters.tsv`、`variables.tsv`。
 - 舞台位置、叠色、动画和转场参数来源：`migration/manifests/presentation.tsv`。
 - Godot 开工后的正式剧情来源：`godot/content/dialogue/*.dialogue`。
 - 运行时资源映射来源：Godot `ContentCatalog`。
 
-`migration/dialogue/prologue.dialogue` 在 Godot 工程建立时移动到 `godot/content/dialogue/prologue.dialogue`。移动后不保留第二份可编辑副本。
+序章已经从 `migration/dialogue/prologue.dialogue` 移动到 `godot/content/dialogue/prologue.dialogue`；旧路径不再保留第二份可编辑副本。
 
 ### 3.5 快照恢复，不重放副作用
 
@@ -102,53 +106,55 @@ godot/
 ├─ project.godot
 ├─ addons/
 │  └─ dialogue_manager/                 # 第三方依赖，不修改插件源码
+├─ third_party/
+│  └─ dialogue_manager.NOTICE.md        # 上游版本、提交与许可证位置
 ├─ app/
 │  ├─ main.tscn
-│  └─ main.gd
+│  └─ Main.cs
 ├─ core/
 │  ├─ dialogue/
-│  │  ├─ dialogue_context.gd
-│  │  └─ dialogue_gateway.gd
+│  │  ├─ DialogueContext.cs
+│  │  └─ DialogueGateway.cs
 │  ├─ save/
-│  │  ├─ save_schema.gd
-│  │  └─ save_service.gd
+│  │  ├─ SaveSchema.cs
+│  │  └─ SaveService.cs
 │  ├─ session/
-│  │  ├─ game_session.gd
-│  │  └─ profile_data.gd
+│  │  ├─ GameSession.cs
+│  │  └─ ProfileData.cs
 │  └─ settings/
-│     └─ settings_service.gd
+│     └─ SettingsService.cs
 ├─ features/
 │  ├─ vn/
 │  │  ├─ vn_mode.tscn
-│  │  ├─ vn_mode.gd
-│  │  ├─ vn_director.gd
+│  │  ├─ VNMode.cs
+│  │  ├─ VNDirector.cs
 │  │  ├─ stage/
 │  │  │  ├─ stage.tscn
-│  │  │  └─ stage_controller.gd
+│  │  │  └─ StageController.cs
 │  │  └─ ui/
 │  │     ├─ dialogue_box.tscn
-│  │     └─ dialogue_box.gd
+│  │     └─ DialogueBox.cs
 │  ├─ menu/
 │  │  ├─ title_menu.tscn
-│  │  ├─ title_menu.gd
+│  │  ├─ TitleMenu.cs
 │  │  ├─ game_menu.tscn
-│  │  └─ game_menu.gd
+│  │  └─ GameMenu.cs
 │  ├─ save_ui/
 │  │  ├─ save_load_screen.tscn
-│  │  ├─ save_load_screen.gd
+│  │  ├─ SaveLoadScreen.cs
 │  │  ├─ save_slot.tscn
-│  │  └─ save_slot.gd
+│  │  └─ SaveSlot.cs
 │  ├─ history/
 │  │  ├─ history_screen.tscn
-│  │  └─ history_screen.gd
+│  │  └─ HistoryScreen.cs
 │  └─ settings/
 │     ├─ settings_screen.tscn
-│     └─ settings_screen.gd
+│     └─ SettingsScreen.cs
 ├─ content/
 │  ├─ dialogue/
 │  │  └─ prologue.dialogue
 │  └─ catalog/
-│     ├─ content_catalog.gd
+│     ├─ ContentCatalog.cs
 │     └─ content_catalog.tres
 ├─ assets/
 │  ├─ backgrounds/
@@ -159,9 +165,9 @@ godot/
 │  └─ themes/
 │     └─ vn_theme.tres
 └─ tests/
-   ├─ smoke_prologue.gd
-   ├─ save_roundtrip.gd
-   └─ validate_content.gd
+   ├─ SmokePrologue.cs
+   ├─ SaveRoundtrip.cs
+   └─ ValidateContent.cs
 ```
 
 目录按功能组织，场景脚本尽量与场景放在一起。不要建立一个混放所有代码的 `scripts/` 目录，也不要提前创建没有实际职责的空文件。
@@ -257,7 +263,7 @@ Main
 
 ### 8.1 版本隔离
 
-只有 `dialogue_gateway.gd` 可以直接调用 Dialogue Manager API。`VNDirector` 只依赖以下项目内接口：
+只有 `DialogueGateway.cs` 可以直接调用 Dialogue Manager API。`VNDirector` 只依赖以下项目内接口：
 
 ```text
 get_line(resource_id, line_or_title_id, context, mutation_mode)
@@ -271,15 +277,17 @@ choose_response(response, context)
 
 现有 `prologue.dialogue` 使用 `GameState.*` 和 `Presentation.*`。它们是剧情脚本的公开命名空间，不要求是 Godot Autoload。
 
-`dialogue_context.gd` 构造类似以下额外状态：
+`DialogueContext.cs` 构造类似以下额外状态：
 
-```gdscript
-[
+```csharp
+new Godot.Collections.Array<Variant>
+{
+    new Godot.Collections.Dictionary
     {
-        "GameState": game_session,
-        "Presentation": stage_controller,
-    }
-]
+        ["GameState"] = gameSession,
+        ["Presentation"] = stageController,
+    },
+};
 ```
 
 Dialogue Manager v3.10.5 支持把节点、对象或字典作为 `extra_game_states` 传入。这样可以保留现有剧情语法，同时限制变量和舞台控制器的生命周期。
@@ -417,7 +425,7 @@ OperationState
 }
 ```
 
-实际 schema 由 `save_schema.gd` 定义和校验；上例只说明顶层边界。
+实际 schema 由 `SaveSchema.cs` 定义和校验；上例只说明顶层边界。
 
 ### 10.2 文件布局
 
@@ -496,7 +504,7 @@ chapters.prologue -> title_key=chapter.prologue, autosave_titles=[aki_house_wake
 3. 未知 ID 必须给出包含资源 ID 和剧情位置的错误，不能静默显示错误素材。
 4. 第一阶段只迁移当前竖切所需的 P0 素材。
 5. `game/gui/phone/**`、未使用立绘和编辑源图继续延后。
-6. 资源授权信息在正式发布前必须补全。
+6. `asset_licenses.tsv` 必须覆盖所有进入迁移范围的 P0 素材；未核实记录只能用于本地验证，正式发布前必须补全并通过发布门禁。
 
 ## 12. UI、输入和分辨率
 
@@ -529,14 +537,14 @@ ui_cancel
 
 ### 12.3 分辨率
 
-推荐基线：
+已确认基线：
 
 - 设计区域：1920×1080。
 - 2D 缩放模式：`canvas_items`。
 - 宽高比：`keep`，非 16:9 显示器使用黑边。
 - UI 使用 Control 锚点和容器，不依赖窗口实际像素。
 
-选择 `keep` 是为了保护现有固定 16:9 背景和立绘构图。该项在写入 `project.godot` 前仍需正式确认；如果改为 `expand`，舞台安全区和超宽屏背景策略必须同时设计。
+选择 `keep` 是为了保护现有固定 16:9 背景和立绘构图。该决定已于 2026-07-28 确认并显式写入 `project.godot`；16:10 和 21:9 只需验证黑边与 UI 锚点，不扩展舞台可见区域。
 
 ## 13. Autoload 策略
 
@@ -566,9 +574,9 @@ ui_cancel
 
 | 文件 | 验证内容 |
 | --- | --- |
-| `tests/smoke_prologue.gd` | `.dialogue` 可编译、入口存在、全部静态 ID 唯一且能各自解析为一个运行时 ID、能到达第一处选择 |
-| `tests/save_roundtrip.gd` | 快照写入、进程内清空、静态 ID 恢复后字段完全一致，失败读档不改变当前会话或 Profile |
-| `tests/validate_content.gd` | 剧情使用的背景、角色、位置、叠色和转场 ID 均存在 |
+| `tests/SmokePrologue.cs` | `.dialogue` 可编译、入口存在、全部静态 ID 唯一且能各自解析为一个运行时 ID、能到达第一处选择 |
+| `tests/SaveRoundtrip.cs` | 快照写入、进程内清空、静态 ID 恢复后字段完全一致，失败读档不改变当前会话或 Profile |
+| `tests/ValidateContent.cs` | 剧情使用的背景、角色、位置、叠色和转场 ID 均存在 |
 
 人工验证以 `godot_feature_checklist.md` 的回归路线为准。存档 UI 开始前，必须先通过稳定 ID 恢复和变量不重复增加的专项验证。
 
@@ -585,17 +593,20 @@ ui_cancel
 
 | ID | 决策 | 当前建议 | 状态 |
 | --- | --- | --- | --- |
-| ARCH-001 | Godot 与 Dialogue Manager 版本组合 | `Godot 4.7.1-stable` + `Dialogue Manager v3.10.5` | 已确认 |
-| ARCH-002 | 非 16:9 显示策略 | `canvas_items` + `keep` | 待确认 |
-| ARCH-003 | 树下调查段的室内背景 | 保留原表现直到获得新背景或明确修正 | 待确认 |
+| ARCH-001 | Godot 与 Dialogue Manager 版本组合 | `Godot 4.7.1-stable` .NET + `Dialogue Manager v3.10.5` | 已确认 |
+| ARCH-002 | 非 16:9 显示策略 | `canvas_items` + `keep` | 已确认 |
+| ARCH-003 | 树下调查段的室内背景 | 迁移版保留原 `autumn_room` 表现 | 已确认 |
 | ARCH-004 | 正式发布平台 | 第一阶段仅 Windows | 暂定 |
-| ARCH-005 | 美术与字体授权 | 发布前补全来源和再发布范围 | 阻塞发布 |
+| ARCH-005 | 美术与字体授权 | P0 先建台账；未核实项仅限本地验证 | 阻塞发布 |
 
-`ARCH-001` 于 2026-07-27 确认为 `Godot 4.7.1-stable` 与 `Dialogue Manager v3.10.5`。Dialogue Manager 的官方发布页明确将 v3.10.5 标记为面向 Godot 4.7；项目锁定插件 tag `v3.10.5`（commit `0049d4d`），继续使用现有 v3 `.dialogue` 语法。该决定只解决版本选择；插件导入、许可证落库、序章编译和稳定 ID 恢复仍必须在 M1 的真实工程中验证。
+`ARCH-001` 于 2026-07-27 确认为 `Godot 4.7.1-stable` 与 `Dialogue Manager v3.10.5`，并于 2026-07-28 确认使用官方 .NET 编辑器和 C# 业务代码。Dialogue Manager 的官方发布页明确将 v3.10.5 标记为面向 Godot 4.7；项目锁定插件 tag `v3.10.5`（commit `0049d4d`），继续使用现有 v3 `.dialogue` 语法。M1 已完成插件导入、MIT 许可证落库、序章编译、115 个稳定 ID 唯一恢复以及中文首行查询验证。
+
+`ARCH-002` 与 `ARCH-003` 于 2026-07-28 确认。`ARCH-005` 当前只完成 24 个 P0 资源的状态建档，所有记录仍为 `unverified`，不能解释为已经取得再发布授权。
 
 ## 17. 参考资料
 
 - [Godot 4.7.1 release](https://godotengine.org/article/maintenance-release-godot-4-7-1/)
+- [Godot 4.7 changed project stretch defaults](https://docs.godotengine.org/en/stable/tutorials/migrating/upgrading_to_godot_4.7.html)
 - [Godot 4.7 Best practices](https://docs.godotengine.org/en/4.7/tutorials/best_practices/index.html)
 - [Godot Scene organization](https://docs.godotengine.org/en/stable/tutorials/best_practices/scene_organization.html)
 - [Godot Project organization](https://docs.godotengine.org/en/stable/tutorials/best_practices/project_organization.html)
@@ -607,3 +618,4 @@ ui_cancel
 - [Dialogue Manager v3.10.5 static ID resolver](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.10.5/addons/dialogue_manager/dialogue_manager.gd#L541-L550)
 - [Dialogue Manager v3.10.5 conditions, mutations and extra game states](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.10.5/docs/Conditions_Mutations.md)
 - [Dialogue Manager v3.10.5 runtime usage](https://github.com/nathanhoad/godot_dialogue_manager/blob/v3.10.5/docs/Using_Dialogue.md)
+- [REUSE Specification 3.3](https://reuse.software/spec/)

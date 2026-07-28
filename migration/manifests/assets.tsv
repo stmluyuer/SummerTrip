@@ -1,6 +1,6 @@
 source_path	target_path	category	priority	action	status	notes
 game/images/backgrounds/autumn_garden.png	res://assets/backgrounds/autumn_garden.png	background	P0	copy	active	序章开场背景，保持1920x1080构图
-game/images/backgrounds/autumn_room.png	res://assets/backgrounds/autumn_room.png	background	P0	copy	active	室内与当前调查段背景；树下段用途待确认
+game/images/backgrounds/autumn_room.png	res://assets/backgrounds/autumn_room.png	background	P0	copy	active	室内与树下调查段背景；树下段按原版保留
 game/images/characters/minoriko.png	res://assets/characters/minoriko.png	character	P0	copy	active	秋穰子neutral立绘
 game/images/characters/sizuha.png	res://assets/characters/shizuha.png	character	P0	copy	active	秋静叶neutral立绘
 game/gui/menu/title_background.png	res://assets/ui/menu/title_background.png	ui	P0	copy	active	主菜单全屏背景

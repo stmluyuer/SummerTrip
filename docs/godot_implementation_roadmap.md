@@ -9,11 +9,12 @@
 - [Godot 迁移清单](godot_migration_inventory.md)：迁移输入。
 - [Godot 架构设计](godot_architecture.md)：目标结构和模块边界。
 - [Godot 功能对等验收表](godot_feature_checklist.md)：最终验收标准。
-- `migration/dialogue/prologue.dialogue`：已整理的序章剧情。
+- `godot/content/dialogue/prologue.dialogue`：Godot 工程内唯一可编辑的序章剧情源。
 - `migration/manifests/`：资源、角色、变量和舞台表现映射。
-- `tools/check_assets.ps1`：资源清单结构与精确复制源校验。
+- `migration/manifests/asset_licenses.tsv`：P0 资源授权状态记录。
+- `tools/check_assets.ps1`：资源清单、精确复制源和授权记录覆盖校验。
 
-当前状态：`M0` 进行中，其余阶段未开始。
+当前状态：`M0`、`M1` 已完成，`M2` 是下一阶段。
 
 ## 2. 状态定义
 
@@ -75,25 +76,19 @@ M8 Windows 发布验证
 
 ### D-002 分辨率策略
 
-推荐 `1920×1080 + canvas_items + keep`。这会在非 16:9 屏幕上保留黑边，但不会破坏现有背景构图。
+状态：`已确认（2026-07-28）`
 
-如果选择 `expand`，必须先补充：
+采用 `1920×1080 + canvas_items + keep`。非 16:9 屏幕使用黑边，保护现有固定 16:9 背景和立绘构图。`godot/project.godot` 必须显式保存该配置，不能沿用 Godot 4.7 新工程的 `expand` 默认值。
 
-- 16:10 和 21:9 的舞台安全区。
-- 超宽屏背景延展或裁切规则。
-- 对话框、选择框和快捷菜单锚点。
+16:9、16:10 和 21:9 的实际显示结果仍在 M8 发布验证中复测；该验证只检查黑边和锚点是否符合已确认策略，不再重新选择宽高比策略。
 
 ### D-003 树下调查背景
 
+状态：`已确认（2026-07-28）`
+
 `farm_basket` 和 `maple_tree_investigation` 的文字发生在室外，但当前脚本使用 `autumn_room`。
 
-可选处理：
-
-1. 原样保留，保证迁移对等。
-2. 使用 `autumn_garden` 临时代替。
-3. 等待新的山路/红叶树背景。
-
-该决定不阻塞 `M2`，但必须在 `M5` 完整序章验收前确定。
+Godot 迁移版原样保留 `autumn_room`，以原脚本表现为对等基线。未来如果获得新的山路或红叶树背景，应作为单独的内容改版处理，不改变本次迁移验收标准。
 
 ### D-004 发布平台与素材授权
 
@@ -101,9 +96,11 @@ M8 Windows 发布验证
 
 正式发布前，每项背景、角色、UI 和字体必须记录作者、来源、许可证和再发布范围。授权未明确的素材可以用于本地迁移验证，但不能视为可发布资产。
 
+M0 先在 `migration/manifests/asset_licenses.tsv` 建立全部 24 个 P0 资源的记录。当前没有足够证据核实其作者、来源和许可证，因此均标记为 `unverified`、`local_validation_only`；P1/P2 资源在进入迁移范围时再补充。M8 发布校验必须使用 `tools/check_assets.ps1 -RequireVerifiedLicenses`，在仍有未核实记录时失败。
+
 ## 5. M0：技术决策与文档基线
 
-状态：`进行中`
+状态：`完成（2026-07-28）`
 
 ### 目标
 
@@ -127,18 +124,18 @@ tools/check_assets.ps1
 - [x] 生成序章 Dialogue Manager 源文件。
 - [x] 建立目标架构。
 - [x] 建立分阶段实施路线。
-- [x] 让资源校验脚本以 `migration/manifests/assets.tsv` 为唯一输入。
+- [x] 让资源路径校验以 `assets.tsv` 为唯一输入，并以 `asset_licenses.tsv` 单独记录授权状态。
 - [x] 确认 D-001 版本组合。
-- [ ] 确认 D-002 分辨率策略。
-- [ ] 确认 D-003 背景处理。
-- [ ] 建立正式资源授权记录。
+- [x] 确认 D-002 分辨率策略。
+- [x] 确认 D-003 背景处理。
+- [x] 建立 P0 资源授权状态记录。
 
 ### 验证
 
 - 文档中的文件名、模块名和状态模型一致。
 - 架构文档、路线图与功能验收表互相链接。
 - 迁移清单不再把未确认版本写成已验证组合。
-- `tools/check_assets.ps1` 校验新资源清单的列、P0 约束、重复路径和全部精确复制源。
+- `tools/check_assets.ps1` 校验资源清单的列、P0 约束、重复路径、全部精确复制源，以及 P0 授权记录覆盖和发布门禁。
 - `presentation.tsv` 中位置、动画与转场参数和 `story_setup.rpy`、`effects.rpy` 一致。
 - 现有 `game/` 原文件没有被移动或修改。
 
@@ -146,25 +143,32 @@ tools/check_assets.ps1
 
 - D-001 和 D-002 已确认。
 - Dialogue Manager 的新增生产依赖得到用户明确同意。
-- M1 使用的 Godot 可执行文件和插件来源已确定。
+- M1 使用官方 `Godot_v4.7.1-stable_mono_win64.exe`；项目自有运行时代码和测试统一使用 C#，第三方插件保持上游实现。
+- Dialogue Manager 来源锁定为官方 tag `v3.10.5`（commit `0049d4d`）。
 
 ## 6. M1：工程骨架与依赖验证
 
-状态：`未开始`
+状态：`完成（2026-07-28）`
 
 ### 目标
 
 建立最小 Godot 工程，确认引擎、插件、中文资源和 headless 验证链路可用。
 
+已用 Godot 4.7.1 .NET 编辑器建立 `godot/` 子项目，项目自有代码采用 C#/.NET 8。Dialogue Manager v3.10.5、主场景、输入动作、序章源文件和 headless smoke 已加入并通过全新缓存验证。
+
 ### 预计文件
 
 ```text
 godot/project.godot
+godot/SummerTrip.csproj
+godot/global.json
 godot/app/main.tscn
-godot/app/main.gd
+godot/app/Main.cs
 godot/addons/dialogue_manager/**
 godot/content/dialogue/prologue.dialogue
-godot/tests/smoke_prologue.gd
+godot/tests/SmokePrologue.cs
+godot/tests/smoke_prologue.tscn
+godot/third_party/dialogue_manager.NOTICE.md
 ```
 
 同时更新仓库 `.gitignore`，忽略 `godot/.godot/` 和本地导出目录，但保留需要版本控制的 Godot 源资源。
@@ -193,6 +197,8 @@ godot/tests/smoke_prologue.gd
 - 工程从全新导入缓存启动成功。
 - 没有把 `.godot/` 缓存、编辑器日志或导出包提交进仓库。
 
+实际验证结果：C# 构建为 0 个错误；主场景输出 `SummerTrip M1 bootstrap ready.`；smoke 输出 `SMOKE_PROLOGUE_OK titles=16 static_ids=115 first=ST_PRT_L001`。构建中的 23 条可空性警告全部来自未修改的上游 Dialogue Manager C# 文件。
+
 ## 7. M2：纯对话竖切
 
 状态：`未开始`
@@ -204,20 +210,20 @@ godot/tests/smoke_prologue.gd
 ### 预计文件
 
 ```text
-godot/core/dialogue/dialogue_context.gd
-godot/core/dialogue/dialogue_gateway.gd
-godot/core/session/game_session.gd
+godot/core/dialogue/DialogueContext.cs
+godot/core/dialogue/DialogueGateway.cs
+godot/core/session/GameSession.cs
 godot/features/vn/vn_mode.tscn
-godot/features/vn/vn_mode.gd
-godot/features/vn/vn_director.gd
-godot/features/vn/stage/stage_controller.gd
+godot/features/vn/VNMode.cs
+godot/features/vn/VNDirector.cs
+godot/features/vn/stage/StageController.cs
 godot/features/vn/ui/dialogue_box.tscn
-godot/features/vn/ui/dialogue_box.gd
+godot/features/vn/ui/DialogueBox.cs
 godot/ui/themes/vn_theme.tres
 godot/assets/fonts/SourceHanSansCN-Regular.otf
 godot/assets/fonts/SourceHanSansCN-Medium.otf
 godot/assets/fonts/SourceHanSansCN-Bold.otf
-godot/tests/smoke_prologue.gd
+godot/tests/SmokePrologue.cs
 ```
 
 ### 工作项
@@ -260,15 +266,15 @@ godot/tests/smoke_prologue.gd
 ### 预计文件
 
 ```text
-godot/content/catalog/content_catalog.gd
+godot/content/catalog/ContentCatalog.cs
 godot/content/catalog/content_catalog.tres
 godot/features/vn/stage/stage.tscn
-godot/features/vn/stage/stage_controller.gd       # 扩展 M2 的逻辑实现
+godot/features/vn/stage/StageController.cs         # 扩展 M2 的逻辑实现
 godot/assets/backgrounds/*
 godot/assets/characters/*
 godot/assets/ui/dialogue/*
 godot/assets/ui/button/*
-godot/tests/validate_content.gd
+godot/tests/ValidateContent.cs
 ```
 
 ### 本阶段新增资源
@@ -306,7 +312,7 @@ godot/tests/validate_content.gd
 
 - 开场到第一处选项的画面和原版基准一致。
 - 剧情文件中不存在 `res://`、节点路径或像素坐标。
-- `validate_content.gd` 通过。
+- `ValidateContent.cs` 通过。
 
 ## 9. M4：存读档闭环
 
@@ -319,10 +325,10 @@ godot/tests/validate_content.gd
 ### 预计文件
 
 ```text
-godot/core/save/save_schema.gd
-godot/core/save/save_service.gd
-godot/core/session/profile_data.gd
-godot/tests/save_roundtrip.gd
+godot/core/save/SaveSchema.cs
+godot/core/save/SaveService.cs
+godot/core/session/ProfileData.cs
+godot/tests/SaveRoundtrip.cs
 ```
 
 ### 工作项
@@ -369,7 +375,7 @@ godot/tests/save_roundtrip.gd
 
 ### 退出条件
 
-- `save_roundtrip.gd` 全部通过。
+- `SaveRoundtrip.cs` 全部通过。
 - 重新启动进程后仍能读取。
 - 好感、信任和谜团值没有重复增加。
 - 存档核心不依赖任何存档槽 UI 节点。
@@ -396,7 +402,7 @@ docs/godot_feature_checklist.md
 
 1. 验证 16 个 title、6 个选择点、15 个选项。
 2. 对照原版验证 100 条剧情文本。
-3. 确认 D-003 的背景处理。
+3. 验证树下调查段按 D-003 保留 `autumn_room`。
 4. 为 `aki_house_wakeup`、`maple_tree_investigation` 和 `route_choice` 配置自动存档点：仅在前置 mutation/转场完成、第一条可交互行稳定显示后写入 6 槽轮换自动档；结尾在最后一行稳定显示后写入。
 5. 记录三个序章结尾到 Profile。
 6. 完成历史记录基础数据。
@@ -429,18 +435,18 @@ docs/godot_feature_checklist.md
 
 ```text
 godot/features/menu/title_menu.tscn
-godot/features/menu/title_menu.gd
+godot/features/menu/TitleMenu.cs
 godot/features/menu/game_menu.tscn
-godot/features/menu/game_menu.gd
+godot/features/menu/GameMenu.cs
 godot/features/save_ui/save_load_screen.tscn
-godot/features/save_ui/save_load_screen.gd
+godot/features/save_ui/SaveLoadScreen.cs
 godot/features/save_ui/save_slot.tscn
-godot/features/save_ui/save_slot.gd
+godot/features/save_ui/SaveSlot.cs
 godot/features/history/history_screen.tscn
-godot/features/history/history_screen.gd
+godot/features/history/HistoryScreen.cs
 godot/features/settings/settings_screen.tscn
-godot/features/settings/settings_screen.gd
-godot/core/settings/settings_service.gd
+godot/features/settings/SettingsScreen.cs
+godot/core/settings/SettingsService.cs
 ```
 
 ### 工作项
@@ -565,8 +571,8 @@ godot/export_presets.cfg
 
 ## 16. 下一步
 
-`D-001` 已完成：项目使用 `Godot 4.7.1-stable` 与 `Dialogue Manager v3.10.5`，并已同意在 M1 将插件作为生产依赖加入仓库。
+`M0` 和 `M1` 已完成：Godot 4.7.1 .NET 工程、Dialogue Manager v3.10.5、主场景、序章编译和稳定 ID smoke 均已落地并通过验证。
 
-进入 M1 前只需确认 D-002 使用 `keep` 黑边策略，或决定改为 `expand`。
+下一步进入 `M2`，用 C# 实现 `DialogueContext`、`DialogueGateway`、`GameSession`、最小 `VNMode` 和对话框，跑通开场到第一处三选项。
 
-D-003 的背景问题可以暂时按原版表现保留，到 M5 前再决定。
+P0 授权台账已经建立，但 24 项记录仍未核实，只能用于本地迁移验证，不能进入正式发布。
