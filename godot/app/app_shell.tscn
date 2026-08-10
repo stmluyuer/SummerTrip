@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://d2msxjvrpp7ml"]
+
+[ext_resource type="PackedScene" path="res://features/menu/title_menu.tscn" id="2_title"]
+[ext_resource type="Theme" uid="uid://b0t72gfddrad7" path="res://ui/themes/vn_theme.tres" id="3_theme"]
+
+[node name="AppShell" type="Control" unique_id=1218574860]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+
+[node name="ModeHost" type="Control" parent="." unique_id=1984059463]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TitleMenu" parent="." unique_id=2079377187 instance=ExtResource("2_title")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="OverlayHost" type="Control" parent="." unique_id=71180910]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Toast" type="Label" parent="." unique_id=379239806]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 420.0
+offset_top = 32.0
+offset_right = -420.0
+offset_bottom = 102.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_colors/font_shadow_color = Color(0.1, 0.02, 0, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 28
+text = "通知"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Confirmation" type="ConfirmationDialog" parent="." unique_id=431834310]
+unique_name_in_owner = true
+title = "确认"
+ok_button_text = "确定"
+dialog_text = "确定执行此操作吗？"
+cancel_button_text = "取消"
+
+[node name="About" type="AcceptDialog" parent="." unique_id=381951012]
+unique_name_in_owner = true
+title = "关于 SummerTrip"
+ok_button_text = "返回"

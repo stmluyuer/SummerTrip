@@ -48,18 +48,20 @@ public partial class M7AvgFeatures : Node
             originalKeepSkipping = settings.Current.KeepSkippingAfterChoice;
             settings.Current.KeepSkippingAfterChoice = false;
 
+            await ValidateScreenAdvanceInputAsync(mode);
             await ValidateReadSkipBoundaryAsync(mode);
             ValidateUiHiding(mode);
-            await ValidateAutoPlaybackAsync(mode);
+            await ValidateAutoPlaybackAsync(mode, saveRoot);
             await WalkToFirstChoiceAsync(mode.Director);
             ValidateAutoPausesAtChoice(mode);
             await ValidateRollbackAndQuickIoAsync(mode, saveRoot, settings);
-            ValidateScreenshot(mode, screenshotsRoot);
+            await ValidateScreenshotAsync(mode, screenshotsRoot);
             ValidateQuickMenuAndBindings(mode);
 
             GD.Print(
                 "M7_AVG_FEATURES_OK unread_stop=true auto_choice_pause=true " +
-                "quick_slots=1 rollback_memory=true quick_menu=8 screenshot=true"
+                "quick_slots=1 rollback_memory=true quick_menu=8 screenshot=true " +
+                "profile_persist=true clean_capture=true screen_advance=true"
             );
             GetTree().Quit(0);
         }
@@ -82,6 +84,69 @@ public partial class M7AvgFeatures : Node
             }
             TryCleanup();
         }
+    }
+
+    private async Task ValidateScreenAdvanceInputAsync(VNMode mode)
+    {
+        var dialogueBox = mode.GetNode<DialogueBox>("%DialogueBox");
+        if (dialogueBox.MouseFilter != Control.MouseFilterEnum.Stop)
+        {
+            throw new InvalidOperationException(
+                "The dialogue layer does not receive full-screen GUI clicks."
+            );
+        }
+
+        await ClickScreenAsync();
+        if (
+            mode.Director.CurrentLine?.StaticId != "ST_PRT_L001" ||
+            mode.Director.Interaction != InteractionState.AwaitingAdvance
+        )
+        {
+            throw new InvalidOperationException(
+                "The first screen click did not finish typing the current line."
+            );
+        }
+
+        await ClickScreenAsync();
+        await PumpUntilAsync(
+            mode,
+            () => mode.Director.CurrentLine?.StaticId == "ST_PRT_L002",
+            20
+        );
+
+        await mode.Director.StartAsync();
+        if (
+            mode.Director.CurrentLine?.StaticId != "ST_PRT_L001" ||
+            mode.Director.Interaction != InteractionState.Typing
+        )
+        {
+            throw new InvalidOperationException(
+                "The screen advance regression check could not restore the opening line."
+            );
+        }
+    }
+
+    private async Task ClickScreenAsync()
+    {
+        var position = GetViewport().GetVisibleRect().Size / 2.0f;
+        Input.ParseInputEvent(
+            new InputEventMouseButton
+            {
+                ButtonIndex = MouseButton.Left,
+                Position = position,
+                Pressed = true,
+            }
+        );
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        Input.ParseInputEvent(
+            new InputEventMouseButton
+            {
+                ButtonIndex = MouseButton.Left,
+                Position = position,
+                Pressed = false,
+            }
+        );
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
     }
 
     private async Task ValidateReadSkipBoundaryAsync(VNMode mode)
@@ -135,9 +200,21 @@ public partial class M7AvgFeatures : Node
         }
     }
 
-    private async Task ValidateAutoPlaybackAsync(VNMode mode)
+    private async Task ValidateAutoPlaybackAsync(VNMode mode, string saveRoot)
     {
         mode.Director.CompleteCurrentTyping();
+        if (
+            !new SaveService(saveRoot)
+                .LoadProfile()
+                .ReadLineIds
+                .Contains("ST_PRT_L003")
+        )
+        {
+            throw new InvalidOperationException(
+                "A newly completed line was not persisted to the global Profile."
+            );
+        }
+
         mode.ToggleAuto();
         await PumpUntilAsync(
             mode,
@@ -260,8 +337,26 @@ public partial class M7AvgFeatures : Node
         }
     }
 
-    private static void ValidateScreenshot(VNMode mode, string screenshotRoot)
+    private static async Task ValidateScreenshotAsync(
+        VNMode mode,
+        string screenshotRoot
+    )
     {
+        var quickMenu = mode.GetNode<QuickMenu>("%QuickMenu");
+        using (var saveScreenshot = await mode.CaptureSaveScreenshotBehindAsync(quickMenu))
+        {
+            if (
+                !quickMenu.Visible ||
+                saveScreenshot.GetWidth() != SaveService.ScreenshotWidth ||
+                saveScreenshot.GetHeight() != SaveService.ScreenshotHeight
+            )
+            {
+                throw new InvalidOperationException(
+                    "Save capture did not hide and restore its overlay around a rendered frame."
+                );
+            }
+        }
+
         mode.TakeScreenshot();
         var screenshot = Directory.Exists(screenshotRoot)
             ? Directory.EnumerateFiles(screenshotRoot, "screenshot_*.png").SingleOrDefault()

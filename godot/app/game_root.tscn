@@ -1,10 +1,10 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://be0j5i2anjag"]
 
-[ext_resource type="Script" path="res://app/GameRoot.cs" id="1_script"]
+[ext_resource type="Script" uid="uid://cx536r8uj2nt2" path="res://app/GameRoot.cs" id="1_script"]
 [ext_resource type="PackedScene" path="res://features/menu/title_menu.tscn" id="2_title"]
-[ext_resource type="Theme" path="res://ui/themes/vn_theme.tres" id="3_theme"]
+[ext_resource type="Theme" uid="uid://b0t72gfddrad7" path="res://ui/themes/vn_theme.tres" id="3_theme"]
 
-[node name="GameRoot" type="Control"]
+[node name="GameRoot" type="Control" unique_id=1672164214]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -14,7 +14,7 @@ grow_vertical = 2
 theme = ExtResource("3_theme")
 script = ExtResource("1_script")
 
-[node name="ModeHost" type="Control" parent="."]
+[node name="ModeHost" type="Control" parent="." unique_id=390979347]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -24,11 +24,11 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="TitleMenu" parent="." instance=ExtResource("2_title")]
+[node name="TitleMenu" parent="." unique_id=1716996603 instance=ExtResource("2_title")]
 unique_name_in_owner = true
 layout_mode = 1
 
-[node name="OverlayHost" type="Control" parent="."]
+[node name="OverlayHost" type="Control" parent="." unique_id=96968915]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -38,7 +38,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Toast" type="Label" parent="."]
+[node name="Toast" type="Label" parent="." unique_id=1743330063]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
@@ -49,7 +49,6 @@ offset_top = 32.0
 offset_right = -420.0
 offset_bottom = 102.0
 grow_horizontal = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
 theme_override_colors/font_shadow_color = Color(0.1, 0.02, 0, 1)
 theme_override_constants/shadow_offset_x = 3
@@ -59,14 +58,14 @@ text = "通知"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Confirmation" type="ConfirmationDialog" parent="."]
+[node name="Confirmation" type="ConfirmationDialog" parent="." unique_id=1890412230]
 unique_name_in_owner = true
 title = "确认"
-dialog_text = "确定执行此操作吗？"
 ok_button_text = "确定"
+dialog_text = "确定执行此操作吗？"
 cancel_button_text = "取消"
 
-[node name="About" type="AcceptDialog" parent="."]
+[node name="About" type="AcceptDialog" parent="." unique_id=836040811]
 unique_name_in_owner = true
 title = "关于 SummerTrip"
 ok_button_text = "返回"

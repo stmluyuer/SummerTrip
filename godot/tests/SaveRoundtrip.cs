@@ -84,6 +84,7 @@ public partial class SaveRoundtrip : Node
     private async Task RunAsync()
     {
         ValidateSlotRanges();
+        ValidateProfileRecovery();
 
         var stageScene = ResourceLoader.Load<PackedScene>(StageScenePath)
             ?? throw new InvalidOperationException("Unable to load the stage scene.");
@@ -297,6 +298,12 @@ public partial class SaveRoundtrip : Node
         var service = new SaveService(_saveRoot);
         var officialPath = service.GetSlotJsonPath(slot);
         var oldJson = File.ReadAllText(officialPath);
+        var slotDirectory = Path.GetDirectoryName(officialPath)
+            ?? throw new InvalidOperationException("Save slot path has no directory.");
+        var filesBefore = Directory.EnumerateFiles(
+            slotDirectory,
+            $"slot_{slot.Index:000}.*"
+        ).OrderBy(path => path, StringComparer.OrdinalIgnoreCase).ToArray();
         service.WriteCheckpointObserver = checkpoint =>
         {
             if (checkpoint == SaveWriteCheckpoint.ScreenshotValidated)
@@ -314,6 +321,17 @@ public partial class SaveRoundtrip : Node
         {
             throw new InvalidOperationException(
                 "An interruption before JSON commit changed the official save."
+            );
+        }
+
+        var filesAfter = Directory.EnumerateFiles(
+            slotDirectory,
+            $"slot_{slot.Index:000}.*"
+        ).OrderBy(path => path, StringComparer.OrdinalIgnoreCase).ToArray();
+        if (!filesBefore.SequenceEqual(filesAfter, StringComparer.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Interrupted save left an orphaned screenshot or temporary metadata file."
             );
         }
 
@@ -477,6 +495,7 @@ public partial class SaveRoundtrip : Node
         var beforeProfile = director.Profile.CaptureSnapshot();
         var beforeLine = director.CurrentLine?.StaticId;
         var beforeInteraction = director.Interaction;
+        var beforeLineWasRead = director.CurrentLineWasRead;
 
         foreach (var invalid in new[]
         {
@@ -509,13 +528,67 @@ public partial class SaveRoundtrip : Node
             AssertProfile(beforeProfile, director.Profile.CaptureSnapshot());
             if (
                 director.CurrentLine?.StaticId != beforeLine ||
-                director.Interaction != beforeInteraction
+                director.Interaction != beforeInteraction ||
+                director.CurrentLineWasRead != beforeLineWasRead
             )
             {
                 throw new InvalidOperationException(
                     "Failed restore changed the current dialogue state."
                 );
             }
+        }
+
+        if (
+            beforeLineWasRead ||
+            !director.Profile.ReadLineIds.Contains(validDocument.Story.StaticLineId)
+        )
+        {
+            throw new InvalidOperationException(
+                "Profile write failure test requires an unread current line and a read restore target."
+            );
+        }
+
+        var blockerPath = Path.Combine(
+            ProjectSettings.GlobalizePath("user://m4_save_roundtrip"),
+            "profile_write_blocker"
+        );
+        File.WriteAllText(blockerPath, "not a directory");
+        try
+        {
+            var failingProfileService = new SaveService(
+                Path.Combine(blockerPath, "saves")
+            );
+            try
+            {
+                await director.RestoreAsync(validDocument, failingProfileService);
+                throw new InvalidOperationException(
+                    "Restore unexpectedly completed when Profile persistence was blocked."
+                );
+            }
+            catch (Exception exception) when (
+                exception is IOException ||
+                exception is UnauthorizedAccessException
+            )
+            {
+            }
+
+            AssertSession(beforeSession, director.Session.CaptureSnapshot());
+            AssertStage(beforeStage, stage.CaptureSnapshot());
+            AssertProfile(beforeProfile, director.Profile.CaptureSnapshot());
+            if (
+                director.CurrentLine?.StaticId != beforeLine ||
+                director.Interaction != beforeInteraction ||
+                director.CurrentLineWasRead != beforeLineWasRead
+            )
+            {
+                throw new InvalidOperationException(
+                    "Profile write failure left a partially restored dialogue state."
+                );
+            }
+        }
+        finally
+        {
+            File.Delete(blockerPath);
         }
     }
 
@@ -672,6 +745,59 @@ public partial class SaveRoundtrip : Node
         )
         {
             throw new InvalidOperationException("Failed restore changed the Profile.");
+        }
+    }
+
+    private void ValidateProfileRecovery()
+    {
+        var recoverySaveRoot = Path.Combine(
+            _testRoot,
+            "profile_recovery",
+            "saves"
+        );
+        var service = new SaveService(recoverySaveRoot);
+        var backupProfile = new ProfileData();
+        backupProfile.ReadLineIds.Add("ST_PROFILE_BACKUP");
+        service.SaveProfile(backupProfile);
+
+        var currentProfile = backupProfile.Clone();
+        currentProfile.ReadLineIds.Add("ST_PROFILE_CURRENT");
+        service.SaveProfile(currentProfile);
+
+        var profilePath = service.GetProfilePath();
+        File.WriteAllText(profilePath, "{broken profile");
+        var backupRecovery = new SaveService(recoverySaveRoot);
+        var recovered = backupRecovery.LoadProfile();
+        if (
+            !recovered.ReadLineIds.SetEquals(backupProfile.ReadLineIds) ||
+            backupRecovery.LastProfileRecoveryWarning is null ||
+            !File.Exists(profilePath)
+        )
+        {
+            throw new InvalidOperationException(
+                "A damaged Profile was not restored from its valid backup."
+            );
+        }
+
+        File.WriteAllText(profilePath, "{broken primary");
+        File.WriteAllText(profilePath + ".bak", "{broken backup");
+        var defaultRecovery = new SaveService(recoverySaveRoot);
+        var defaults = defaultRecovery.LoadProfile();
+        var profileDirectory = Path.GetDirectoryName(profilePath)
+            ?? throw new InvalidOperationException("Profile path has no directory.");
+        if (
+            defaults.ReadLineIds.Count != 0 ||
+            defaultRecovery.LastProfileRecoveryWarning is null ||
+            !File.Exists(profilePath) ||
+            Directory.EnumerateFiles(
+                profileDirectory,
+                "profile.json*.corrupt"
+            ).Count() < 3
+        )
+        {
+            throw new InvalidOperationException(
+                "Unrecoverable Profile files were not quarantined before defaults were created."
+            );
         }
     }
 

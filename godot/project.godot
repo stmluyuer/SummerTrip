@@ -21,10 +21,6 @@ config/icon="res://assets/ui/window_icon.png"
 DialogueManager="*res://addons/dialogue_manager/dialogue_manager.gd"
 SettingsService="*res://core/settings/SettingsService.cs"
 
-[dialogue_manager]
-
-runtime/advanced/uses_dotnet=true
-
 [display]
 
 window/size/viewport_width=1920
@@ -32,7 +28,6 @@ window/size/viewport_height=1080
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
 
 [dotnet]
 

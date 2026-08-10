@@ -63,7 +63,17 @@ public partial class DialogueBox : Control
         }
     }
 
+    public override void _GuiInput(InputEvent @event)
+    {
+        HandleNavigationInput(@event);
+    }
+
     public override void _UnhandledInput(InputEvent @event)
+    {
+        HandleNavigationInput(@event);
+    }
+
+    private void HandleNavigationInput(InputEvent @event)
     {
         if (_director is null || !@event.IsPressed() || @event.IsEcho())
         {

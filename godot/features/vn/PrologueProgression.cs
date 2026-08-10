@@ -50,6 +50,7 @@ public sealed class PrologueProgression : IDisposable
         try
         {
             LastError = null;
+            var candidateProfile = _profile.Clone();
             var endingId = _chapter.EndingFinalLines
                 .FirstOrDefault(pair => string.Equals(
                     pair.Value,
@@ -57,12 +58,18 @@ public sealed class PrologueProgression : IDisposable
                     StringComparison.Ordinal
                 ))
                 .Key;
-            if (!string.IsNullOrEmpty(endingId) && !_profile.UnlockedEndings.Contains(endingId))
+            var endingWasUnlocked =
+                !string.IsNullOrEmpty(endingId) &&
+                !candidateProfile.UnlockedEndings.Contains(endingId);
+            if (endingWasUnlocked)
             {
-                var candidateProfile = _profile.Clone();
                 candidateProfile.UnlockedEndings.Add(endingId);
-                _saveService.SaveProfile(candidateProfile);
-                _profile.ReplaceWith(candidateProfile);
+            }
+
+            _saveService.SaveProfile(candidateProfile);
+            _profile.ReplaceWith(candidateProfile);
+            if (endingWasUnlocked)
+            {
                 EndingUnlocked?.Invoke(endingId);
             }
 

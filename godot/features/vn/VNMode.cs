@@ -69,6 +69,10 @@ public partial class VNMode : Control
             _session = new GameSession();
             _saveService = new SaveService(SaveRoot);
             _profile = _saveService.LoadProfile();
+            if (_saveService.LastProfileRecoveryWarning is not null)
+            {
+                Notify(_saveService.LastProfileRecoveryWarning);
+            }
             _gateway = new DialogueGateway(
                 DialoguePath,
                 new DialogueContext(_session, stage)
@@ -376,6 +380,25 @@ public partial class VNMode : Control
             Image.Interpolation.Lanczos
         );
         return image;
+    }
+
+    public async Task<Image> CaptureSaveScreenshotBehindAsync(CanvasItem overlay)
+    {
+        ArgumentNullException.ThrowIfNull(overlay);
+        var wasVisible = overlay.Visible;
+        overlay.Hide();
+        try
+        {
+            await ToSignal(
+                RenderingServer.Singleton,
+                RenderingServer.SignalName.FramePostDraw
+            );
+            return CaptureSaveScreenshot();
+        }
+        finally
+        {
+            overlay.Visible = wasVisible;
+        }
     }
 
     private Image CaptureViewportImage()

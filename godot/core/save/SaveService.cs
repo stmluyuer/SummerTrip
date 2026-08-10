@@ -102,6 +102,7 @@ public sealed class SaveService
     }
 
     internal Action<SaveWriteCheckpoint>? WriteCheckpointObserver { get; set; }
+    public string? LastProfileRecoveryWarning { get; private set; }
 
     public string GetSlotJsonPath(SaveSlot slot)
     {
@@ -184,41 +185,55 @@ public sealed class SaveService
         var screenshotPath = Path.Combine(slotDirectory, screenshotFileName);
         var screenshotRelativePath =
             $"{GetSlotDirectoryName(slot)}/{screenshotFileName}";
-
-        var screenshotError = screenshot.SavePng(screenshotPath);
-        if (screenshotError != Error.Ok)
-        {
-            throw new IOException(
-                $"Unable to write save screenshot '{screenshotRelativePath}': {screenshotError}."
-            );
-        }
-
-        ValidateScreenshotFile(screenshotPath);
-        WriteCheckpointObserver?.Invoke(SaveWriteCheckpoint.ScreenshotValidated);
-
-        document.ScreenshotPath = screenshotRelativePath;
-        document.SavedAt = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture);
-        SaveSchema.Validate(document, requireScreenshotPath: true);
-        ValidateScreenshotForSlot(slot, document.ScreenshotPath);
-
         var jsonPath = GetSlotJsonPath(slot);
         var temporaryPath = jsonPath + $".{Guid.NewGuid():N}.tmp";
-        WriteTextAndFlush(temporaryPath, SaveSchema.Serialize(document));
-        _ = SaveSchema.Deserialize(File.ReadAllText(temporaryPath));
-        WriteCheckpointObserver?.Invoke(SaveWriteCheckpoint.TemporaryJsonValidated);
+        var jsonCommitted = false;
+        try
+        {
+            var screenshotError = screenshot.SavePng(screenshotPath);
+            if (screenshotError != Error.Ok)
+            {
+                throw new IOException(
+                    $"Unable to write save screenshot '{screenshotRelativePath}': {screenshotError}."
+                );
+            }
 
-        var backupPath = jsonPath + ".bak";
-        ReplaceFile(temporaryPath, jsonPath, backupPath);
-        WriteCheckpointObserver?.Invoke(SaveWriteCheckpoint.JsonCommitted);
+            ValidateScreenshotFile(screenshotPath);
+            WriteCheckpointObserver?.Invoke(SaveWriteCheckpoint.ScreenshotValidated);
 
-        TryUpdateIndex();
-        TryCleanupOldScreenshots(
-            slotDirectory,
-            GetSlotBaseName(slot),
-            screenshotPath,
-            TryGetBackupScreenshotPath(backupPath)
-        );
-        return document;
+            document.ScreenshotPath = screenshotRelativePath;
+            document.SavedAt = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture);
+            SaveSchema.Validate(document, requireScreenshotPath: true);
+            ValidateScreenshotForSlot(slot, document.ScreenshotPath);
+
+            WriteTextAndFlush(temporaryPath, SaveSchema.Serialize(document));
+            _ = SaveSchema.Deserialize(File.ReadAllText(temporaryPath));
+            WriteCheckpointObserver?.Invoke(SaveWriteCheckpoint.TemporaryJsonValidated);
+
+            var backupPath = jsonPath + ".bak";
+            ReplaceFile(temporaryPath, jsonPath, backupPath);
+            jsonCommitted = true;
+            WriteCheckpointObserver?.Invoke(SaveWriteCheckpoint.JsonCommitted);
+
+            TryUpdateIndex();
+            TryCleanupOldScreenshots(
+                slotDirectory,
+                GetSlotBaseName(slot),
+                screenshotPath,
+                TryGetBackupScreenshotPath(backupPath)
+            );
+            TryCleanupTemporaryFiles(slotDirectory, GetSlotBaseName(slot));
+            return document;
+        }
+        catch
+        {
+            if (!jsonCommitted)
+            {
+                TryDeleteFile(screenshotPath, "incomplete save screenshot");
+                TryDeleteFile(temporaryPath, "incomplete save metadata");
+            }
+            throw;
+        }
     }
 
     public LoadedSave Load(SaveSlot slot)
@@ -369,15 +384,146 @@ public sealed class SaveService
 
     public ProfileData LoadProfile()
     {
+        LastProfileRecoveryWarning = null;
+        var backupPath = _profilePath + ".bak";
         if (!File.Exists(_profilePath))
         {
-            return new ProfileData();
+            if (!File.Exists(backupPath))
+            {
+                return new ProfileData();
+            }
+
+            try
+            {
+                var recovered = LoadProfileFile(backupPath);
+                var backupWasPersisted = TryPersistRecoveredProfile(
+                    recovered,
+                    primaryCanBeReplaced: true
+                );
+                LastProfileRecoveryWarning = backupWasPersisted
+                    ? "全局进度主文件缺失，已从备份恢复。"
+                    : "全局进度主文件缺失，本次已从备份载入内存，但无法重建主文件。";
+                GD.PushWarning(LastProfileRecoveryWarning);
+                return recovered;
+            }
+            catch (Exception backupException) when (
+                backupException is IOException ||
+                backupException is UnauthorizedAccessException ||
+                backupException is SaveValidationException
+            )
+            {
+                var backupQuarantined = TryQuarantineProfileFile(backupPath);
+                var defaults = new ProfileData();
+                var defaultsWerePersisted = TryPersistRecoveredProfile(
+                    defaults,
+                    backupQuarantined
+                );
+                LastProfileRecoveryWarning = defaultsWerePersisted
+                    ? "全局进度主文件缺失且备份损坏，已保留损坏备份并创建默认进度。"
+                    : "全局进度主文件缺失且备份损坏，本次使用默认进度，但无法安全重建文件。";
+                GD.PushWarning(
+                    $"{LastProfileRecoveryWarning} Cause: {backupException.Message}"
+                );
+                return defaults;
+            }
         }
 
         try
         {
+            return LoadProfileFile(_profilePath);
+        }
+        catch (Exception primaryException) when (
+            primaryException is IOException ||
+            primaryException is UnauthorizedAccessException ||
+            primaryException is SaveValidationException
+        )
+        {
+            ProfileData? recovered = null;
+            Exception? backupException = null;
+            if (File.Exists(backupPath))
+            {
+                try
+                {
+                    recovered = LoadProfileFile(backupPath);
+                }
+                catch (Exception exception) when (
+                    exception is IOException ||
+                    exception is UnauthorizedAccessException ||
+                    exception is SaveValidationException
+                )
+                {
+                    backupException = exception;
+                }
+            }
+
+            var primaryQuarantined = TryQuarantineProfileFile(_profilePath);
+            if (recovered is not null)
+            {
+                var backupWasPersisted = TryPersistRecoveredProfile(
+                    recovered,
+                    primaryQuarantined
+                );
+                LastProfileRecoveryWarning = backupWasPersisted
+                    ? "全局进度文件损坏，已从备份恢复；原文件已保留为 .corrupt。"
+                    : "全局进度文件损坏，本次已在内存中从备份恢复，但无法安全重写主文件。";
+                GD.PushWarning(
+                    $"{LastProfileRecoveryWarning} Cause: {primaryException.Message}"
+                );
+                return recovered;
+            }
+
+            var backupQuarantined = TryQuarantineProfileFile(backupPath);
+            var defaults = new ProfileData();
+            var defaultsWerePersisted = TryPersistRecoveredProfile(
+                defaults,
+                primaryQuarantined && backupQuarantined
+            );
+            LastProfileRecoveryWarning = defaultsWerePersisted
+                ? "全局进度文件及备份均不可用，已保留损坏文件并创建默认进度。"
+                : "全局进度文件及备份均不可用，本次使用默认进度，但无法安全重写文件。";
+            GD.PushWarning(
+                $"{LastProfileRecoveryWarning} Primary: {primaryException.Message}" +
+                (backupException is null ? "" : $" Backup: {backupException.Message}")
+            );
+            return defaults;
+        }
+    }
+
+    public void SaveProfile(ProfileData profile)
+    {
+        ArgumentNullException.ThrowIfNull(profile);
+        Directory.CreateDirectory(
+            Path.GetDirectoryName(_profilePath)
+                ?? throw new InvalidOperationException("Profile path has no directory.")
+        );
+
+        var temporaryPath = _profilePath + $".{Guid.NewGuid():N}.tmp";
+        try
+        {
+            var json = JsonSerializer.Serialize(
+                ProfileFileData.FromSnapshot(profile.CaptureSnapshot()),
+                CacheJsonOptions
+            );
+            WriteTextAndFlush(temporaryPath, json);
+            var candidate = JsonSerializer.Deserialize<ProfileFileData>(
+                File.ReadAllText(temporaryPath),
+                CacheJsonOptions
+            ) ?? throw new SaveValidationException("Temporary profile JSON is invalid.");
+            _ = candidate.ToProfile();
+            ReplaceFile(temporaryPath, _profilePath, _profilePath + ".bak");
+        }
+        finally
+        {
+            TryDeleteFile(temporaryPath, "incomplete profile metadata");
+        }
+    }
+
+    private static ProfileData LoadProfileFile(string path)
+    {
+        try
+        {
             var document = JsonSerializer.Deserialize<ProfileFileData>(
-                File.ReadAllText(_profilePath),
+                File.ReadAllText(path),
                 CacheJsonOptions
             ) ?? throw new SaveValidationException("Profile JSON did not contain an object.");
             return document.ToProfile();
@@ -395,26 +541,67 @@ public sealed class SaveService
         }
     }
 
-    public void SaveProfile(ProfileData profile)
+    private bool TryQuarantineProfileFile(string path)
     {
-        ArgumentNullException.ThrowIfNull(profile);
-        Directory.CreateDirectory(
-            Path.GetDirectoryName(_profilePath)
-                ?? throw new InvalidOperationException("Profile path has no directory.")
-        );
+        if (!File.Exists(path))
+        {
+            return true;
+        }
 
-        var temporaryPath = _profilePath + $".{Guid.NewGuid():N}.tmp";
-        var json = JsonSerializer.Serialize(
-            ProfileFileData.FromSnapshot(profile.CaptureSnapshot()),
-            CacheJsonOptions
-        );
-        WriteTextAndFlush(temporaryPath, json);
-        var candidate = JsonSerializer.Deserialize<ProfileFileData>(
-            File.ReadAllText(temporaryPath),
-            CacheJsonOptions
-        ) ?? throw new SaveValidationException("Temporary profile JSON is invalid.");
-        _ = candidate.ToProfile();
-        ReplaceFile(temporaryPath, _profilePath, _profilePath + ".bak");
+        try
+        {
+            var timestamp = DateTimeOffset.UtcNow.ToString(
+                "yyyyMMdd_HHmmss_fff",
+                CultureInfo.InvariantCulture
+            );
+            var destination = $"{path}.{timestamp}.corrupt";
+            var suffix = 1;
+            while (File.Exists(destination))
+            {
+                destination = $"{path}.{timestamp}_{suffix:00}.corrupt";
+                suffix++;
+            }
+            File.Move(path, destination);
+            return true;
+        }
+        catch (Exception exception) when (
+            exception is IOException ||
+            exception is UnauthorizedAccessException
+        )
+        {
+            GD.PushWarning(
+                $"Damaged profile file '{path}' could not be quarantined: {exception.Message}"
+            );
+            return false;
+        }
+    }
+
+    private bool TryPersistRecoveredProfile(ProfileData profile, bool primaryCanBeReplaced)
+    {
+        if (!primaryCanBeReplaced)
+        {
+            GD.PushWarning(
+                "Recovered profile is available in memory but could not replace the damaged file."
+            );
+            return false;
+        }
+
+        try
+        {
+            SaveProfile(profile);
+            return true;
+        }
+        catch (Exception exception) when (
+            exception is IOException ||
+            exception is UnauthorizedAccessException ||
+            exception is SaveValidationException
+        )
+        {
+            GD.PushWarning(
+                $"Recovered profile could not be persisted: {exception.Message}"
+            );
+            return false;
+        }
     }
 
     private void TryUpdateIndex()
@@ -608,6 +795,45 @@ public sealed class SaveService
         )
         {
             GD.PushWarning($"Old save screenshots could not be cleaned: {exception.Message}");
+        }
+    }
+
+    private static void TryCleanupTemporaryFiles(string directory, string slotBaseName)
+    {
+        try
+        {
+            foreach (var path in Directory.EnumerateFiles(
+                directory,
+                $"{slotBaseName}.json.*.tmp"
+            ))
+            {
+                File.Delete(path);
+            }
+        }
+        catch (Exception exception) when (
+            exception is IOException ||
+            exception is UnauthorizedAccessException
+        )
+        {
+            GD.PushWarning($"Orphaned save metadata could not be cleaned: {exception.Message}");
+        }
+    }
+
+    private static void TryDeleteFile(string path, string description)
+    {
+        try
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+        catch (Exception exception) when (
+            exception is IOException ||
+            exception is UnauthorizedAccessException
+        )
+        {
+            GD.PushWarning($"Unable to remove {description} '{path}': {exception.Message}");
         }
     }
 

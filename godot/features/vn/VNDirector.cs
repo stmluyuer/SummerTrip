@@ -248,6 +248,7 @@ public partial class VNDirector : Node
         var previousOperation = Operation;
         var previousInteraction = Interaction;
         var previousLine = CurrentLine;
+        var previousLineWasRead = CurrentLineWasRead;
         var previousSession = _session!;
         var previousSessionSnapshot = previousSession.CaptureSnapshot();
         var previousStageSnapshot = _stage!.CaptureSnapshot();
@@ -311,7 +312,8 @@ public partial class VNDirector : Node
                     previousSessionSnapshot,
                     previousStageSnapshot,
                     previousLine,
-                    previousInteraction
+                    previousInteraction,
+                    previousLineWasRead
                 );
             }
 
@@ -349,6 +351,7 @@ public partial class VNDirector : Node
         var previousOperation = Operation;
         var previousInteraction = Interaction;
         var previousLine = CurrentLine;
+        var previousLineWasRead = CurrentLineWasRead;
         var previousSession = _session!;
         var previousSessionSnapshot = previousSession.CaptureSnapshot();
         var previousStageSnapshot = _stage!.CaptureSnapshot();
@@ -397,7 +400,8 @@ public partial class VNDirector : Node
                     previousSessionSnapshot,
                     previousStageSnapshot,
                     previousLine,
-                    previousInteraction
+                    previousInteraction,
+                    previousLineWasRead
                 );
             }
 
@@ -490,7 +494,8 @@ public partial class VNDirector : Node
         GameSessionSnapshot previousSessionSnapshot,
         StageSnapshot previousStageSnapshot,
         DialogueEntry? previousLine,
-        InteractionState previousInteraction
+        InteractionState previousInteraction,
+        bool previousLineWasRead
     )
     {
         previousSession.RestoreSnapshot(previousSessionSnapshot);
@@ -498,6 +503,7 @@ public partial class VNDirector : Node
         _session = previousSession;
         _gateway!.ReplaceContext(new DialogueContext(previousSession, _stage));
         CurrentLine = previousLine;
+        CurrentLineWasRead = previousLineWasRead;
         Interaction = previousInteraction;
         LineChanged?.Invoke(previousLine);
     }
