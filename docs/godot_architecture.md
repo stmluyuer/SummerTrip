@@ -50,7 +50,7 @@
 
 ### 3.1 持久外壳，按模式替换内容
 
-`Main` 是唯一常驻的游戏入口，`AppShell` 保留全局 UI 和共享服务，并在 `ModeHost` 下装载或卸载 `VNMode`、未来的探索模式或小游戏模式。
+`Main` 是唯一常驻的游戏入口，`GameRoot` 保留全局 UI 和共享服务，并在 `ModeHost` 下装载或卸载 `VNMode`、未来的探索模式或小游戏模式。
 
 设置服务和存档服务不随模式切换销毁；`GameSession` 由 `VNMode` 持有，返回标题时随旧模式释放，未来在游戏内切换其他模式时再显式移交。模式内部的舞台、输入和临时动画状态随模式释放。
 
@@ -109,8 +109,8 @@ godot/
 ├─ third_party/
 │  └─ dialogue_manager.NOTICE.md        # 上游版本、提交与许可证位置
 ├─ app/
-│  ├─ app_shell.tscn
-│  ├─ AppShell.cs
+│  ├─ game_root.tscn
+│  ├─ GameRoot.cs
 │  ├─ main.tscn
 │  └─ Main.cs
 ├─ core/
@@ -188,7 +188,7 @@ godot/
 
 ```text
 Main
-└─ AppShell
+└─ GameRoot
    ├─ ModeHost
    │  └─ VNMode                     # 当前模式，可被其他模式替换
    ├─ TitleMenu
@@ -198,7 +198,7 @@ Main
       └─ ConfirmLayer
 ```
 
-`AppShell` 的职责：
+`GameRoot` 的职责：
 
 - 持有跨标题菜单和游戏模式使用的 `SaveService`。
 - 创建和释放拥有当前 `GameSession` 的游戏模式。
@@ -233,7 +233,7 @@ VNMode
 
 | 模块 | 拥有的数据 | 允许调用 | 不负责 |
 | --- | --- | --- | --- |
-| `AppShell` | 当前模式、全局菜单、确认和通知 | 模式、全局 UI、共享服务 | 对白逐句推进、舞台动画 |
+| `GameRoot` | 当前模式、全局菜单、确认和通知 | 模式、全局 UI、共享服务 | 对白逐句推进、舞台动画 |
 | `GameSession` | 玩家名、路线值、剧情标记、当前章节、历史、游玩时间 | 纯数据转换和校验 | 文件读写、节点操作 |
 | `ProfileData` | 已读对白、已解锁结局、未来的 CG/成就 | 合并和序列化 | 当前存档路线值 |
 | `DialogueGateway` | Dialogue Manager 版本适配 | 插件公开 API | UI、舞台节点、存档文件 |
@@ -250,7 +250,7 @@ VNMode
 依赖只允许从组合层指向具体能力：
 
 ```text
-AppShell
+GameRoot
 ├─ SaveService
 ├─ GlobalUI
 └─ VNMode
@@ -269,7 +269,7 @@ AppShell
 2. `VNDirector` 决定意图在当前状态是否有效。
 3. `StageController` 完成动画后发出完成信号或返回可等待的调用。
 4. `SaveService` 接收已经构造好的基础类型快照；它不搜索 `VNDirector` 或 `Stage`。
-5. 加载时 `SaveService` 返回已校验的数据，由 `AppShell` 和 `VNDirector` 执行恢复。
+5. 加载时 `SaveService` 返回已校验的数据，由 `GameRoot` 和 `VNDirector` 执行恢复。
 6. 跨模块访问不得依赖硬编码的远距离 `NodePath`。
 
 ## 8. Dialogue Manager 对接
@@ -578,7 +578,7 @@ ui_cancel
 - `HistoryManager`
 - `AudioService`
 
-`SaveService` 保持为不依赖场景树的普通 C# 服务，由常驻 `AppShell` 持有并提供给标题菜单和当前游戏模式；UI 只提交槽位意图，不拼接路径或直接写文件。`ProfileData` 由 `SaveService` 加载并交给 `VNMode` 持有。当前项目没有音频调用，等音频实际进入工程后再判断是否需要跨模式服务。
+`SaveService` 保持为不依赖场景树的普通 C# 服务，由常驻 `GameRoot` 持有并提供给标题菜单和当前游戏模式；UI 只提交槽位意图，不拼接路径或直接写文件。`ProfileData` 由 `SaveService` 加载并交给 `VNMode` 持有。当前项目没有音频调用，等音频实际进入工程后再判断是否需要跨模式服务。
 
 ## 14. 验证策略
 

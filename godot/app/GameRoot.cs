@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SummerTrip.App;
 
-public partial class AppShell : Control
+public partial class GameRoot : Control
 {
     private readonly SaveService _saveService = new();
     private Control _modeHost = null!;

@@ -481,7 +481,7 @@ godot/core/settings/SettingsService.cs
 - UI 不直接写文件或修改剧情变量。
 - 返回标题后旧 `VNMode` 已释放，会话处理符合用户选择。
 
-实际验证结果：C# 构建为 0 个错误；锁定版 Godot 4.7.1 .NET 重导入和主场景 headless 启动通过；`M6MenuSettings.cs` 输出 `M6_MENU_SETTINGS_OK pages=9 slots_per_page=6 manual=54 auto=6 quick=1 keyboard=true`。测试覆盖菜单暂停后交互状态保持、菜单内保存后仍停留在菜单状态、跨手动/快速/自动槽选择最近有效存档、空槽/损坏槽/截图缺失、删除、3×2 页面、设置重启持久化和所有按钮的键盘焦点。主流程由常驻 `AppShell` 协调标题菜单、`VNMode` 生命周期、确认弹窗和通知；返回标题会从场景树移除旧 `VNMode`。自动等待已经持久化，但其对自动播放的实际作用随 M7 自动播放一起验收。
+实际验证结果：C# 构建为 0 个错误；锁定版 Godot 4.7.1 .NET 重导入和主场景 headless 启动通过；`M6MenuSettings.cs` 输出 `M6_MENU_SETTINGS_OK pages=9 slots_per_page=6 manual=54 auto=6 quick=1 keyboard=true`。测试覆盖菜单暂停后交互状态保持、菜单内保存后仍停留在菜单状态、跨手动/快速/自动槽选择最近有效存档、空槽/损坏槽/截图缺失、删除、3×2 页面、设置重启持久化和所有按钮的键盘焦点。主流程由常驻 `GameRoot` 协调标题菜单、`VNMode` 生命周期、确认弹窗和通知；返回标题会从场景树移除旧 `VNMode`。自动等待已经持久化，但其对自动播放的实际作用随 M7 自动播放一起验收。
 
 ## 12. M7：AVG 辅助功能
 
