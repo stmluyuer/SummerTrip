@@ -1,7 +1,16 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://features/menu/TitleMenu.cs" id="1_script"]
 [ext_resource type="Theme" path="res://ui/themes/vn_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://assets/ui/menu/title_background.png" id="3_background"]
+[ext_resource type="Texture2D" path="res://assets/ui/overlay/main_menu.png" id="4_overlay"]
+[ext_resource type="FontFile" path="res://assets/fonts/SourceHanSansCN-Medium.otf" id="5_medium"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_button"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
 
 [node name="TitleMenu" type="Control"]
 layout_mode = 3
@@ -13,103 +22,183 @@ grow_vertical = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.13, 0.055, 0.025, 1)
+mouse_filter = 2
+texture = ExtResource("3_background")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="Accent" type="ColorRect" parent="."]
+[node name="MenuOverlay" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(420, 0)
+clip_contents = true
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 0.38
+anchors_preset = 13
+anchor_right = 0.0
 anchor_bottom = 1.0
-grow_horizontal = 2
+offset_right = 420.0
+grow_horizontal = 1
 grow_vertical = 2
-color = Color(0.76, 0.29, 0.05, 0.78)
+mouse_filter = 2
+texture = ExtResource("4_overlay")
+expand_mode = 1
+stretch_mode = 2
 
-[node name="Content" type="MarginContainer" parent="."]
+[node name="Navigation" type="VBoxContainer" parent="."]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 150.0
-offset_top = 120.0
-offset_right = -150.0
-offset_bottom = -100.0
-grow_horizontal = 2
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 68.0
+offset_top = -172.0
+offset_right = 368.0
+offset_bottom = 172.0
 grow_vertical = 2
+theme_override_constants/separation = 8
 
-[node name="Columns" type="HBoxContainer" parent="Content"]
-layout_mode = 2
-theme_override_constants/separation = 170
-
-[node name="Brand" type="VBoxContainer" parent="Content/Columns"]
-custom_minimum_size = Vector2(680, 0)
-layout_mode = 2
-size_flags_vertical = 3
-alignment = 1
-
-[node name="Title" type="Label" parent="Content/Columns/Brand"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.91, 0.68, 1)
-theme_override_font_sizes/font_size = 76
-text = "SUMMER TRIP"
-
-[node name="Subtitle" type="Label" parent="Content/Columns/Brand"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.76, 0.4, 1)
-theme_override_font_sizes/font_size = 34
-text = "秋日旅途 · 序章"
-
-[node name="Version" type="Label" parent="Content/Columns/Brand"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.66, 0.48, 1)
-theme_override_font_sizes/font_size = 22
-text = "Godot Migration 0.1.0-m6"
-
-[node name="Buttons" type="VBoxContainer" parent="Content/Columns"]
-custom_minimum_size = Vector2(480, 0)
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 18
-alignment = 1
-
-[node name="NewGameButton" type="Button" parent="Content/Columns/Buttons"]
+[node name="NewGameButton" type="Button" parent="Navigation"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(300, 48)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.968627, 0.917647, 0.847059, 1)
+theme_override_colors/font_disabled_color = Color(0.968627, 0.917647, 0.847059, 0.5)
+theme_override_colors/font_focus_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_colors/font_hover_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_font_sizes/font_size = 33
+theme_override_fonts/font = ExtResource("5_medium")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_button")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_button")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_button")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_button")
 text = "新游戏"
+alignment = 0
 
-[node name="ContinueButton" type="Button" parent="Content/Columns/Buttons"]
+[node name="ContinueButton" type="Button" parent="Navigation"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(300, 48)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.968627, 0.917647, 0.847059, 1)
+theme_override_colors/font_disabled_color = Color(0.968627, 0.917647, 0.847059, 0.5)
+theme_override_colors/font_focus_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_colors/font_hover_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_font_sizes/font_size = 33
+theme_override_fonts/font = ExtResource("5_medium")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_button")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_button")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_button")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_button")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_button")
 text = "继续"
+alignment = 0
 
-[node name="LoadButton" type="Button" parent="Content/Columns/Buttons"]
+[node name="LoadButton" type="Button" parent="Navigation"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(300, 48)
 layout_mode = 2
-text = "读取"
+theme_override_colors/font_color = Color(0.968627, 0.917647, 0.847059, 1)
+theme_override_colors/font_focus_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_colors/font_hover_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_font_sizes/font_size = 33
+theme_override_fonts/font = ExtResource("5_medium")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_button")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_button")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_button")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_button")
+text = "读取游戏"
+alignment = 0
 
-[node name="SettingsButton" type="Button" parent="Content/Columns/Buttons"]
+[node name="SettingsButton" type="Button" parent="Navigation"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(300, 48)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.968627, 0.917647, 0.847059, 1)
+theme_override_colors/font_focus_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_colors/font_hover_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_font_sizes/font_size = 33
+theme_override_fonts/font = ExtResource("5_medium")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_button")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_button")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_button")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_button")
 text = "设置"
+alignment = 0
 
-[node name="AboutButton" type="Button" parent="Content/Columns/Buttons"]
+[node name="AboutButton" type="Button" parent="Navigation"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(300, 48)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.968627, 0.917647, 0.847059, 1)
+theme_override_colors/font_focus_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_colors/font_hover_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_font_sizes/font_size = 33
+theme_override_fonts/font = ExtResource("5_medium")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_button")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_button")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_button")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_button")
 text = "关于"
+alignment = 0
 
-[node name="ExitButton" type="Button" parent="Content/Columns/Buttons"]
+[node name="ExitButton" type="Button" parent="Navigation"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(300, 48)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.968627, 0.917647, 0.847059, 1)
+theme_override_colors/font_focus_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_colors/font_hover_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.823529, 0.560784, 1)
+theme_override_font_sizes/font_size = 33
+theme_override_fonts/font = ExtResource("5_medium")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_button")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_button")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_button")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_button")
 text = "退出"
+alignment = 0
+
+[node name="Brand" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -720.0
+offset_top = -150.0
+offset_right = -30.0
+offset_bottom = -30.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/separation = 2
+alignment = 2
+
+[node name="Title" type="Label" parent="Brand"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.956863, 0.87451, 1)
+theme_override_colors/font_shadow_color = Color(0.372549, 0.176471, 0.094118, 0.69)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 75
+theme_override_fonts/font = ExtResource("5_medium")
+text = "SummerTrip"
+horizontal_alignment = 2
+
+[node name="Version" type="Label" parent="Brand"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.968627, 0.823529, 0.658824, 1)
+theme_override_colors/font_shadow_color = Color(0.372549, 0.176471, 0.094118, 0.66)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 26
+text = "0.1.0-prologue"
+horizontal_alignment = 2
