@@ -1,5 +1,6 @@
 using Godot;
 using SummerTrip.Content.Catalog;
+using SummerTrip.Core.Settings;
 using SummerTrip.Features.Vn.Stage;
 using System;
 using System.Linq;
@@ -129,6 +130,8 @@ public partial class ValidateContent : Node
             "res://features/vn/stage/stage.tscn"
         ) ?? throw new InvalidOperationException("Unable to load stage.tscn.");
         var stage = stageScene.Instantiate<StageController>();
+        var stageSettings = new SettingsService();
+        stage.Settings = stageSettings;
         stage.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.TopLeft);
         stage.Size = new Vector2(1920, 1080);
         AddChild(stage);
@@ -175,11 +178,27 @@ public partial class ValidateContent : Node
                     "change_scene did not clear old characters or overlay animation."
                 );
             }
+
+            stageSettings.Current.TransitionsEnabled = false;
+            var ignored = stage.change_scene(
+                "autumn_garden",
+                "autumn_glow",
+                "leaf_shiver",
+                "slow_dissolve"
+            );
+            if (!ignored.IsCompleted || previousBackground.Visible)
+            {
+                throw new InvalidOperationException(
+                    "Disabled transitions did not apply the scene immediately."
+                );
+            }
+            await ignored;
         }
         finally
         {
             RemoveChild(stage);
             stage.QueueFree();
+            stageSettings.Dispose();
         }
     }
 

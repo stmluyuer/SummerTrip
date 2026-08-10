@@ -242,7 +242,7 @@ VNMode
 | `StageController` | 当前背景、叠色、角色槽和转场状态 | ContentCatalog、Tween/AnimationPlayer | 剧情分支、存档槽 |
 | `DialogueUI` | 当前显示文本和控件临时状态 | 通过信号向 Director 发请求 | 修改剧情变量 |
 | `SaveService` | 槽位索引、存档与 Profile 文件 | 受控路径下的 .NET 文件 API | 从场景树主动抓取状态 |
-| `SettingsService` | 显示、文字速度、自动等待、音量设置 | Godot 窗口和音频 API | 剧情状态 |
+| `SettingsService` | 显示、0–200 文字速度、按文本长度自动前进、转场和音量设置 | Godot 窗口和音频 API | 剧情状态 |
 | `ContentCatalog` | 语义 ID 到 Godot 资源的映射 | `ResourceLoader` | 运行时进度 |
 
 ## 7. 依赖方向和通信
@@ -526,7 +526,8 @@ chapters.prologue -> title_key=chapter.prologue, autosave_titles=[aki_house_wake
 - `DialogueUI` 只处理对话显示和输入意图。
 - 菜单 UI 不直接写存档，由 `SaveService` 提供操作结果。
 - 通知和确认弹窗属于 `GlobalUI`，不跟随 `VNMode` 销毁。
-- 主题参数集中在 `vn_theme.tres`，避免在多个场景重复设置字体和颜色。
+- 剧情 UI 主题集中在 `vn_theme.tres`；复刻 Ren'Py 菜单的控件状态集中在 `renpy_menu_theme.tres`，避免菜单样式污染对话与快捷菜单。
+- 设置页按 Ren'Py 的 1920×1080 像素基准布局，并把标题/游戏内导航请求交回 `GameRoot`；设置页不直接切换模式或操作存档。
 
 ### 12.2 输入
 

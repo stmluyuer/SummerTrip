@@ -160,7 +160,10 @@ public partial class VNMode : Control
         if (_autoPlaying && Director.Interaction == InteractionState.AwaitingAdvance)
         {
             _autoElapsed += delta;
-            if (_autoElapsed >= (_settings?.Current.AutoWaitSeconds ?? 2.0f))
+            var autoForwardDelay = _settings?.Current.CalculateAutoForwardDelay(
+                Director.CurrentLine?.Text.Length ?? 0
+            ) ?? double.PositiveInfinity;
+            if (_autoElapsed >= autoForwardDelay)
             {
                 _autoElapsed = 0.0;
                 _ = AdvanceAutomaticallyAsync();

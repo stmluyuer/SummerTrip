@@ -1,5 +1,6 @@
 using Godot;
 using SummerTrip.Content.Catalog;
+using SummerTrip.Core.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,6 +47,8 @@ public partial class StageController : Control
     [Export]
     public ContentCatalog Catalog { get; set; } = null!;
 
+    public SettingsService? Settings { get; set; }
+
     public string BackgroundId { get; private set; } = "";
     public string OverlayId { get; private set; } = "";
     public string AnimationId { get; private set; } = "";
@@ -69,6 +72,7 @@ public partial class StageController : Control
         Catalog ??= ResourceLoader.Load<ContentCatalog>(
             "res://content/catalog/content_catalog.tres"
         ) ?? throw new InvalidOperationException("StageController requires a ContentCatalog.");
+        Settings ??= GetNodeOrNull<SettingsService>("/root/SettingsService");
     }
 
     public async Task change_scene(
@@ -89,6 +93,12 @@ public partial class StageController : Control
         TransitionId = transitionId;
         ClearCharacters();
         StopOverlayAnimation();
+
+        if (Settings?.Current.TransitionsEnabled == false)
+        {
+            ApplySceneImmediately(background, overlay, animation);
+            return;
+        }
 
         switch (transitionId)
         {
@@ -375,6 +385,22 @@ public partial class StageController : Control
         _overlay.Color = overlay.Value;
         _overlay.Modulate = Colors.White;
         _overlay.Show();
+    }
+
+    private void ApplySceneImmediately(
+        Texture2D background,
+        Color? overlay,
+        OverlayAnimation? animation
+    )
+    {
+        _transitionTween?.Kill();
+        _transitionTween = null;
+        _previousBackground.Texture = null;
+        _previousBackground.Hide();
+        _transitionCover.Modulate = Colors.White;
+        _transitionCover.Hide();
+        ApplyScene(background, overlay);
+        StartOverlayAnimation(animation);
     }
 
     private async void StartOverlayAnimation(OverlayAnimation? animation)

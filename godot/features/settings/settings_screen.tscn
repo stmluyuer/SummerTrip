@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://features/settings/SettingsScreen.cs" id="1_script"]
-[ext_resource type="Theme" path="res://ui/themes/vn_theme.tres" id="2_theme"]
+[ext_resource type="Theme" path="res://ui/themes/renpy_menu_theme.tres" id="2_theme"]
 
 [node name="SettingsScreen" type="Control"]
 layout_mode = 3
@@ -10,221 +10,318 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 0
 theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
-[node name="Shade" type="ColorRect" parent="."]
+[node name="MenuBase" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.035, 0.018, 0.01, 0.94)
+mouse_filter = 2
+color = Color(0.184314, 0.231373, 0.247059, 1)
 
-[node name="Panel" type="PanelContainer" parent="."]
+[node name="MenuShade" type="ColorRect" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -670.0
-offset_top = -470.0
-offset_right = 670.0
-offset_bottom = 470.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.8)
 
-[node name="Margin" type="MarginContainer" parent="Panel"]
-layout_mode = 2
-theme_override_constants/margin_left = 70
-theme_override_constants/margin_top = 50
-theme_override_constants/margin_right = 70
-theme_override_constants/margin_bottom = 50
+[node name="Divider" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 416.0
+offset_top = 180.0
+offset_right = 420.0
+offset_bottom = 1035.0
+mouse_filter = 2
+color = Color(0, 0.6, 0.8, 1)
 
-[node name="Layout" type="VBoxContainer" parent="Panel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 24
-
-[node name="Toolbar" type="HBoxContainer" parent="Panel/Margin/Layout"]
-layout_mode = 2
-
-[node name="Heading" type="Label" parent="Panel/Margin/Layout/Toolbar"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.55, 0.15, 0.03, 1)
-theme_override_font_sizes/font_size = 42
+[node name="Heading" type="Label" parent="."]
+layout_mode = 0
+offset_left = 75.0
+offset_right = 410.0
+offset_bottom = 180.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.788235, 0.419608, 0.152941, 1)
+theme_override_font_sizes/font_size = 75
 text = "设置"
+vertical_alignment = 1
 
-[node name="DefaultsButton" type="Button" parent="Panel/Margin/Layout/Toolbar"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(190, 54)
-layout_mode = 2
-text = "恢复默认"
+[node name="Navigation" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 68.0
+offset_top = 266.0
+offset_right = 390.0
+offset_bottom = 814.0
+theme_override_constants/separation = 8
 
-[node name="CloseButton" type="Button" parent="Panel/Margin/Layout/Toolbar"]
+[node name="NewGameButton" type="Button" parent="Navigation"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 54)
+visible = false
+custom_minimum_size = Vector2(322, 60)
 layout_mode = 2
+text = "开始游戏"
+alignment = 0
+
+[node name="HistoryButton" type="Button" parent="Navigation"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(322, 60)
+layout_mode = 2
+text = "历史"
+alignment = 0
+
+[node name="SaveButton" type="Button" parent="Navigation"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(322, 60)
+layout_mode = 2
+text = "保存"
+alignment = 0
+
+[node name="LoadButton" type="Button" parent="Navigation"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(322, 60)
+layout_mode = 2
+text = "读取游戏"
+alignment = 0
+
+[node name="SettingsButton" type="Button" parent="Navigation"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(322, 60)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.788235, 0.419608, 0.152941, 1)
+theme_override_colors/font_focus_color = Color(0.788235, 0.419608, 0.152941, 1)
+theme_override_colors/font_hover_color = Color(0.788235, 0.419608, 0.152941, 1)
+theme_override_colors/font_pressed_color = Color(0.788235, 0.419608, 0.152941, 1)
+text = "设置"
+alignment = 0
+
+[node name="TitleButton" type="Button" parent="Navigation"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(322, 60)
+layout_mode = 2
+text = "标题菜单"
+alignment = 0
+
+[node name="AboutButton" type="Button" parent="Navigation"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(322, 60)
+layout_mode = 2
+text = "关于"
+alignment = 0
+
+[node name="HelpButton" type="Button" parent="Navigation"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(322, 60)
+layout_mode = 2
+text = "帮助"
+alignment = 0
+
+[node name="ExitButton" type="Button" parent="Navigation"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(322, 60)
+layout_mode = 2
+text = "退出"
+alignment = 0
+
+[node name="ReturnButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 68.0
+offset_top = 974.0
+offset_right = 390.0
+offset_bottom = 1035.0
 text = "返回"
+alignment = 0
 
-[node name="Grid" type="GridContainer" parent="Panel/Margin/Layout"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/h_separation = 35
-theme_override_constants/v_separation = 20
-columns = 2
+[node name="DisplayLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 480.0
+offset_top = 210.0
+offset_right = 818.0
+offset_bottom = 259.0
+theme_override_colors/font_color = Color(0, 0.6, 0.8, 1)
+theme_override_font_sizes/font_size = 36
+text = "显示"
+vertical_alignment = 1
 
-[node name="DisplayLabel" type="Label" parent="Panel/Margin/Layout/Grid"]
-layout_mode = 2
-text = "显示模式"
-
-[node name="DisplayMode" type="OptionButton" parent="Panel/Margin/Layout/Grid"]
+[node name="WindowMode" type="CheckBox" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(720, 56)
-layout_mode = 2
+layout_mode = 0
+offset_left = 480.0
+offset_top = 259.0
+offset_right = 818.0
+offset_bottom = 308.0
+text = "窗口"
 
-[node name="TextSpeedLabel" type="Label" parent="Panel/Margin/Layout/Grid"]
-layout_mode = 2
+[node name="FullscreenMode" type="CheckBox" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 480.0
+offset_top = 308.0
+offset_right = 818.0
+offset_bottom = 357.0
+text = "全屏"
+
+[node name="SkipLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 818.0
+offset_top = 210.0
+offset_right = 1156.0
+offset_bottom = 259.0
+theme_override_colors/font_color = Color(0, 0.6, 0.8, 1)
+theme_override_font_sizes/font_size = 36
+text = "快进"
+vertical_alignment = 1
+
+[node name="SkipUnread" type="CheckBox" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 818.0
+offset_top = 259.0
+offset_right = 1156.0
+offset_bottom = 308.0
+text = "未读文本"
+
+[node name="KeepSkip" type="CheckBox" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 818.0
+offset_top = 308.0
+offset_right = 1156.0
+offset_bottom = 357.0
+text = "选项后继续"
+
+[node name="IgnoreTransitions" type="CheckBox" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 818.0
+offset_top = 357.0
+offset_right = 1156.0
+offset_bottom = 406.0
+text = "忽略转场"
+
+[node name="TextSpeedLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 480.0
+offset_top = 525.0
+offset_right = 1005.0
+offset_bottom = 574.0
+theme_override_colors/font_color = Color(0, 0.6, 0.8, 1)
+theme_override_font_sizes/font_size = 36
 text = "文字速度"
+vertical_alignment = 1
 
-[node name="TextSpeedRow" type="HBoxContainer" parent="Panel/Margin/Layout/Grid"]
-layout_mode = 2
-
-[node name="TextSpeed" type="HSlider" parent="Panel/Margin/Layout/Grid/TextSpeedRow"]
+[node name="TextSpeed" type="HSlider" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(560, 50)
-layout_mode = 2
-size_flags_horizontal = 3
-min_value = 10.0
-max_value = 120.0
+layout_mode = 0
+offset_left = 480.0
+offset_top = 574.0
+offset_right = 1005.0
+offset_bottom = 612.0
+max_value = 200.0
 step = 1.0
-value = 48.0
+value = 1.0
 
-[node name="TextSpeedValue" type="Label" parent="Panel/Margin/Layout/Grid/TextSpeedRow"]
+[node name="AutoForwardLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 480.0
+offset_top = 635.0
+offset_right = 1005.0
+offset_bottom = 684.0
+theme_override_colors/font_color = Color(0, 0.6, 0.8, 1)
+theme_override_font_sizes/font_size = 36
+text = "自动前进时间"
+vertical_alignment = 1
+
+[node name="AutoForward" type="HSlider" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(145, 0)
-layout_mode = 2
-text = "48 字/秒"
-horizontal_alignment = 2
-
-[node name="AutoWaitLabel" type="Label" parent="Panel/Margin/Layout/Grid"]
-layout_mode = 2
-text = "自动等待（M7）"
-
-[node name="AutoWaitRow" type="HBoxContainer" parent="Panel/Margin/Layout/Grid"]
-layout_mode = 2
-
-[node name="AutoWait" type="HSlider" parent="Panel/Margin/Layout/Grid/AutoWaitRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(560, 50)
-layout_mode = 2
-size_flags_horizontal = 3
-min_value = 0.5
-max_value = 5.0
+layout_mode = 0
+offset_left = 480.0
+offset_top = 684.0
+offset_right = 1005.0
+offset_bottom = 722.0
+max_value = 30.0
 step = 0.1
-value = 2.0
+value = 30.0
 
-[node name="AutoWaitValue" type="Label" parent="Panel/Margin/Layout/Grid/AutoWaitRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(145, 0)
-layout_mode = 2
-text = "2.0 秒"
-horizontal_alignment = 2
-
-[node name="SkipUnreadLabel" type="Label" parent="Panel/Margin/Layout/Grid"]
-layout_mode = 2
-text = "允许快进未读（M7）"
-
-[node name="SkipUnread" type="CheckButton" parent="Panel/Margin/Layout/Grid"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "启用"
-
-[node name="KeepSkipLabel" type="Label" parent="Panel/Margin/Layout/Grid"]
-layout_mode = 2
-text = "选择后保持快进（M7）"
-
-[node name="KeepSkip" type="CheckButton" parent="Panel/Margin/Layout/Grid"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "启用"
-
-[node name="MusicLabel" type="Label" parent="Panel/Margin/Layout/Grid"]
-layout_mode = 2
+[node name="MusicLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 1155.0
+offset_top = 525.0
+offset_right = 1680.0
+offset_bottom = 574.0
+theme_override_colors/font_color = Color(0, 0.6, 0.8, 1)
+theme_override_font_sizes/font_size = 36
 text = "音乐音量"
+vertical_alignment = 1
 
-[node name="MusicRow" type="HBoxContainer" parent="Panel/Margin/Layout/Grid"]
-layout_mode = 2
-
-[node name="MusicVolume" type="HSlider" parent="Panel/Margin/Layout/Grid/MusicRow"]
+[node name="MusicVolume" type="HSlider" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(560, 50)
-layout_mode = 2
-size_flags_horizontal = 3
+layout_mode = 0
+offset_left = 1155.0
+offset_top = 574.0
+offset_right = 1680.0
+offset_bottom = 612.0
 max_value = 1.0
 step = 0.01
 value = 1.0
 
-[node name="MusicValue" type="Label" parent="Panel/Margin/Layout/Grid/MusicRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(145, 0)
-layout_mode = 2
-text = "100%"
-horizontal_alignment = 2
-
-[node name="SoundLabel" type="Label" parent="Panel/Margin/Layout/Grid"]
-layout_mode = 2
+[node name="SoundLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 1155.0
+offset_top = 635.0
+offset_right = 1680.0
+offset_bottom = 684.0
+theme_override_colors/font_color = Color(0, 0.6, 0.8, 1)
+theme_override_font_sizes/font_size = 36
 text = "音效音量"
+vertical_alignment = 1
 
-[node name="SoundRow" type="HBoxContainer" parent="Panel/Margin/Layout/Grid"]
-layout_mode = 2
-
-[node name="SoundVolume" type="HSlider" parent="Panel/Margin/Layout/Grid/SoundRow"]
+[node name="SoundVolume" type="HSlider" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(560, 50)
-layout_mode = 2
-size_flags_horizontal = 3
+layout_mode = 0
+offset_left = 1155.0
+offset_top = 684.0
+offset_right = 1680.0
+offset_bottom = 722.0
 max_value = 1.0
 step = 0.01
 value = 1.0
 
-[node name="SoundValue" type="Label" parent="Panel/Margin/Layout/Grid/SoundRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(145, 0)
-layout_mode = 2
-text = "100%"
-horizontal_alignment = 2
-
-[node name="VoiceLabel" type="Label" parent="Panel/Margin/Layout/Grid"]
-layout_mode = 2
+[node name="VoiceLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 1155.0
+offset_top = 745.0
+offset_right = 1680.0
+offset_bottom = 794.0
+theme_override_colors/font_color = Color(0, 0.6, 0.8, 1)
+theme_override_font_sizes/font_size = 36
 text = "语音音量"
+vertical_alignment = 1
 
-[node name="VoiceRow" type="HBoxContainer" parent="Panel/Margin/Layout/Grid"]
-layout_mode = 2
-
-[node name="VoiceVolume" type="HSlider" parent="Panel/Margin/Layout/Grid/VoiceRow"]
+[node name="VoiceVolume" type="HSlider" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(560, 50)
-layout_mode = 2
-size_flags_horizontal = 3
+layout_mode = 0
+offset_left = 1155.0
+offset_top = 794.0
+offset_right = 1680.0
+offset_bottom = 832.0
 max_value = 1.0
 step = 0.01
 value = 1.0
 
-[node name="VoiceValue" type="Label" parent="Panel/Margin/Layout/Grid/VoiceRow"]
+[node name="MuteAll" type="CheckBox" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(145, 0)
-layout_mode = 2
-text = "100%"
-horizontal_alignment = 2
-
-[node name="MuteLabel" type="Label" parent="Panel/Margin/Layout/Grid"]
-layout_mode = 2
+layout_mode = 0
+offset_left = 1155.0
+offset_top = 855.0
+offset_right = 1493.0
+offset_bottom = 904.0
 text = "全部静音"
-
-[node name="MuteAll" type="CheckButton" parent="Panel/Margin/Layout/Grid"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "静音"

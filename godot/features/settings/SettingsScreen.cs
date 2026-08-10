@@ -4,52 +4,74 @@ using System;
 
 namespace SummerTrip.Features.Settings;
 
+public enum SettingsMenuContext
+{
+    Title,
+    Game,
+}
+
 public partial class SettingsScreen : Control
 {
     private SettingsService _settings = null!;
     private bool _syncing;
-    private OptionButton _displayMode = null!;
+    private CheckBox _windowMode = null!;
+    private CheckBox _fullscreenMode = null!;
     private HSlider _textSpeed = null!;
-    private HSlider _autoWait = null!;
-    private CheckButton _skipUnread = null!;
-    private CheckButton _keepSkip = null!;
+    private HSlider _autoForward = null!;
+    private CheckBox _skipUnread = null!;
+    private CheckBox _keepSkip = null!;
+    private CheckBox _ignoreTransitions = null!;
     private HSlider _music = null!;
     private HSlider _sound = null!;
     private HSlider _voice = null!;
-    private CheckButton _muteAll = null!;
+    private CheckBox _muteAll = null!;
 
     public event Action? Closed;
+    public event Action? NewGameRequested;
+    public event Action? HistoryRequested;
+    public event Action? SaveRequested;
+    public event Action? LoadRequested;
+    public event Action? ReturnTitleRequested;
+    public event Action? AboutRequested;
+    public event Action? HelpRequested;
+    public event Action? ExitRequested;
     public event Action<string>? ErrorOccurred;
 
     public override void _Ready()
     {
         _settings = GetNode<SettingsService>("/root/SettingsService");
-        _displayMode = GetNode<OptionButton>("%DisplayMode");
+        _windowMode = GetNode<CheckBox>("%WindowMode");
+        _fullscreenMode = GetNode<CheckBox>("%FullscreenMode");
         _textSpeed = GetNode<HSlider>("%TextSpeed");
-        _autoWait = GetNode<HSlider>("%AutoWait");
-        _skipUnread = GetNode<CheckButton>("%SkipUnread");
-        _keepSkip = GetNode<CheckButton>("%KeepSkip");
+        _autoForward = GetNode<HSlider>("%AutoForward");
+        _skipUnread = GetNode<CheckBox>("%SkipUnread");
+        _keepSkip = GetNode<CheckBox>("%KeepSkip");
+        _ignoreTransitions = GetNode<CheckBox>("%IgnoreTransitions");
         _music = GetNode<HSlider>("%MusicVolume");
         _sound = GetNode<HSlider>("%SoundVolume");
         _voice = GetNode<HSlider>("%VoiceVolume");
-        _muteAll = GetNode<CheckButton>("%MuteAll");
+        _muteAll = GetNode<CheckBox>("%MuteAll");
 
-        _displayMode.AddItem("窗口");
-        _displayMode.AddItem("全屏");
-        _displayMode.ItemSelected += index => Change(settings =>
-            settings.Fullscreen = index == 1
-        );
+        var displayGroup = new ButtonGroup { AllowUnpress = false };
+        _windowMode.ButtonGroup = displayGroup;
+        _fullscreenMode.ButtonGroup = displayGroup;
+
+        _windowMode.Pressed += () => Change(settings => settings.Fullscreen = false);
+        _fullscreenMode.Pressed += () => Change(settings => settings.Fullscreen = true);
         _textSpeed.ValueChanged += value => Change(settings =>
             settings.TextCharactersPerSecond = (float)value
         );
-        _autoWait.ValueChanged += value => Change(settings =>
-            settings.AutoWaitSeconds = (float)value
+        _autoForward.ValueChanged += value => Change(settings =>
+            settings.AutoForwardTime = (float)value
         );
         _skipUnread.Toggled += value => Change(settings =>
             settings.SkipUnreadText = value
         );
         _keepSkip.Toggled += value => Change(settings =>
             settings.KeepSkippingAfterChoice = value
+        );
+        _ignoreTransitions.Toggled += value => Change(settings =>
+            settings.TransitionsEnabled = !value
         );
         _music.ValueChanged += value => Change(settings =>
             settings.MusicVolume = (float)value
@@ -60,11 +82,17 @@ public partial class SettingsScreen : Control
         _voice.ValueChanged += value => Change(settings =>
             settings.VoiceVolume = (float)value
         );
-        _muteAll.Toggled += value => Change(settings =>
-            settings.MuteAll = value
-        );
-        GetNode<Button>("%DefaultsButton").Pressed += ResetDefaults;
-        GetNode<Button>("%CloseButton").Pressed += () => Closed?.Invoke();
+        _muteAll.Toggled += value => Change(settings => settings.MuteAll = value);
+
+        GetNode<Button>("%NewGameButton").Pressed += () => NewGameRequested?.Invoke();
+        GetNode<Button>("%HistoryButton").Pressed += () => HistoryRequested?.Invoke();
+        GetNode<Button>("%SaveButton").Pressed += () => SaveRequested?.Invoke();
+        GetNode<Button>("%LoadButton").Pressed += () => LoadRequested?.Invoke();
+        GetNode<Button>("%TitleButton").Pressed += () => ReturnTitleRequested?.Invoke();
+        GetNode<Button>("%AboutButton").Pressed += () => AboutRequested?.Invoke();
+        GetNode<Button>("%HelpButton").Pressed += () => HelpRequested?.Invoke();
+        GetNode<Button>("%ExitButton").Pressed += () => ExitRequested?.Invoke();
+        GetNode<Button>("%ReturnButton").Pressed += () => Closed?.Invoke();
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -81,10 +109,23 @@ public partial class SettingsScreen : Control
         }
     }
 
-    public void Open()
+    public void Open(
+        SettingsMenuContext context = SettingsMenuContext.Title,
+        bool saveAvailable = false,
+        bool loadAvailable = true
+    )
     {
+        var inGame = context == SettingsMenuContext.Game;
+        GetNode<Button>("%NewGameButton").Visible = !inGame;
+        GetNode<Button>("%HistoryButton").Visible = inGame;
+        GetNode<Button>("%SaveButton").Visible = inGame;
+        GetNode<Button>("%TitleButton").Visible = inGame;
+        GetNode<Button>("%SaveButton").Disabled = !saveAvailable;
+        GetNode<Button>("%LoadButton").Disabled = !loadAvailable;
+
         SyncControls();
-        _displayMode.GrabFocus();
+        (inGame ? GetNode<Button>("%HistoryButton") : GetNode<Button>("%NewGameButton"))
+            .GrabFocus();
     }
 
     private void Change(Action<SettingsData> mutate)
@@ -98,7 +139,6 @@ public partial class SettingsScreen : Control
         {
             mutate(_settings.Current);
             _settings.SaveAndApply();
-            UpdateValueLabels();
         }
         catch (Exception exception)
         {
@@ -109,42 +149,21 @@ public partial class SettingsScreen : Control
         }
     }
 
-    private void ResetDefaults()
-    {
-        try
-        {
-            _settings.ResetToDefaults();
-            SyncControls();
-        }
-        catch (Exception exception)
-        {
-            ErrorOccurred?.Invoke($"无法恢复默认设置：{exception.Message}");
-        }
-    }
-
     private void SyncControls()
     {
         _syncing = true;
         var settings = _settings.Current;
-        _displayMode.Select(settings.Fullscreen ? 1 : 0);
+        _windowMode.ButtonPressed = !settings.Fullscreen;
+        _fullscreenMode.ButtonPressed = settings.Fullscreen;
         _textSpeed.Value = settings.TextCharactersPerSecond;
-        _autoWait.Value = settings.AutoWaitSeconds;
+        _autoForward.Value = settings.AutoForwardTime;
         _skipUnread.ButtonPressed = settings.SkipUnreadText;
         _keepSkip.ButtonPressed = settings.KeepSkippingAfterChoice;
+        _ignoreTransitions.ButtonPressed = !settings.TransitionsEnabled;
         _music.Value = settings.MusicVolume;
         _sound.Value = settings.SoundVolume;
         _voice.Value = settings.VoiceVolume;
         _muteAll.ButtonPressed = settings.MuteAll;
         _syncing = false;
-        UpdateValueLabels();
-    }
-
-    private void UpdateValueLabels()
-    {
-        GetNode<Label>("%TextSpeedValue").Text = $"{_textSpeed.Value:0} 字/秒";
-        GetNode<Label>("%AutoWaitValue").Text = $"{_autoWait.Value:0.0} 秒";
-        GetNode<Label>("%MusicValue").Text = $"{_music.Value * 100.0:0}%";
-        GetNode<Label>("%SoundValue").Text = $"{_sound.Value * 100.0:0}%";
-        GetNode<Label>("%VoiceValue").Text = $"{_voice.Value * 100.0:0}%";
     }
 }

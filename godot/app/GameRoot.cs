@@ -328,8 +328,23 @@ public partial class GameRoot : Control
         var screen = _settingsScene.Instantiate<SettingsScreen>();
         _overlayHost.AddChild(screen);
         _overlay = screen;
-        screen.Open();
+        var inGame = _vnMode is not null;
+        var ioAvailable = _vnMode?.Director.Interaction is
+            InteractionState.AwaitingAdvance or InteractionState.AwaitingChoice;
+        screen.Open(
+            inGame ? SettingsMenuContext.Game : SettingsMenuContext.Title,
+            saveAvailable: inGame && ioAvailable,
+            loadAvailable: !inGame || ioAvailable
+        );
         screen.Closed += CloseOverlay;
+        screen.NewGameRequested += () => _ = StartNewGameAsync();
+        screen.HistoryRequested += OpenHistory;
+        screen.SaveRequested += () => OpenSaveScreen(SaveScreenMode.Save);
+        screen.LoadRequested += () => OpenSaveScreen(SaveScreenMode.Load);
+        screen.ReturnTitleRequested += ConfirmReturnToTitle;
+        screen.AboutRequested += ShowAbout;
+        screen.HelpRequested += ShowHelp;
+        screen.ExitRequested += ConfirmExit;
         screen.ErrorOccurred += Notify;
     }
 
@@ -424,11 +439,24 @@ public partial class GameRoot : Control
 
     private void ShowAbout()
     {
+        _about.Title = "关于 SummerTrip";
         _about.DialogText =
             "SummerTrip · 秋日旅途\nGodot 4.7.1 .NET 迁移版\n\n" +
             "当前内容：序章六条路线与三个结尾。\n" +
             "Ren'Py 旧存档与 Godot 存档不兼容。";
         _about.PopupCentered(new Vector2I(760, 420));
+    }
+
+    private void ShowHelp()
+    {
+        _about.Title = "帮助";
+        _about.DialogText =
+            "推进：鼠标左键、Enter 或 Space\n" +
+            "菜单：鼠标右键或 Esc\n" +
+            "隐藏界面：H　快进：Ctrl　自动：A\n" +
+            "回退：鼠标滚轮上滑\n" +
+            "快速保存：Q　快速读取：L　截图：S";
+        _about.PopupCentered(new Vector2I(760, 440));
     }
 
     private void Confirm(string title, string message, Action action)

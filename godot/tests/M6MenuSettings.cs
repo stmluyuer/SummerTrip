@@ -32,7 +32,7 @@ public partial class M6MenuSettings : Node
             ValidateUiScenes();
             GD.Print(
                 "M6_MENU_SETTINGS_OK pages=9 slots_per_page=6 " +
-                "manual=54 auto=6 quick=1 keyboard=true"
+                "manual=54 auto=6 quick=1 keyboard=true renpy_settings=true"
             );
             GetTree().Quit(0);
         }
@@ -183,14 +183,28 @@ public partial class M6MenuSettings : Node
 
     private void ValidateSettingsPersistence()
     {
+        var renpyDefaults = new SettingsData();
+        if (
+            !Mathf.IsEqualApprox(renpyDefaults.TextCharactersPerSecond, 1.0f) ||
+            !Mathf.IsEqualApprox(renpyDefaults.AutoForwardTime, 30.0f) ||
+            !Mathf.IsEqualApprox(
+                (float)renpyDefaults.CalculateAutoForwardDelay(25),
+                6.0f
+            )
+        )
+        {
+            throw new InvalidOperationException("Ren'Py setting defaults do not match.");
+        }
+
         var settingsPath = Path.Combine(_testRoot, "settings.json");
         var first = new SettingsService { StoragePath = settingsPath };
         AddChild(first);
         first.Current.Fullscreen = true;
         first.Current.TextCharactersPerSecond = 76.0f;
-        first.Current.AutoWaitSeconds = 3.4f;
+        first.Current.AutoForwardTime = 23.4f;
         first.Current.SkipUnreadText = true;
         first.Current.KeepSkippingAfterChoice = true;
+        first.Current.TransitionsEnabled = false;
         first.Current.MusicVolume = 0.25f;
         first.Current.SoundVolume = 0.5f;
         first.Current.VoiceVolume = 0.75f;
@@ -205,9 +219,10 @@ public partial class M6MenuSettings : Node
         if (
             !current.Fullscreen ||
             !Mathf.IsEqualApprox(current.TextCharactersPerSecond, 76.0f) ||
-            !Mathf.IsEqualApprox(current.AutoWaitSeconds, 3.4f) ||
+            !Mathf.IsEqualApprox(current.AutoForwardTime, 23.4f) ||
             !current.SkipUnreadText ||
             !current.KeepSkippingAfterChoice ||
+            current.TransitionsEnabled ||
             !Mathf.IsEqualApprox(current.MusicVolume, 0.25f) ||
             !Mathf.IsEqualApprox(current.SoundVolume, 0.5f) ||
             !Mathf.IsEqualApprox(current.VoiceVolume, 0.75f) ||
@@ -220,6 +235,36 @@ public partial class M6MenuSettings : Node
         }
         RemoveChild(restarted);
         restarted.QueueFree();
+
+        var legacyPath = Path.Combine(_testRoot, "legacy_settings.json");
+        File.WriteAllText(
+            legacyPath,
+            """
+            {
+              "fullscreen": false,
+              "text_characters_per_second": 48.0,
+              "auto_wait_seconds": 3.4,
+              "skip_unread_text": true,
+              "keep_skipping_after_choice": false,
+              "music_volume": 0.2,
+              "sound_volume": 0.4,
+              "voice_volume": 0.6,
+              "mute_all": false
+            }
+            """
+        );
+        var migrated = new SettingsService { StoragePath = legacyPath };
+        AddChild(migrated);
+        if (
+            !Mathf.IsEqualApprox(migrated.Current.AutoForwardTime, 17.0f) ||
+            !migrated.Current.TransitionsEnabled ||
+            !migrated.Current.SkipUnreadText
+        )
+        {
+            throw new InvalidOperationException("Legacy settings were not migrated.");
+        }
+        RemoveChild(migrated);
+        migrated.QueueFree();
     }
 
     private void ValidateUiScenes()
@@ -248,6 +293,18 @@ public partial class M6MenuSettings : Node
             {
                 throw new InvalidOperationException(
                     "The game menu does not expose all six required actions."
+                );
+            }
+
+            settings.Open(SettingsMenuContext.Game, saveAvailable: true);
+            if (
+                settings.FindChildren("*", "Button", true, false).Count != 10 ||
+                settings.FindChildren("*", "CheckBox", true, false).Count != 6 ||
+                settings.FindChildren("*", "HSlider", true, false).Count != 5
+            )
+            {
+                throw new InvalidOperationException(
+                    "The Ren'Py settings screen is missing navigation or preference controls."
                 );
             }
 

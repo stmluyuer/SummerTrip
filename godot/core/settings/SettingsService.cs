@@ -8,19 +8,51 @@ namespace SummerTrip.Core.Settings;
 
 public sealed class SettingsData
 {
+    public const float MaximumTextCharactersPerSecond = 200.0f;
+    public const float MaximumAutoForwardTime = 30.0f;
+    public const float AutoForwardBonusCharacters = 25.0f;
+    public const float AutoForwardReferenceCharacters = 250.0f;
+
     public bool Fullscreen { get; set; }
-    public float TextCharactersPerSecond { get; set; } = 48.0f;
-    public float AutoWaitSeconds { get; set; } = 2.0f;
+    public float TextCharactersPerSecond { get; set; } = 1.0f;
+    public float AutoForwardTime { get; set; } = 30.0f;
     public bool SkipUnreadText { get; set; }
     public bool KeepSkippingAfterChoice { get; set; }
+    public bool TransitionsEnabled { get; set; } = true;
     public float MusicVolume { get; set; } = 1.0f;
     public float SoundVolume { get; set; } = 1.0f;
     public float VoiceVolume { get; set; } = 1.0f;
     public bool MuteAll { get; set; }
+
+    public double CalculateAutoForwardDelay(int characterCount)
+    {
+        if (AutoForwardTime <= 0.0f)
+        {
+            return double.PositiveInfinity;
+        }
+
+        return (
+            (AutoForwardBonusCharacters + Math.Max(characterCount, 1)) /
+            AutoForwardReferenceCharacters
+        ) * AutoForwardTime;
+    }
 }
 
 public partial class SettingsService : Node
 {
+    private sealed class LegacySettingsData
+    {
+        public bool Fullscreen { get; set; }
+        public float TextCharactersPerSecond { get; set; } = 48.0f;
+        public float AutoWaitSeconds { get; set; } = 2.0f;
+        public bool SkipUnreadText { get; set; }
+        public bool KeepSkippingAfterChoice { get; set; }
+        public float MusicVolume { get; set; } = 1.0f;
+        public float SoundVolume { get; set; } = 1.0f;
+        public float VoiceVolume { get; set; } = 1.0f;
+        public bool MuteAll { get; set; }
+    }
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
@@ -50,10 +82,16 @@ public partial class SettingsService : Node
 
         try
         {
-            Current = JsonSerializer.Deserialize<SettingsData>(
-                File.ReadAllText(path),
-                JsonOptions
-            ) ?? throw new InvalidDataException("设置文件不是有效对象。");
+            var json = File.ReadAllText(path);
+            try
+            {
+                Current = JsonSerializer.Deserialize<SettingsData>(json, JsonOptions)
+                    ?? throw new InvalidDataException("设置文件不是有效对象。");
+            }
+            catch (JsonException)
+            {
+                Current = MigrateLegacy(json);
+            }
             Validate(Current);
         }
         catch (Exception exception) when (
@@ -133,11 +171,41 @@ public partial class SettingsService : Node
         );
     }
 
+    private static SettingsData MigrateLegacy(string json)
+    {
+        var legacy = JsonSerializer.Deserialize<LegacySettingsData>(json, JsonOptions)
+            ?? throw new InvalidDataException("旧版设置文件不是有效对象。");
+        if (
+            legacy.TextCharactersPerSecond is < 10.0f or > 120.0f ||
+            legacy.AutoWaitSeconds is < 0.5f or > 5.0f ||
+            legacy.MusicVolume is < 0.0f or > 1.0f ||
+            legacy.SoundVolume is < 0.0f or > 1.0f ||
+            legacy.VoiceVolume is < 0.0f or > 1.0f
+        )
+        {
+            throw new InvalidDataException("旧版设置值超出允许范围。");
+        }
+
+        return new SettingsData
+        {
+            Fullscreen = legacy.Fullscreen,
+            TextCharactersPerSecond = legacy.TextCharactersPerSecond,
+            AutoForwardTime = Mathf.Clamp(legacy.AutoWaitSeconds * 5.0f, 0.1f, 30.0f),
+            SkipUnreadText = legacy.SkipUnreadText,
+            KeepSkippingAfterChoice = legacy.KeepSkippingAfterChoice,
+            TransitionsEnabled = true,
+            MusicVolume = legacy.MusicVolume,
+            SoundVolume = legacy.SoundVolume,
+            VoiceVolume = legacy.VoiceVolume,
+            MuteAll = legacy.MuteAll,
+        };
+    }
+
     private static void Validate(SettingsData settings)
     {
         if (
-            settings.TextCharactersPerSecond is < 10.0f or > 120.0f ||
-            settings.AutoWaitSeconds is < 0.5f or > 5.0f ||
+            settings.TextCharactersPerSecond is < 0.0f or > SettingsData.MaximumTextCharactersPerSecond ||
+            settings.AutoForwardTime is < 0.0f or > SettingsData.MaximumAutoForwardTime ||
             settings.MusicVolume is < 0.0f or > 1.0f ||
             settings.SoundVolume is < 0.0f or > 1.0f ||
             settings.VoiceVolume is < 0.0f or > 1.0f

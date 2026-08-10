@@ -1,0 +1,67 @@
+[gd_resource type="Theme" load_steps=9 format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/SourceHanSansCN-Medium.otf" id="1_medium"]
+[ext_resource type="Texture2D" path="res://assets/ui/settings/empty_mark.svg" id="2_empty"]
+[ext_resource type="Texture2D" path="res://assets/ui/settings/selected_mark.svg" id="3_selected"]
+[ext_resource type="Texture2D" path="res://assets/ui/settings/slider_thumb.svg" id="4_thumb"]
+[ext_resource type="Texture2D" path="res://assets/ui/settings/slider_thumb_hover.svg" id="5_thumb_hover"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_button"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slider"]
+content_margin_top = 19.0
+content_margin_bottom = 19.0
+bg_color = Color(0, 0.239216, 0.317647, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slider_hover"]
+content_margin_top = 19.0
+content_margin_bottom = 19.0
+bg_color = Color(0, 0.356863, 0.478431, 1)
+
+[resource]
+default_font = ExtResource("1_medium")
+default_font_size = 33
+Button/colors/font_color = Color(0.968627, 0.917647, 0.847059, 1)
+Button/colors/font_disabled_color = Color(0.968627, 0.917647, 0.847059, 0.501961)
+Button/colors/font_focus_color = Color(1, 0.823529, 0.560784, 1)
+Button/colors/font_hover_color = Color(1, 0.823529, 0.560784, 1)
+Button/colors/font_pressed_color = Color(1, 0.823529, 0.560784, 1)
+Button/constants/outline_size = 2
+Button/colors/font_outline_color = Color(0.301961, 0.137255, 0.0901961, 0.666667)
+Button/font_sizes/font_size = 33
+Button/fonts/font = ExtResource("1_medium")
+Button/styles/disabled = SubResource("StyleBoxEmpty_button")
+Button/styles/focus = SubResource("StyleBoxEmpty_button")
+Button/styles/hover = SubResource("StyleBoxEmpty_button")
+Button/styles/normal = SubResource("StyleBoxEmpty_button")
+Button/styles/pressed = SubResource("StyleBoxEmpty_button")
+CheckBox/colors/font_color = Color(0.533333, 0.533333, 0.533333, 1)
+CheckBox/colors/font_focus_color = Color(0.4, 0.756863, 0.878431, 1)
+CheckBox/colors/font_hover_color = Color(0.4, 0.756863, 0.878431, 1)
+CheckBox/colors/font_pressed_color = Color(1, 1, 1, 1)
+CheckBox/font_sizes/font_size = 33
+CheckBox/fonts/font = ExtResource("1_medium")
+CheckBox/icons/checked = ExtResource("3_selected")
+CheckBox/icons/checked_disabled = ExtResource("3_selected")
+CheckBox/icons/radio_checked = ExtResource("3_selected")
+CheckBox/icons/radio_checked_disabled = ExtResource("3_selected")
+CheckBox/icons/radio_unchecked = ExtResource("2_empty")
+CheckBox/icons/radio_unchecked_disabled = ExtResource("2_empty")
+CheckBox/icons/unchecked = ExtResource("2_empty")
+CheckBox/icons/unchecked_disabled = ExtResource("2_empty")
+CheckBox/styles/disabled = SubResource("StyleBoxEmpty_button")
+CheckBox/styles/focus = SubResource("StyleBoxEmpty_button")
+CheckBox/styles/hover = SubResource("StyleBoxEmpty_button")
+CheckBox/styles/normal = SubResource("StyleBoxEmpty_button")
+CheckBox/styles/pressed = SubResource("StyleBoxEmpty_button")
+HSlider/icons/grabber = ExtResource("4_thumb")
+HSlider/icons/grabber_disabled = ExtResource("4_thumb")
+HSlider/icons/grabber_highlight = ExtResource("5_thumb_hover")
+HSlider/styles/grabber_area = SubResource("StyleBoxFlat_slider")
+HSlider/styles/grabber_area_highlight = SubResource("StyleBoxFlat_slider_hover")
+HSlider/styles/slider = SubResource("StyleBoxFlat_slider")
+HSlider/styles/slider_focus = SubResource("StyleBoxFlat_slider_hover")

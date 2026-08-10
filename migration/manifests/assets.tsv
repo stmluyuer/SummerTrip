@@ -31,6 +31,10 @@ game/gui/slider/horizontal_idle_bar.png	res://assets/ui/settings/horizontal_idle
 game/gui/slider/horizontal_idle_thumb.png	res://assets/ui/settings/horizontal_idle_thumb.png	ui	P1	copy	active	设置滑块普通滑块
 game/gui/slider/horizontal_hover_bar.png	res://assets/ui/settings/horizontal_hover_bar.png	ui	P1	copy	active	设置滑块悬停轨道
 game/gui/slider/horizontal_hover_thumb.png	res://assets/ui/settings/horizontal_hover_thumb.png	ui	P1	copy	active	设置滑块悬停滑块
+godot/assets/ui/settings/empty_mark.svg	res://assets/ui/settings/empty_mark.svg	ui	P1	review	active	Godot 文本资源，逐像素等价于 Ren'Py 未选单选/复选透明前景
+godot/assets/ui/settings/selected_mark.svg	res://assets/ui/settings/selected_mark.svg	ui	P1	review	active	Godot 文本资源，逐像素等价于 Ren'Py 7×37 蓝色选中条
+godot/assets/ui/settings/slider_thumb.svg	res://assets/ui/settings/slider_thumb.svg	ui	P1	review	active	Godot 文本资源，逐像素等价于 Ren'Py 15×38 普通滑块
+godot/assets/ui/settings/slider_thumb_hover.svg	res://assets/ui/settings/slider_thumb_hover.svg	ui	P1	review	active	Godot 文本资源，逐像素等价于 Ren'Py 15×38 悬停滑块
 game/gui/scrollbar/vertical_idle_bar.png	res://assets/ui/scrollbar/vertical_idle_bar.png	ui	P1	copy	active	历史和设置页面普通滚动轨道
 game/gui/scrollbar/vertical_idle_thumb.png	res://assets/ui/scrollbar/vertical_idle_thumb.png	ui	P1	copy	active	历史和设置页面普通滚动滑块
 game/gui/scrollbar/vertical_hover_bar.png	res://assets/ui/scrollbar/vertical_hover_bar.png	ui	P1	copy	active	历史和设置页面悬停滚动轨道

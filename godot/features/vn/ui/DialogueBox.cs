@@ -48,8 +48,14 @@ public partial class DialogueBox : Control
             return;
         }
 
-        _visibleCharacterProgress +=
-            (_settings?.Current.TextCharactersPerSecond ?? 48.0f) * (float)delta;
+        var charactersPerSecond = _settings?.Current.TextCharactersPerSecond ?? 1.0f;
+        if (charactersPerSecond <= 0.0f)
+        {
+            FinishTyping();
+            return;
+        }
+
+        _visibleCharacterProgress += charactersPerSecond * (float)delta;
         _dialogueText.VisibleCharacters = Mathf.FloorToInt(_visibleCharacterProgress);
         if (_dialogueText.VisibleCharacters >= _line.Text.Length)
         {

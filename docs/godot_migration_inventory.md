@@ -51,7 +51,7 @@
 | `VNDirector` / `DialogueGateway` | 驱动 Dialogue Manager、管理运行状态并记录当前位置 | `aki_sisters_prologue.rpy` |
 | `SaveService` | 手动/自动/快速存读档、截图、版本检查 | `screens.rpy` |
 | `ProfileData` | 保存跨存档的已读文本、结局和未来解锁项 | `gui.rpy`、`screens.rpy` |
-| `SettingsService` Autoload | 显示、文字速度、自动播放和音量 | `options.rpy`、`screens.rpy` |
+| `SettingsService` Autoload | 显示、0–200 文字速度、按文本长度自动播放、转场和音量 | `options.rpy`、`screens.rpy` |
 | `MainMenu` / `GameMenu` | 开始、继续、保存、读取、设置、退出 | `screens.rpy`、`ui_screens.rpy` |
 
 ## 5. Dialogue Manager 对接约定
