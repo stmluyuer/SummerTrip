@@ -36,6 +36,10 @@ public partial class QuickMenu : Control
         _quickSave.Pressed += () => QuickSaveRequested?.Invoke();
         _quickLoad.Pressed += () => QuickLoadRequested?.Invoke();
         GetNode<Button>("%SettingsButton").Pressed += () => SettingsRequested?.Invoke();
+
+        BindIconAction(GetNode<TextureButton>("%SkipIconButton"), () => SkipRequested?.Invoke());
+        BindIconAction(GetNode<TextureButton>("%AutoIconButton"), () => AutoRequested?.Invoke());
+        BindIconAction(GetNode<TextureButton>("%HistoryIconButton"), () => HistoryRequested?.Invoke());
     }
 
     public void SetStates(
@@ -51,5 +55,14 @@ public partial class QuickMenu : Control
         _rollback.Disabled = !canRollback || !ioAvailable;
         _quickSave.Disabled = !ioAvailable;
         _quickLoad.Disabled = !ioAvailable || !quickLoadAvailable;
+    }
+
+    private static void BindIconAction(TextureButton button, Action action)
+    {
+        button.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.84f);
+        button.MouseEntered += () => button.Modulate = Colors.White;
+        button.MouseExited += () =>
+            button.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.84f);
+        button.Pressed += action;
     }
 }

@@ -8,6 +8,7 @@ namespace SummerTrip.Features.Vn.Ui;
 public partial class DialogueBox : Control
 {
     private Label _characterName = null!;
+    private ColorRect _nameUnderline = null!;
     private RichTextLabel _dialogueText = null!;
     private VBoxContainer _choices = null!;
     private VNDirector? _director;
@@ -23,6 +24,7 @@ public partial class DialogueBox : Control
     public override void _Ready()
     {
         _characterName = GetNode<Label>("%CharacterName");
+        _nameUnderline = GetNode<ColorRect>("%NameUnderline");
         _dialogueText = GetNode<RichTextLabel>("%DialogueText");
         _choices = GetNode<VBoxContainer>("%Choices");
         _settings = GetNodeOrNull<SettingsService>("/root/SettingsService");
@@ -109,6 +111,7 @@ public partial class DialogueBox : Control
         Visible = !_userHidden;
         _characterName.Text = line.Character;
         _characterName.Visible = !string.IsNullOrWhiteSpace(line.Character);
+        _nameUnderline.Visible = _characterName.Visible;
         _dialogueText.Text = line.Text;
 
         if (

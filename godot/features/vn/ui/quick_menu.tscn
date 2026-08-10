@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://features/vn/ui/QuickMenu.cs" id="1_script"]
 [ext_resource type="Theme" path="res://ui/themes/vn_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://assets/ui/dialogue/button_skip.png" id="3_skip"]
+[ext_resource type="Texture2D" path="res://assets/ui/dialogue/button_auto.png" id="4_auto"]
+[ext_resource type="Texture2D" path="res://assets/ui/dialogue/button_history.png" id="5_history"]
 
 [node name="QuickMenu" type="Control"]
 layout_mode = 3
@@ -14,68 +17,115 @@ mouse_filter = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
-[node name="Panel" type="PanelContainer" parent="."]
+[node name="IconActions" type="HBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -700.0
-offset_top = -88.0
-offset_right = 700.0
-offset_bottom = -20.0
+offset_left = 282.0
+offset_top = -288.0
+offset_right = 428.0
+offset_bottom = -244.0
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_constants/separation = 7
 
-[node name="Buttons" type="HBoxContainer" parent="Panel"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="RollbackButton" type="Button" parent="Panel/Buttons"]
+[node name="SkipIconButton" type="TextureButton" parent="IconActions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(164, 58)
+custom_minimum_size = Vector2(44, 44)
 layout_mode = 2
+tooltip_text = "快进"
+texture_normal = ExtResource("3_skip")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="AutoIconButton" type="TextureButton" parent="IconActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+tooltip_text = "自动"
+texture_normal = ExtResource("4_auto")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="HistoryIconButton" type="TextureButton" parent="IconActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+tooltip_text = "历史"
+texture_normal = ExtResource("5_history")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Buttons" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -288.0
+offset_top = -53.0
+offset_right = 288.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 0
+
+[node name="RollbackButton" type="Button" parent="Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 45)
+layout_mode = 2
+theme_type_variation = &"QuickMenuButton"
 text = "回退"
 
-[node name="HistoryButton" type="Button" parent="Panel/Buttons"]
+[node name="HistoryButton" type="Button" parent="Buttons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(164, 58)
+custom_minimum_size = Vector2(72, 45)
 layout_mode = 2
+theme_type_variation = &"QuickMenuButton"
 text = "历史"
 
-[node name="SkipButton" type="Button" parent="Panel/Buttons"]
+[node name="SkipButton" type="Button" parent="Buttons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(164, 58)
+custom_minimum_size = Vector2(72, 45)
 layout_mode = 2
+theme_type_variation = &"QuickMenuButton"
 text = "快进"
 
-[node name="AutoButton" type="Button" parent="Panel/Buttons"]
+[node name="AutoButton" type="Button" parent="Buttons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(164, 58)
+custom_minimum_size = Vector2(72, 45)
 layout_mode = 2
+theme_type_variation = &"QuickMenuButton"
 text = "自动"
 
-[node name="SaveButton" type="Button" parent="Panel/Buttons"]
+[node name="SaveButton" type="Button" parent="Buttons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(164, 58)
+custom_minimum_size = Vector2(72, 45)
 layout_mode = 2
+theme_type_variation = &"QuickMenuButton"
 text = "保存"
 
-[node name="QuickSaveButton" type="Button" parent="Panel/Buttons"]
+[node name="QuickSaveButton" type="Button" parent="Buttons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(164, 58)
+custom_minimum_size = Vector2(72, 45)
 layout_mode = 2
+theme_type_variation = &"QuickMenuButton"
 text = "快存"
 
-[node name="QuickLoadButton" type="Button" parent="Panel/Buttons"]
+[node name="QuickLoadButton" type="Button" parent="Buttons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(164, 58)
+custom_minimum_size = Vector2(72, 45)
 layout_mode = 2
+theme_type_variation = &"QuickMenuButton"
 text = "快读"
 
-[node name="SettingsButton" type="Button" parent="Panel/Buttons"]
+[node name="SettingsButton" type="Button" parent="Buttons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(164, 58)
+custom_minimum_size = Vector2(72, 45)
 layout_mode = 2
+theme_type_variation = &"QuickMenuButton"
 text = "设置"

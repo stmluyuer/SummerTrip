@@ -18,13 +18,14 @@ script = ExtResource("1_script")
 
 [node name="Frame" type="TextureRect" parent="."]
 layout_mode = 1
-anchors_preset = 12
-anchor_right = 1.0
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = 48.0
-offset_top = -610.0
-offset_right = -48.0
-offset_bottom = -24.0
+offset_left = -530.0
+offset_top = -338.0
+offset_right = 530.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
@@ -32,46 +33,52 @@ texture = ExtResource("2_box")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Content" type="MarginContainer" parent="."]
+[node name="CharacterName" type="Label" parent="Frame"]
+unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 12
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 168.0
-offset_top = -500.0
-offset_right = -168.0
-offset_bottom = -100.0
-grow_horizontal = 2
-grow_vertical = 0
+offset_left = 142.0
+offset_top = 78.0
+offset_right = 462.0
+offset_bottom = 118.0
 mouse_filter = 2
-
-[node name="Layout" type="VBoxContainer" parent="Content"]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="CharacterName" type="Label" parent="Content/Layout"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.15, 0.03, 1)
+theme_override_colors/font_color = Color(0.545, 0.424, 0.337, 1)
 theme_override_fonts/font = ExtResource("4_bold")
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 29
 text = "角色名"
-vertical_alignment = 1
 
-[node name="DialogueText" type="RichTextLabel" parent="Content/Layout"]
+[node name="NameUnderline" type="ColorRect" parent="Frame"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 128)
-layout_mode = 2
-size_flags_vertical = 3
+layout_mode = 1
+offset_left = 142.0
+offset_top = 122.0
+offset_right = 422.0
+offset_bottom = 124.0
 mouse_filter = 2
-theme_override_colors/default_color = Color(0.18, 0.1, 0.05, 1)
-theme_override_font_sizes/normal_font_size = 30
+color = Color(0.725, 0.694, 0.655, 0.502)
+
+[node name="DialogueText" type="RichTextLabel" parent="Frame"]
+unique_name_in_owner = true
+layout_mode = 1
+offset_left = 142.0
+offset_top = 128.0
+offset_right = 924.0
+offset_bottom = 314.0
+mouse_filter = 2
+theme_override_colors/default_color = Color(0.306, 0.29, 0.267, 1)
+theme_override_constants/line_separation = 5
+theme_override_fonts/normal_font = ExtResource("4_bold")
+theme_override_font_sizes/normal_font_size = 31
 text = "对话正文"
-fit_content = true
 scroll_active = false
 
-[node name="Choices" type="VBoxContainer" parent="Content/Layout"]
+[node name="Choices" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 8
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 367.5
+offset_top = 330.0
+offset_right = -367.5
+offset_bottom = 750.0
+grow_horizontal = 2
+theme_override_constants/separation = 24
